@@ -132,7 +132,12 @@ skillwisp config reset           # 重置
 
 ## Skills 索引
 
-完整 Skills 列表请查看主仓库：[SkillWisp](https://gitcode.com/norix77/skillwisp)
+完整 Skills 列表请查看主仓库：[SkillWisp](https://github.com/northseadl/skillwisp)
+
+## 镜像
+
+- **GitHub**: [northseadl/skillwisp-cli](https://github.com/northseadl/skillwisp-cli)
+- **GitCode**: [norix77/skillwisp-cli](https://gitcode.com/norix77/skillwisp-cli)
 
 ## License
 
