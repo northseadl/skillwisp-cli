@@ -1,0 +1,49 @@
+# 上游源配置
+sources:
+  - id: anthropic
+    name: Anthropic Official
+    repo: https://github.com/anthropics/skills
+    path: skills
+    prefix: "@anthropic"
+    
+  - id: vercel
+    name: Vercel Labs
+    repo: https://github.com/vercel-labs/agent-skills
+    path: skills
+    prefix: "@vercel"
+
+  - id: obsidian
+    name: Obsidian
+    repo: https://github.com/kepano/obsidian-skills
+    path: skills
+    prefix: "@obsidian"
+
+  - id: itsmostafa
+    name: itsmostafa AWS Skills
+    repo: https://github.com/itsmostafa/aws-agent-skills
+    path: skills
+    prefix: "@itsmostafa"
+
+  - id: lackeyjb
+    name: lackeyjb Playwright
+    repo: https://github.com/lackeyjb/playwright-skill
+    path: ./
+    prefix: "@lackeyjb"
+
+  - id: openai
+    name: OpenAI
+    repo: https://github.com/openai/skills
+    path: skills/.curated
+    prefix: "@openai"
+
+# 资源仓库配置
+distribution:
+  primary: https://gitcode.com/norix77/skillwisp
+  mirrors:
+    - https://gitee.com/norix77/skillwisp
+    - https://github.com/norix77/skillwisp
+
+# 同步设置
+sync:
+  autoUpdate: true
+  checkInterval: 86400  # 1 day in seconds

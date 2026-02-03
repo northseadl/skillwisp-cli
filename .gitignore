@@ -1,0 +1,13 @@
+node_modules/
+dist/
+*.log
+.DS_Store
+.npmrc
+
+# 本地安装的资源（用户产物，不应提交）
+.agent/
+.claude/
+.cursor/
+.gemini/
+.codex/
+.github/copilot-instructions.md

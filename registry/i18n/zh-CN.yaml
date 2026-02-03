@@ -1,0 +1,254 @@
+# 简体中文翻译
+locale: zh-CN
+name: 简体中文
+
+skills:
+  # Anthropic Official
+  anthropic:
+    pdf:
+      name: PDF 处理
+      description: 综合性 PDF 操作工具包，支持提取文本表格、创建 PDF、合并拆分文档、处理表单。
+    docx:
+      name: Word 文档处理
+      description: Word 文档创建、编辑、分析，支持批注、修订跟踪、格式保留。
+    pptx:
+      name: PowerPoint 处理
+      description: PowerPoint 演示文稿创建和编辑。
+    xlsx:
+      name: Excel 处理
+      description: Excel 电子表格处理和数据操作。
+    mcp-builder:
+      name: MCP 服务器构建
+      description: 为 Claude 集成生成 MCP 服务器。
+    skill-creator:
+      name: 技能创建指南
+      description: 创建高效 Skill 的指南，扩展 Claude 能力。
+    frontend-design:
+      name: 前端设计
+      description: 前端 Web 设计和开发辅助。
+    webapp-testing:
+      name: Web 应用测试
+      description: 自动化和手动方式测试 Web 应用。
+    brand-guidelines:
+      name: 品牌指南
+      description: 创建和维护品牌识别指南。
+    internal-comms:
+      name: 内部通讯
+      description: 内部沟通和文档辅助。
+    doc-coauthoring:
+      name: 文档协作
+      description: 协作式文档创建和编辑。
+    canvas-design:
+      name: Canvas 设计
+      description: 使用 HTML Canvas 进行图形和可视化设计。
+    algorithmic-art:
+      name: 算法艺术
+      description: 创建生成式和算法艺术作品。
+    theme-factory:
+      name: 主题工厂
+      description: 为应用创建和自定义主题。
+    web-artifacts-builder:
+      name: Web 工件构建
+      description: 构建 Web 工件和组件。
+    slack-gif-creator:
+      name: Slack GIF 创建
+      description: 为 Slack 创建自定义 GIF。
+
+  # Vercel Labs
+  vercel:
+    react-best-practices:
+      name: React 最佳实践
+      description: Vercel 工程团队的 React/Next.js 性能优化指南，8 大类 40+ 条规则。
+    web-design-guidelines:
+      name: Web 设计规范
+      description: Web UI 最佳实践审查，100+ 条规则覆盖可访问性、性能和用户体验。
+    react-native-skills:
+      name: React Native 技能
+      description: AI Agent 优化的 React Native 最佳实践，7 大类 16 条规则。
+    composition-patterns:
+      name: 组合模式
+      description: 可扩展的 React 组合模式，避免布尔属性泛滥。
+    claude-ai:
+      name: Claude.ai 集成
+      description: Vercel 的 Claude.ai 集成技能。
+
+  # Obsidian
+  obsidian:
+    obsidian-markdown:
+      name: Obsidian Markdown
+      description: Obsidian 风格的 Markdown 格式，支持 wiki 链接和 callouts。
+    obsidian-bases:
+      name: Obsidian Bases
+      description: Obsidian Bases 语法，支持类数据库查询的 .base 文件。
+    json-canvas:
+      name: JSON Canvas
+      description: Obsidian 使用的 JSON Canvas 画布格式。
+
+  # AWS Agent Skills (Community - itsmostafa)
+  itsmostafa:
+    aws-iam:
+      name: AWS IAM
+      description: AWS 身份和访问管理策略创建与管理。
+    aws-lambda:
+      name: AWS Lambda
+      description: AWS Lambda 函数开发和部署。
+    aws-cloudformation:
+      name: AWS CloudFormation
+      description: CloudFormation 模板的基础设施即代码。
+    aws-dynamodb:
+      name: AWS DynamoDB
+      description: DynamoDB 表设计和查询模式。
+    aws-s3:
+      name: AWS S3
+      description: S3 存储桶配置和对象管理。
+    aws-ec2:
+      name: AWS EC2
+      description: EC2 实例管理和配置。
+    aws-ecs:
+      name: AWS ECS
+      description: Elastic Container Service 集群和任务管理。
+    aws-eks:
+      name: AWS EKS
+      description: Elastic Kubernetes Service 集群管理。
+    aws-rds:
+      name: AWS RDS
+      description: 关系型数据库服务配置和管理。
+    aws-bedrock:
+      name: AWS Bedrock
+      description: AWS Bedrock AI 模型集成和部署。
+    aws-api-gateway:
+      name: AWS API Gateway
+      description: API Gateway 配置和 REST API 管理。
+    aws-eventbridge:
+      name: AWS EventBridge
+      description: EventBridge 规则和事件驱动架构。
+    aws-step-functions:
+      name: AWS Step Functions
+      description: Step Functions 状态机设计和工作流编排。
+    aws-sqs:
+      name: AWS SQS
+      description: Simple Queue Service 消息队列模式。
+    aws-sns:
+      name: AWS SNS
+      description: Simple Notification Service 发布/订阅模式。
+    aws-cloudwatch:
+      name: AWS CloudWatch
+      description: CloudWatch 监控、日志和告警。
+    aws-cognito:
+      name: AWS Cognito
+      description: Cognito 用户池和身份管理。
+    aws-secrets-manager:
+      name: AWS Secrets Manager
+      description: Secrets Manager 安全凭证存储。
+
+  # Playwright (Community - lackeyjb)
+  lackeyjb:
+    playwright:
+      name: Playwright 自动化
+      description: Playwright 浏览器自动化，Claude 自主编写执行测试和验证脚本。
+
+  # OpenAI Curated Skills
+  openai:
+    figma:
+      name: Figma 设计
+      description: Codex 的 Figma 设计集成。
+    figma-implement-design:
+      name: Figma 设计实现
+      description: 从 Figma 规格实现设计稿。
+    cloudflare-deploy:
+      name: Cloudflare 部署
+      description: 部署应用到 Cloudflare。
+    netlify-deploy:
+      name: Netlify 部署
+      description: 部署应用到 Netlify。
+    vercel-deploy:
+      name: Vercel 部署
+      description: 部署应用到 Vercel。
+    render-deploy:
+      name: Render 部署
+      description: 部署应用到 Render。
+    gh-fix-ci:
+      name: GitHub 修复 CI
+      description: 修复 GitHub Actions CI 失败。
+    gh-address-comments:
+      name: GitHub 处理评论
+      description: 处理 GitHub PR 上的审查评论。
+    jupyter-notebook:
+      name: Jupyter Notebook
+      description: 创建和编辑 Jupyter notebooks。
+    openai-pdf:
+      name: PDF 处理
+      description: Codex 的 PDF 文档处理。
+    openai-doc:
+      name: 文档处理
+      description: 文档处理和创建。
+    spreadsheet:
+      name: 电子表格
+      description: 电子表格创建和操作。
+    imagegen:
+      name: 图像生成
+      description: AI 图像生成。
+    sora:
+      name: Sora 视频
+      description: 使用 Sora 生成视频。
+    speech:
+      name: 语音合成
+      description: 文本转语音和语音识别。
+    transcribe:
+      name: 音频转写
+      description: 使用 Whisper 进行音频转写。
+    screenshot:
+      name: 截图
+      description: 截取和处理屏幕截图。
+    openai-playwright:
+      name: Playwright (OpenAI)
+      description: Codex 的 Playwright 浏览器自动化。
+    linear:
+      name: Linear
+      description: Linear 问题跟踪集成。
+    sentry:
+      name: Sentry
+      description: Sentry 错误跟踪集成。
+    atlas:
+      name: Atlas
+      description: MongoDB Atlas 集成。
+    develop-web-game:
+      name: Web 游戏开发
+      description: 开发基于 Web 的游戏。
+    openai-docs:
+      name: OpenAI 文档
+      description: OpenAI API 文档参考。
+    security-best-practices:
+      name: 安全最佳实践
+      description: 应用程序安全最佳实践。
+    security-threat-model:
+      name: 安全威胁模型
+      description: 创建安全威胁模型。
+    security-ownership-map:
+      name: 安全责任地图
+      description: 映射代码库的安全责任。
+    notion-knowledge-capture:
+      name: Notion 知识捕获
+      description: 将知识捕获到 Notion。
+    notion-meeting-intelligence:
+      name: Notion 会议智能
+      description: 在 Notion 中处理会议记录。
+    notion-research-documentation:
+      name: Notion 研究文档
+      description: 在 Notion 中记录研究成果。
+    notion-spec-to-implementation:
+      name: Notion 规格转实现
+      description: 将 Notion 规格转换为实现代码。
+    yeet:
+      name: 快速部署
+      description: 快速部署和分享工具。
+
+ui:
+  installed: 已安装
+  available: 可用
+  searching: 正在搜索...
+  installing: 正在安装...
+  success: 安装成功
+  failed: 安装失败
+  noResults: 未找到匹配的资源
+  syncComplete: 同步完成
