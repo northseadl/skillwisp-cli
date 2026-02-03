@@ -19,7 +19,7 @@ import { list } from './commands/list.js';
 import { info } from './commands/info.js';
 import { config } from './commands/config.js';
 
-const VERSION = '0.2.0';
+const VERSION = '0.3.1';
 
 const program = new Command();
 
