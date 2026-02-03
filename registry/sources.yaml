@@ -1,7 +1,7 @@
 # 上游源配置
 sources:
   - id: anthropic
-    name: Anthropic Official
+    name: Anthropic
     repo: https://github.com/anthropics/skills
     path: skills
     prefix: "@anthropic"

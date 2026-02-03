@@ -139,6 +139,7 @@ async function browseResources(): Promise<void> {
     }
 
     // 选择资源（显示来源）
+    console.log(colors.muted(`  ${t('select_resources_hint')}`));
     const selected = await p.multiselect({
         message: `${t('select_resources')} (${resources.length} ${t('available_count')})`,
         options: resources.map((r) => ({
@@ -314,6 +315,8 @@ async function manageIntegrations(): Promise<void> {
         ? savedDefaults
         : [];
 
+    // 显示操作提示
+    console.log(colors.muted(`  ${t('default_targets_hint')}`));
     const selected = await p.multiselect({
         message: t('default_targets'),
         options,
@@ -369,11 +372,13 @@ async function selectTargetApps(scope: InstallScope): Promise<string[] | null> {
 
     // 构建完整选项列表（全部 10 个工具）
     const options = [
-        // Primary Source (.agent) 始终第一个
+        // Primary Source (.agent) 始终第一个，并说明 symlink 机制
         {
             value: PRIMARY_SOURCE.id,
             label: PRIMARY_SOURCE.name,
-            hint: isGlobal ? `~/.agent (${t('primary_source')})` : `.agent (${t('primary_source')})`,
+            hint: isGlobal
+                ? `~/.agent (${t('primary_source')}) - ${t('primary_source_hint')}`
+                : `.agent (${t('primary_source')}) - ${t('primary_source_hint')}`,
         },
         // 其他 9 个工具
         ...TARGET_APPS.map((a) => {
@@ -392,6 +397,8 @@ async function selectTargetApps(scope: InstallScope): Promise<string[] | null> {
         ? savedDefaults
         : [];
 
+    // 显示操作提示
+    console.log(colors.muted(`  ${t('select_targets_hint')}`));
     const selected = await p.multiselect({
         message: t('select_targets'),
         options,

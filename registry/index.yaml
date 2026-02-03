@@ -1,561 +1,530 @@
-# 资源索引
-# 由 sync 命令自动生成，也可手动维护
+# SkillWisp 资源索引
+# 描述与 SKILL.md frontmatter 中的 description 字段 1:1 对应
 version: "1.0.0"
 updated: "2026-02-03"
 
 skills:
-  # Anthropic Official Skills
-  - id: pdf
-    source: anthropic
-    path: "@anthropic/pdf"
-    name: PDF Processing
-    description: Comprehensive PDF manipulation toolkit for extracting text and tables, creating new PDFs, merging/splitting documents, and handling forms.
-    tags: [document, pdf, extraction]
-    lastUpdated: "2026-01-15"
-    commitHash: "a1b2c3d"
-    
-  - id: docx
-    source: anthropic
-    path: "@anthropic/docx"
-    name: DOCX Processing
-    description: Word document creation, editing, and analysis with tracked changes, comments, and formatting.
-    tags: [document, word, docx]
-    lastUpdated: "2026-01-20"
-    commitHash: "e4f5g6h"
-    
-  - id: pptx
-    source: anthropic
-    path: "@anthropic/pptx"
-    name: PPTX Processing
-    description: PowerPoint presentation creation and manipulation.
-    tags: [document, powerpoint, pptx]
-    lastUpdated: "2026-01-18"
-    commitHash: "i7j8k9l"
-    
-  - id: xlsx
-    source: anthropic
-    path: "@anthropic/xlsx"
-    name: XLSX Processing
-    description: Excel spreadsheet processing and data manipulation.
-    tags: [document, excel, xlsx]
-    lastUpdated: "2026-01-18"
-    commitHash: "m0n1o2p"
-    
-  - id: mcp-builder
-    source: anthropic
-    path: "@anthropic/mcp-builder"
-    name: MCP Builder
-    description: Generate MCP servers for Claude integrations.
-    tags: [mcp, server, integration]
-    lastUpdated: "2026-01-25"
-    commitHash: "q3r4s5t"
-    
-  - id: skill-creator
-    source: anthropic
-    path: "@anthropic/skill-creator"
-    name: Skill Creator
-    description: Guide for creating effective skills that extend Claude's capabilities.
-    tags: [skill, creation, guide]
-    lastUpdated: "2026-01-22"
-    commitHash: "u6v7w8x"
-    
-  - id: frontend-design
-    source: anthropic
-    path: "@anthropic/frontend-design"
-    name: Frontend Design
-    description: Frontend web design and development assistance.
-    tags: [frontend, design, web]
-    lastUpdated: "2026-01-10"
-    commitHash: "y9z0a1b"
-    
-  - id: webapp-testing
-    source: anthropic
-    path: "@anthropic/webapp-testing"
-    name: Web App Testing
-    description: Testing web applications with automated and manual approaches.
-    tags: [testing, webapp, qa]
-    lastUpdated: "2026-01-12"
-    commitHash: "c2d3e4f"
-    
-  - id: brand-guidelines
-    source: anthropic
-    path: "@anthropic/brand-guidelines"
-    name: Brand Guidelines
-    description: Create and maintain brand identity guidelines.
-    tags: [brand, design, guidelines]
-    lastUpdated: "2026-01-08"
-    commitHash: "g5h6i7j"
-    
-  - id: internal-comms
-    source: anthropic
-    path: "@anthropic/internal-comms"
-    name: Internal Communications
-    description: Internal communication and documentation assistance.
-    tags: [communication, internal, docs]
-    lastUpdated: "2026-01-05"
-    commitHash: "k8l9m0n"
-    
-  - id: doc-coauthoring
-    source: anthropic
-    path: "@anthropic/doc-coauthoring"
-    name: Document Co-authoring
-    description: Collaborative document creation and editing.
-    tags: [document, collaboration, writing]
-    lastUpdated: "2026-01-15"
-    commitHash: "o1p2q3r"
-    
-  - id: canvas-design
-    source: anthropic
-    path: "@anthropic/canvas-design"
-    name: Canvas Design
-    description: Design with HTML Canvas for graphics and visualization.
-    tags: [canvas, design, graphics]
-    lastUpdated: "2026-01-20"
-    commitHash: "s4t5u6v"
-    
+  # Anthropic
   - id: algorithmic-art
     source: anthropic
     path: "@anthropic/algorithmic-art"
     name: Algorithmic Art
-    description: Create generative and algorithmic art.
-    tags: [art, generative, creative]
-    lastUpdated: "2026-01-18"
-    commitHash: "w7x8y9z"
-    
+    description: "Creating algorithmic art using p5.js with seeded randomness and interactive parameter exploration. Use this when users request creating art using code, generative art, algorithmic art, flow fields, or particle systems. Create original algorithmic art rather than copying existing artists' work to avoid copyright violations."
+    tags: ['design', 'creative']
+
+  - id: brand-guidelines
+    source: anthropic
+    path: "@anthropic/brand-guidelines"
+    name: Brand Guidelines
+    description: "Applies Anthropic's official brand colors and typography to any sort of artifact that may benefit from having Anthropic's look-and-feel. Use it when brand colors or style guidelines, visual formatting, or company design standards apply."
+    tags: ['brand']
+
+  - id: canvas-design
+    source: anthropic
+    path: "@anthropic/canvas-design"
+    name: Canvas Design
+    description: "Create beautiful visual art in .png and .pdf documents using design philosophy. You should use this skill when the user asks to create a poster, piece of art, design, or other static piece. Create original visual designs, never copying existing artists' work to avoid copyright violations."
+    tags: ['design', 'creative']
+
+  - id: doc-coauthoring
+    source: anthropic
+    path: "@anthropic/doc-coauthoring"
+    name: Doc Coauthoring
+    description: "Guide users through a structured workflow for co-authoring documentation. Use when user wants to write documentation, proposals, technical specs, decision docs, or similar structured content. This workflow helps users efficiently transfer context, refine content through iteration, and verify the doc works for readers. Trigger when user mentions writing docs, creating proposals, drafting specs, or similar documentation tasks."
+    tags: ['doc']
+
+  - id: docx
+    source: anthropic
+    path: "@anthropic/docx"
+    name: Docx
+    description: "Comprehensive document creation, editing, and analysis with support for tracked changes, comments, formatting preservation, and text extraction. When Claude needs to work with professional documents (.docx files) for: (1) Creating new documents, (2) Modifying or editing content, (3) Working with tracked changes, (4) Adding comments, or any other document tasks"
+    tags: ['document', 'docx']
+
+  - id: frontend-design
+    source: anthropic
+    path: "@anthropic/frontend-design"
+    name: Frontend Design
+    description: "Create distinctive, production-grade frontend interfaces with high design quality. Use this skill when the user asks to build web components, pages, artifacts, posters, or applications (examples include websites, landing pages, dashboards, React components, HTML/CSS layouts, or when styling/beautifying any web UI). Generates creative, polished code and UI design that avoids generic AI aesthetics."
+    tags: ['design', 'creative']
+
+  - id: internal-comms
+    source: anthropic
+    path: "@anthropic/internal-comms"
+    name: Internal Comms
+    description: "A set of resources to help me write all kinds of internal communications, using the formats that my company likes to use. Claude should use this skill whenever asked to write some sort of internal communications (status reports, leadership updates, 3P updates, company newsletters, FAQs, incident reports, project updates, etc.)."
+    tags: ['internal']
+
+  - id: mcp-builder
+    source: anthropic
+    path: "@anthropic/mcp-builder"
+    name: Mcp Builder
+    description: "Guide for creating high-quality MCP (Model Context Protocol) servers that enable LLMs to interact with external services through well-designed tools. Use when building MCP servers to integrate external APIs or services, whether in Python (FastMCP) or Node/TypeScript (MCP SDK)."
+    tags: ['mcp', 'integration']
+
+  - id: pdf
+    source: anthropic
+    path: "@anthropic/pdf"
+    name: Pdf
+    description: "Comprehensive PDF manipulation toolkit for extracting text and tables, creating new PDFs, merging/splitting documents, and handling forms. When Claude needs to fill in a PDF form or programmatically process, generate, or analyze PDF documents at scale."
+    tags: ['document', 'pdf']
+
+  - id: pptx
+    source: anthropic
+    path: "@anthropic/pptx"
+    name: Pptx
+    description: "Presentation creation, editing, and analysis. When Claude needs to work with presentations (.pptx files) for: (1) Creating new presentations, (2) Modifying or editing content, (3) Working with layouts, (4) Adding comments or speaker notes, or any other presentation tasks"
+    tags: ['document', 'pptx']
+
+  - id: skill-creator
+    source: anthropic
+    path: "@anthropic/skill-creator"
+    name: Skill Creator
+    description: "Guide for creating effective skills. This skill should be used when users want to create a new skill (or update an existing skill) that extends Claude's capabilities with specialized knowledge, workflows, or tool integrations."
+    tags: ['skill', 'guide']
+
+  - id: slack-gif-creator
+    source: anthropic
+    path: "@anthropic/slack-gif-creator"
+    name: Slack Gif Creator
+    description: "Knowledge and utilities for creating animated GIFs optimized for Slack. Provides constraints, validation tools, and animation concepts. Use when users request animated GIFs for Slack like \"make me a GIF of X doing Y for Slack."
+    tags: ['slack']
+
   - id: theme-factory
     source: anthropic
     path: "@anthropic/theme-factory"
     name: Theme Factory
-    description: Create and customize themes for applications.
-    tags: [theme, design, customization]
-    lastUpdated: "2026-01-22"
-    commitHash: "a0b1c2d"
-    
+    description: "Toolkit for styling artifacts with a theme. These artifacts can be slides, docs, reportings, HTML landing pages, etc. There are 10 pre-set themes with colors/fonts that you can apply to any artifact that has been creating, or can generate a new theme on-the-fly."
+    tags: ['theme']
+
   - id: web-artifacts-builder
     source: anthropic
     path: "@anthropic/web-artifacts-builder"
     name: Web Artifacts Builder
-    description: Build web artifacts and components.
-    tags: [web, artifacts, components]
-    lastUpdated: "2026-01-25"
-    commitHash: "e3f4g5h"
-    
-  - id: slack-gif-creator
-    source: anthropic
-    path: "@anthropic/slack-gif-creator"
-    name: Slack GIF Creator
-    description: Create custom GIFs for Slack.
-    tags: [slack, gif, creative]
-    lastUpdated: "2026-01-28"
-    commitHash: "i6j7k8l"
+    description: "Suite of tools for creating elaborate, multi-component claude.ai HTML artifacts using modern frontend web technologies (React, Tailwind CSS, shadcn/ui). Use for complex artifacts requiring state management, routing, or shadcn/ui components - not for simple single-file HTML/JSX artifacts."
+    tags: ['design', 'creative']
 
-  # Vercel Labs Skills
+  - id: webapp-testing
+    source: anthropic
+    path: "@anthropic/webapp-testing"
+    name: Webapp Testing
+    description: "Toolkit for interacting with and testing local web applications using Playwright. Supports verifying frontend functionality, debugging UI behavior, capturing browser screenshots, and viewing browser logs."
+    tags: ['web', 'development']
+
+  - id: xlsx
+    source: anthropic
+    path: "@anthropic/xlsx"
+    name: Xlsx
+    description: "Comprehensive spreadsheet creation, editing, and analysis with support for formulas, formatting, data analysis, and visualization. When Claude needs to work with spreadsheets (.xlsx, .xlsm, .csv, .tsv, etc) for: (1) Creating new spreadsheets with formulas and formatting, (2) Reading or analyzing data, (3) Modify existing spreadsheets while preserving formulas, (4) Data analysis and visualization in spreadsheets, or (5) Recalculating formulas"
+    tags: ['document', 'xlsx']
+
+  # Vercel
+  - id: composition-patterns
+    source: vercel
+    path: "@vercel/composition-patterns"
+    name: Composition Patterns
+    description: "React composition patterns that scale. Use when refactoring components with"
+    tags: ['react', 'ui']
+
   - id: react-best-practices
     source: vercel
     path: "@vercel/react-best-practices"
     name: React Best Practices
-    description: React and Next.js performance optimization guidelines from Vercel Engineering. 40+ rules across 8 categories.
-    tags: [react, nextjs, performance]
-
-  - id: web-design-guidelines
-    source: vercel
-    path: "@vercel/web-design-guidelines"
-    name: Web Design Guidelines
-    description: Review UI code for compliance with web interface best practices. 100+ rules covering accessibility, performance, and UX.
-    tags: [web, design, accessibility, ux]
+    description: "React and Next.js performance optimization guidelines from Vercel Engineering. This skill should be used when writing, reviewing, or refactoring React/Next.js code to ensure optimal performance patterns. Triggers on tasks involving React components, Next.js pages, data fetching, bundle optimization, or performance improvements."
+    tags: ['react', 'performance']
 
   - id: react-native-skills
     source: vercel
     path: "@vercel/react-native-skills"
     name: React Native Skills
-    description: React Native best practices optimized for AI agents. 16 rules across 7 sections.
-    tags: [react-native, mobile, expo]
+    description: "React Native and Expo best practices for building performant mobile apps. Use"
+    tags: ['react-native', 'mobile']
 
-  - id: composition-patterns
+  - id: vercel-deploy
     source: vercel
-    path: "@vercel/composition-patterns"
-    name: Composition Patterns
-    description: React composition patterns that scale. Avoid boolean prop proliferation through compound components.
-    tags: [react, patterns, components]
+    path: "@vercel/vercel-deploy"
+    name: Deploy
+    description: "Deploy applications and websites to Vercel. Use this skill when the user requests deployment actions such as \"Deploy my app\", \"Deploy this to production\", \"Create a preview deployment\", \"Deploy and give me the link\", or \"Push this live\". No authentication required - returns preview URL and claimable deployment link."
+    tags: ['vercel', 'deploy']
 
-  - id: claude-ai
+  - id: web-design-guidelines
     source: vercel
-    path: "@vercel/claude.ai"
-    name: Claude.ai Integration
-    description: Vercel's Claude.ai integration skill.
-    tags: [claude, ai, integration]
+    path: "@vercel/web-design-guidelines"
+    name: Web Design Guidelines
+    description: "Review UI code for Web Interface Guidelines compliance. Use when asked to \"review my UI\", \"check accessibility\", \"audit design\", \"review UX\", or \"check my site against best practices\"."
+    tags: ['react', 'ui']
 
-  # Obsidian Skills
-  - id: obsidian-markdown
-    source: obsidian
-    path: "@obsidian/obsidian-markdown"
-    name: Obsidian Markdown
-    description: Obsidian Flavored Markdown format for .md files with wiki-links and callouts.
-    tags: [obsidian, markdown, notes]
-
-  - id: obsidian-bases
-    source: obsidian
-    path: "@obsidian/obsidian-bases"
-    name: Obsidian Bases
-    description: Obsidian Bases syntax for .base files with database-like queries.
-    tags: [obsidian, bases, database]
-
-  - id: json-canvas
-    source: obsidian
-    path: "@obsidian/json-canvas"
-    name: JSON Canvas
-    description: JSON Canvas format for .canvas files used in Obsidian.
-    tags: [obsidian, canvas, json]
-
-  # AWS Agent Skills
-  - id: aws-iam
-    source: itsmostafa
-    path: "@itsmostafa/iam"
-    name: AWS IAM
-    description: AWS Identity and Access Management policy creation and management.
-    tags: [aws, iam, security]
-
-  - id: aws-lambda
-    source: itsmostafa
-    path: "@itsmostafa/lambda"
-    name: AWS Lambda
-    description: AWS Lambda function development and deployment.
-    tags: [aws, lambda, serverless]
-
-  - id: aws-cloudformation
-    source: itsmostafa
-    path: "@itsmostafa/cloudformation"
-    name: AWS CloudFormation
-    description: Infrastructure as Code with CloudFormation templates.
-    tags: [aws, cloudformation, iac]
-
-  - id: aws-dynamodb
-    source: itsmostafa
-    path: "@itsmostafa/dynamodb"
-    name: AWS DynamoDB
-    description: DynamoDB table design and query patterns.
-    tags: [aws, dynamodb, database]
-
-  - id: aws-s3
-    source: itsmostafa
-    path: "@itsmostafa/s3"
-    name: AWS S3
-    description: S3 bucket configuration and object management.
-    tags: [aws, s3, storage]
-
-  - id: aws-ec2
-    source: itsmostafa
-    path: "@itsmostafa/ec2"
-    name: AWS EC2
-    description: EC2 instance management and configuration.
-    tags: [aws, ec2, compute]
-
-  - id: aws-ecs
-    source: itsmostafa
-    path: "@itsmostafa/ecs"
-    name: AWS ECS
-    description: Elastic Container Service cluster and task management.
-    tags: [aws, ecs, containers]
-
-  - id: aws-eks
-    source: itsmostafa
-    path: "@itsmostafa/eks"
-    name: AWS EKS
-    description: Elastic Kubernetes Service cluster management.
-    tags: [aws, eks, kubernetes]
-
-  - id: aws-rds
-    source: itsmostafa
-    path: "@itsmostafa/rds"
-    name: AWS RDS
-    description: Relational Database Service configuration and management.
-    tags: [aws, rds, database]
-
-  - id: aws-bedrock
-    source: itsmostafa
-    path: "@itsmostafa/bedrock"
-    name: AWS Bedrock
-    description: AWS Bedrock AI model integration and deployment.
-    tags: [aws, bedrock, ai]
-
-  - id: aws-api-gateway
-    source: itsmostafa
-    path: "@itsmostafa/api-gateway"
-    name: AWS API Gateway
-    description: API Gateway configuration and REST API management.
-    tags: [aws, api, gateway]
-
-  - id: aws-eventbridge
-    source: itsmostafa
-    path: "@itsmostafa/eventbridge"
-    name: AWS EventBridge
-    description: EventBridge rules and event-driven architecture.
-    tags: [aws, eventbridge, events]
-
-  - id: aws-step-functions
-    source: itsmostafa
-    path: "@itsmostafa/step-functions"
-    name: AWS Step Functions
-    description: Step Functions state machine design and workflow orchestration.
-    tags: [aws, stepfunctions, workflow]
-
-  - id: aws-sqs
-    source: itsmostafa
-    path: "@itsmostafa/sqs"
-    name: AWS SQS
-    description: Simple Queue Service message queue patterns.
-    tags: [aws, sqs, messaging]
-
-  - id: aws-sns
-    source: itsmostafa
-    path: "@itsmostafa/sns"
-    name: AWS SNS
-    description: Simple Notification Service pub/sub patterns.
-    tags: [aws, sns, notifications]
-
-  - id: aws-cloudwatch
-    source: itsmostafa
-    path: "@itsmostafa/cloudwatch"
-    name: AWS CloudWatch
-    description: CloudWatch monitoring, logging, and alarms.
-    tags: [aws, cloudwatch, monitoring]
-
-  - id: aws-cognito
-    source: itsmostafa
-    path: "@itsmostafa/cognito"
-    name: AWS Cognito
-    description: Cognito user pools and identity management.
-    tags: [aws, cognito, auth]
-
-  - id: aws-secrets-manager
-    source: itsmostafa
-    path: "@itsmostafa/secrets-manager"
-    name: AWS Secrets Manager
-    description: Secrets Manager for secure credential storage.
-    tags: [aws, secrets, security]
-
-  # Playwright Skill
-  - id: playwright
-    source: lackeyjb
-    path: "@lackeyjb/playwright"
-    name: Playwright
-    description: Browser automation with Playwright. Claude writes and executes custom automation for testing and validation.
-    tags: [browser, automation, testing]
-
-  # OpenAI Curated Skills
-  - id: figma
+  # OpenAI
+  - id: atlas
     source: openai
-    path: "@openai/figma"
-    name: Figma
-    description: Figma design integration for Codex.
-    tags: [figma, design, ui]
-
-  - id: figma-implement-design
-    source: openai
-    path: "@openai/figma-implement-design"
-    name: Figma Implement Design
-    description: Implement designs from Figma specifications.
-    tags: [figma, design, implementation]
+    path: "@openai/atlas"
+    name: Atlas
+    description: "macOS-only AppleScript control for the ChatGPT Atlas desktop app. Use only when the user explicitly asks to control Atlas tabs/bookmarks/history on macOS and the \\"ChatGPT Atlas\\" app is installed; do not trigger for general browser tasks or non-macOS environments."
+    tags: ['openai']
 
   - id: cloudflare-deploy
     source: openai
     path: "@openai/cloudflare-deploy"
     name: Cloudflare Deploy
-    description: Deploy applications to Cloudflare.
-    tags: [cloudflare, deploy, hosting]
-
-  - id: netlify-deploy
-    source: openai
-    path: "@openai/netlify-deploy"
-    name: Netlify Deploy
-    description: Deploy applications to Netlify.
-    tags: [netlify, deploy, hosting]
-
-  - id: vercel-deploy
-    source: openai
-    path: "@openai/vercel-deploy"
-    name: Vercel Deploy
-    description: Deploy applications to Vercel.
-    tags: [vercel, deploy, hosting]
-
-  - id: render-deploy
-    source: openai
-    path: "@openai/render-deploy"
-    name: Render Deploy
-    description: Deploy applications to Render.
-    tags: [render, deploy, hosting]
-
-  - id: gh-fix-ci
-    source: openai
-    path: "@openai/gh-fix-ci"
-    name: GitHub Fix CI
-    description: Fix CI failures in GitHub Actions.
-    tags: [github, ci, automation]
-
-  - id: gh-address-comments
-    source: openai
-    path: "@openai/gh-address-comments"
-    name: GitHub Address Comments
-    description: Address review comments on GitHub PRs.
-    tags: [github, review, pr]
-
-  - id: jupyter-notebook
-    source: openai
-    path: "@openai/jupyter-notebook"
-    name: Jupyter Notebook
-    description: Create and edit Jupyter notebooks.
-    tags: [jupyter, python, data]
-
-  - id: openai-pdf
-    source: openai
-    path: "@openai/pdf"
-    name: PDF Processing
-    description: PDF document processing for Codex.
-    tags: [pdf, document, extraction]
-
-  - id: openai-doc
-    source: openai
-    path: "@openai/doc"
-    name: Document Processing
-    description: Document processing and creation.
-    tags: [document, office, writing]
-
-  - id: spreadsheet
-    source: openai
-    path: "@openai/spreadsheet"
-    name: Spreadsheet
-    description: Spreadsheet creation and manipulation.
-    tags: [spreadsheet, excel, data]
-
-  - id: imagegen
-    source: openai
-    path: "@openai/imagegen"
-    name: Image Generation
-    description: Generate images with AI.
-    tags: [image, generation, ai]
-
-  - id: sora
-    source: openai
-    path: "@openai/sora"
-    name: Sora Video
-    description: Generate videos with Sora.
-    tags: [video, generation, sora]
-
-  - id: speech
-    source: openai
-    path: "@openai/speech"
-    name: Speech
-    description: Text-to-speech and speech recognition.
-    tags: [speech, audio, tts]
-
-  - id: transcribe
-    source: openai
-    path: "@openai/transcribe"
-    name: Transcribe
-    description: Audio transcription with Whisper.
-    tags: [transcribe, audio, whisper]
-
-  - id: screenshot
-    source: openai
-    path: "@openai/screenshot"
-    name: Screenshot
-    description: Take and process screenshots.
-    tags: [screenshot, image, capture]
-
-  - id: openai-playwright
-    source: openai
-    path: "@openai/playwright"
-    name: Playwright (OpenAI)
-    description: Browser automation with Playwright for Codex.
-    tags: [browser, automation, testing]
-
-  - id: linear
-    source: openai
-    path: "@openai/linear"
-    name: Linear
-    description: Linear issue tracking integration.
-    tags: [linear, issues, project]
-
-  - id: sentry
-    source: openai
-    path: "@openai/sentry"
-    name: Sentry
-    description: Sentry error tracking integration.
-    tags: [sentry, errors, monitoring]
-
-  - id: atlas
-    source: openai
-    path: "@openai/atlas"
-    name: Atlas
-    description: MongoDB Atlas integration.
-    tags: [mongodb, atlas, database]
+    description: "Deploy applications and infrastructure to Cloudflare using Workers, Pages, and related platform services. Use when the user asks to deploy, host, publish, or set up a project on Cloudflare."
+    tags: ['openai']
 
   - id: develop-web-game
     source: openai
     path: "@openai/develop-web-game"
     name: Develop Web Game
-    description: Develop web-based games.
-    tags: [game, web, development]
+    description: "Use when Codex is building or iterating on a web game (HTML/JS) and needs a reliable development + testing loop: implement small changes, run a Playwright-based test script with short input bursts and intentional pauses, inspect screenshots/text, and review console errors with render_game_to_text."
+    tags: ['openai']
 
-  - id: openai-docs
+  - id: doc
     source: openai
-    path: "@openai/openai-docs"
-    name: OpenAI Docs
-    description: OpenAI API documentation reference.
-    tags: [openai, api, docs]
+    path: "@openai/doc"
+    name: Doc
+    description: "Use when the task involves reading, creating, or editing `.docx` documents, especially when formatting or layout fidelity matters; prefer `python-docx` plus the bundled `scripts/render_docx.py` for visual checks."
+    tags: ['openai']
 
-  - id: security-best-practices
+  - id: figma
     source: openai
-    path: "@openai/security-best-practices"
-    name: Security Best Practices
-    description: Security best practices for applications.
-    tags: [security, best-practices, audit]
+    path: "@openai/figma"
+    name: Figma
+    description: "Use the Figma MCP server to fetch design context, screenshots, variables, and assets from Figma, and to translate Figma nodes into production code. Trigger when a task involves Figma URLs, node IDs, design-to-code implementation, or Figma MCP setup and troubleshooting."
+    tags: ['openai']
 
-  - id: security-threat-model
+  - id: figma-implement-design
     source: openai
-    path: "@openai/security-threat-model"
-    name: Security Threat Model
-    description: Create security threat models.
-    tags: [security, threat-model, analysis]
+    path: "@openai/figma-implement-design"
+    name: Figma Implement Design
+    description: "Translate Figma nodes into production-ready code with 1:1 visual fidelity using the Figma MCP workflow (design context, screenshots, assets, and project-convention translation). Trigger when the user provides Figma URLs or node IDs, or asks to implement designs or components that must match Figma specs. Requires a working Figma MCP server connection."
+    tags: ['openai']
 
-  - id: security-ownership-map
+  - id: gh-address-comments
     source: openai
-    path: "@openai/security-ownership-map"
-    name: Security Ownership Map
-    description: Map security ownership across codebase.
-    tags: [security, ownership, audit]
+    path: "@openai/gh-address-comments"
+    name: Gh Address Comments
+    description: "Help address review/issue comments on the open GitHub PR for the current branch using gh CLI; verify gh auth first and prompt the user to authenticate if not logged in."
+    tags: ['openai']
+
+  - id: gh-fix-ci
+    source: openai
+    path: "@openai/gh-fix-ci"
+    name: Gh Fix Ci
+    description: "Use when a user asks to debug or fix failing GitHub PR checks that run in GitHub Actions; use `gh` to inspect checks and logs, summarize failure context, draft a fix plan, and implement only after explicit approval. Treat external providers (for example Buildkite) as out of scope and report only the details URL."
+    tags: ['openai']
+
+  - id: imagegen
+    source: openai
+    path: "@openai/imagegen"
+    name: Imagegen
+    description: "Use when the user asks to generate or edit images via the OpenAI Image API (for example: generate image, edit/inpaint/mask, background removal or replacement, transparent background, product shots, concept art, covers, or batch variants); run the bundled CLI (`scripts/image_gen.py`) and require `OPENAI_API_KEY` for live calls."
+    tags: ['openai']
+
+  - id: jupyter-notebook
+    source: openai
+    path: "@openai/jupyter-notebook"
+    name: Jupyter Notebook
+    description: "Use when the user asks to create, scaffold, or edit Jupyter notebooks (`.ipynb`) for experiments, explorations, or tutorials; prefer the bundled templates and run the helper script `new_notebook.py` to generate a clean starting notebook."
+    tags: ['openai']
+
+  - id: linear
+    source: openai
+    path: "@openai/linear"
+    name: Linear
+    description: "Manage issues, projects & team workflows in Linear. Use when the user wants to read, create or updates tickets in Linear."
+    tags: ['openai']
+
+  - id: netlify-deploy
+    source: openai
+    path: "@openai/netlify-deploy"
+    name: Netlify Deploy
+    description: "Deploy web projects to Netlify using the Netlify CLI (`npx netlify`). Use when the user asks to deploy, host, publish, or link a site/repo on Netlify, including preview and production deploys."
+    tags: ['openai']
 
   - id: notion-knowledge-capture
     source: openai
     path: "@openai/notion-knowledge-capture"
     name: Notion Knowledge Capture
-    description: Capture knowledge to Notion.
-    tags: [notion, knowledge, documentation]
+    description: "Capture conversations and decisions into structured Notion pages; use when turning chats/notes into wiki entries, how-tos, decisions, or FAQs with proper linking."
+    tags: ['openai']
 
   - id: notion-meeting-intelligence
     source: openai
     path: "@openai/notion-meeting-intelligence"
     name: Notion Meeting Intelligence
-    description: Process meeting notes in Notion.
-    tags: [notion, meetings, notes]
+    description: "Prepare meeting materials with Notion context and Codex research; use when gathering context, drafting agendas/pre-reads, and tailoring materials to attendees."
+    tags: ['openai']
 
   - id: notion-research-documentation
     source: openai
     path: "@openai/notion-research-documentation"
     name: Notion Research Documentation
-    description: Document research findings in Notion.
-    tags: [notion, research, documentation]
+    description: "Research across Notion and synthesize into structured documentation; use when gathering info from multiple Notion sources to produce briefs, comparisons, or reports with citations."
+    tags: ['openai']
 
   - id: notion-spec-to-implementation
     source: openai
     path: "@openai/notion-spec-to-implementation"
-    name: Notion Spec to Implementation
-    description: Convert Notion specs to implementation.
-    tags: [notion, spec, implementation]
+    name: Notion Spec To Implementation
+    description: "Turn Notion specs into implementation plans, tasks, and progress tracking; use when implementing PRDs/feature specs and creating Notion plans + tasks from them."
+    tags: ['openai']
+
+  - id: openai-docs
+    source: openai
+    path: "@openai/openai-docs"
+    name: Openai Docs
+    description: "Use when the user asks how to build with OpenAI products or APIs and needs up-to-date official documentation with citations (for example: Codex, Responses API, Chat Completions, Apps SDK, Agents SDK, Realtime, model capabilities or limits); prioritize OpenAI docs MCP tools and restrict any fallback browsing to official OpenAI domains."
+    tags: ['openai']
+
+  - id: pdf
+    source: openai
+    path: "@openai/pdf"
+    name: Pdf
+    description: "Use when tasks involve reading, creating, or reviewing PDF files where rendering and layout matter; prefer visual checks by rendering pages (Poppler) and use Python tools such as `reportlab`, `pdfplumber`, and `pypdf` for generation and extraction."
+    tags: ['openai']
+
+  - id: playwright
+    source: openai
+    path: "@openai/playwright"
+    name: Playwright
+    description: "Use when the task requires automating a real browser from the terminal (navigation, form filling, snapshots, screenshots, data extraction, UI-flow debugging) via `playwright-cli` or the bundled wrapper script."
+    tags: ['openai']
+
+  - id: render-deploy
+    source: openai
+    path: "@openai/render-deploy"
+    name: Render Deploy
+    description: "Deploy applications to Render by analyzing codebases, generating render.yaml Blueprints, and providing Dashboard deeplinks. Use when the user wants to deploy, host, publish, or set up their application on Render's cloud platform."
+    tags: ['openai']
+
+  - id: screenshot
+    source: openai
+    path: "@openai/screenshot"
+    name: Screenshot
+    description: "Use when the user explicitly asks for a desktop or system screenshot (full screen, specific app or window, or a pixel region), or when tool-specific capture capabilities are unavailable and an OS-level capture is needed."
+    tags: ['openai']
+
+  - id: security-best-practices
+    source: openai
+    path: "@openai/security-best-practices"
+    name: Security Best Practices
+    description: "Perform language and framework specific security best-practice reviews and suggest improvements. Trigger only when the user explicitly requests security best practices guidance, a security review/report, or secure-by-default coding help. Trigger only for supported languages (python, javascript/typescript, go). Do not trigger for general code review, debugging, or non-security tasks."
+    tags: ['openai']
+
+  - id: security-ownership-map
+    source: openai
+    path: "@openai/security-ownership-map"
+    name: Security Ownership Map
+    description: "Analyze git repositories to build a security ownership topology (people-to-file), compute bus factor and sensitive-code ownership, and export CSV/JSON for graph databases and visualization. Trigger only when the user explicitly wants a security-oriented ownership or bus-factor analysis grounded in git history (for example: orphaned sensitive code, security maintainers, CODEOWNERS reality checks for risk, sensitive hotspots, or ownership clusters). Do not trigger for general maintainer lists or non-security ownership questions."
+    tags: ['openai']
+
+  - id: security-threat-model
+    source: openai
+    path: "@openai/security-threat-model"
+    name: Security Threat Model
+    description: "Repository-grounded threat modeling that enumerates trust boundaries, assets, attacker capabilities, abuse paths, and mitigations, and writes a concise Markdown threat model. Trigger only when the user explicitly asks to threat model a codebase or path, enumerate threats/abuse paths, or perform AppSec threat modeling. Do not trigger for general architecture summaries, code review, or non-security design work."
+    tags: ['openai']
+
+  - id: sentry
+    source: openai
+    path: "@openai/sentry"
+    name: Sentry
+    description: "Use when the user asks to inspect Sentry issues or events, summarize recent production errors, or pull basic Sentry health data via the Sentry API; perform read-only queries with the bundled script and require `SENTRY_AUTH_TOKEN`."
+    tags: ['openai']
+
+  - id: sora
+    source: openai
+    path: "@openai/sora"
+    name: Sora
+    description: "Use when the user asks to generate, remix, poll, list, download, or delete Sora videos via OpenAI\u2019s video API using the bundled CLI (`scripts/sora.py`), including requests like \u201cgenerate AI video,\u201d \u201cSora,\u201d \u201cvideo remix,\u201d \u201cdownload video/thumbnail/spritesheet,\u201d and batch video generation; requires `OPENAI_API_KEY` and Sora API access."
+    tags: ['openai']
+
+  - id: speech
+    source: openai
+    path: "@openai/speech"
+    name: Speech
+    description: "Use when the user asks for text-to-speech narration or voiceover, accessibility reads, audio prompts, or batch speech generation via the OpenAI Audio API; run the bundled CLI (`scripts/text_to_speech.py`) with built-in voices and require `OPENAI_API_KEY` for live calls. Custom voice creation is out of scope."
+    tags: ['openai']
+
+  - id: spreadsheet
+    source: openai
+    path: "@openai/spreadsheet"
+    name: Spreadsheet
+    description: "Use when tasks involve creating, editing, analyzing, or formatting spreadsheets (`.xlsx`, `.csv`, `.tsv`) using Python (`openpyxl`, `pandas`), especially when formulas, references, and formatting need to be preserved and verified."
+    tags: ['openai']
+
+  - id: transcribe
+    source: openai
+    path: "@openai/transcribe"
+    name: Transcribe
+    description: "Transcribe audio files to text with optional diarization and known-speaker hints. Use when a user asks to transcribe speech from audio/video, extract text from recordings, or label speakers in interviews or meetings."
+    tags: ['openai']
+
+  - id: vercel-deploy
+    source: openai
+    path: "@openai/vercel-deploy"
+    name: Deploy
+    description: "Deploy applications and websites to Vercel using the bundled `scripts/deploy.sh` claimable-preview flow. Use when the user asks to deploy to Vercel, wants a preview URL, or says to push a project live on Vercel."
+    tags: ['openai']
 
   - id: yeet
     source: openai
     path: "@openai/yeet"
     name: Yeet
-    description: Quick deploy and share tool.
-    tags: [deploy, share, quick]
+    description: "Use only when the user explicitly asks to stage, commit, push, and open a GitHub pull request in one flow using the GitHub CLI (`gh`)."
+    tags: ['openai']
+
+  # Obsidian
+  - id: json-canvas
+    source: obsidian
+    path: "@obsidian/json-canvas"
+    name: Json Canvas
+    description: "Create and edit JSON Canvas files (.canvas) with nodes, edges, groups, and connections. Use when working with .canvas files, creating visual canvases, mind maps, flowcharts, or when the user mentions Canvas files in Obsidian."
+    tags: ['obsidian', 'notes']
+
+  - id: obsidian-bases
+    source: obsidian
+    path: "@obsidian/obsidian-bases"
+    name: Obsidian Bases
+    description: "Create and edit Obsidian Bases (.base files) with views, filters, formulas, and summaries. Use when working with .base files, creating database-like views of notes, or when the user mentions Bases, table views, card views, filters, or formulas in Obsidian."
+    tags: ['obsidian', 'notes']
+
+  - id: obsidian-markdown
+    source: obsidian
+    path: "@obsidian/obsidian-markdown"
+    name: Obsidian Markdown
+    description: "Create and edit Obsidian Flavored Markdown with wikilinks, embeds, callouts, properties, and other Obsidian-specific syntax. Use when working with .md files in Obsidian, or when the user mentions wikilinks, callouts, frontmatter, tags, embeds, or Obsidian notes."
+    tags: ['obsidian', 'notes']
+
+  # AWS (itsmostafa)
+  - id: api-gateway
+    source: itsmostafa
+    path: "@itsmostafa/api-gateway"
+    name: Api Gateway
+    description: "AWS API Gateway for REST and HTTP API management. Use when creating APIs, configuring integrations, setting up authorization, managing stages, implementing rate limiting, or troubleshooting API issues."
+    tags: ['aws', 'api-gateway']
+
+  - id: bedrock
+    source: itsmostafa
+    path: "@itsmostafa/bedrock"
+    name: Bedrock
+    description: "AWS Bedrock foundation models for generative AI. Use when invoking foundation models, building AI applications, creating embeddings, configuring model access, or implementing RAG patterns."
+    tags: ['aws', 'bedrock']
+
+  - id: cloudformation
+    source: itsmostafa
+    path: "@itsmostafa/cloudformation"
+    name: Cloudformation
+    description: "AWS CloudFormation infrastructure as code for stack management. Use when writing templates, deploying stacks, managing drift, troubleshooting deployments, or organizing infrastructure with nested stacks."
+    tags: ['aws', 'cloudformation']
+
+  - id: cloudwatch
+    source: itsmostafa
+    path: "@itsmostafa/cloudwatch"
+    name: Cloudwatch
+    description: "AWS CloudWatch monitoring for logs, metrics, alarms, and dashboards. Use when setting up monitoring, creating alarms, querying logs with Insights, configuring metric filters, building dashboards, or troubleshooting application issues."
+    tags: ['aws', 'cloudwatch']
+
+  - id: cognito
+    source: itsmostafa
+    path: "@itsmostafa/cognito"
+    name: Cognito
+    description: "AWS Cognito user authentication and authorization service. Use when setting up user pools, configuring identity pools, implementing OAuth flows, managing user attributes, or integrating with social identity providers."
+    tags: ['aws', 'cognito']
+
+  - id: dynamodb
+    source: itsmostafa
+    path: "@itsmostafa/dynamodb"
+    name: Dynamodb
+    description: "AWS DynamoDB NoSQL database for scalable data storage. Use when designing table schemas, writing queries, configuring indexes, managing capacity, implementing single-table design, or troubleshooting performance issues."
+    tags: ['aws', 'dynamodb']
+
+  - id: ec2
+    source: itsmostafa
+    path: "@itsmostafa/ec2"
+    name: Ec2
+    description: "AWS EC2 virtual machine management for instances, AMIs, and networking. Use when launching instances, configuring security groups, managing key pairs, troubleshooting connectivity, or automating instance lifecycle."
+    tags: ['aws', 'ec2']
+
+  - id: ecs
+    source: itsmostafa
+    path: "@itsmostafa/ecs"
+    name: Ecs
+    description: "AWS ECS container orchestration for running Docker containers. Use when deploying containerized applications, configuring task definitions, setting up services, managing clusters, or troubleshooting container issues."
+    tags: ['aws', 'ecs']
+
+  - id: eks
+    source: itsmostafa
+    path: "@itsmostafa/eks"
+    name: Eks
+    description: "AWS EKS Kubernetes management for clusters, node groups, and workloads. Use when creating clusters, configuring IRSA, managing node groups, deploying applications, or integrating with AWS services."
+    tags: ['aws', 'eks']
+
+  - id: eventbridge
+    source: itsmostafa
+    path: "@itsmostafa/eventbridge"
+    name: Eventbridge
+    description: "AWS EventBridge serverless event bus for event-driven architectures. Use when creating rules, configuring event patterns, setting up scheduled events, integrating with SaaS, or building cross-account event routing."
+    tags: ['aws', 'eventbridge']
+
+  - id: iam
+    source: itsmostafa
+    path: "@itsmostafa/iam"
+    name: Iam
+    description: "AWS Identity and Access Management for users, roles, policies, and permissions. Use when creating IAM policies, configuring cross-account access, setting up service roles, troubleshooting permission errors, or managing access control."
+    tags: ['aws', 'iam']
+
+  - id: lambda
+    source: itsmostafa
+    path: "@itsmostafa/lambda"
+    name: Lambda
+    description: "AWS Lambda serverless functions for event-driven compute. Use when creating functions, configuring triggers, debugging invocations, optimizing cold starts, setting up event source mappings, or managing layers."
+    tags: ['aws', 'lambda']
+
+  - id: rds
+    source: itsmostafa
+    path: "@itsmostafa/rds"
+    name: Rds
+    description: "AWS RDS relational database service for managed databases. Use when provisioning databases, configuring backups, managing replicas, troubleshooting connectivity, or optimizing performance."
+    tags: ['aws', 'rds']
+
+  - id: s3
+    source: itsmostafa
+    path: "@itsmostafa/s3"
+    name: S3
+    description: "AWS S3 object storage for bucket management, object operations, and access control. Use when creating buckets, uploading files, configuring lifecycle policies, setting up static websites, managing permissions, or implementing cross-region replication."
+    tags: ['aws', 's3']
+
+  - id: secrets-manager
+    source: itsmostafa
+    path: "@itsmostafa/secrets-manager"
+    name: Secrets Manager
+    description: "AWS Secrets Manager for secure secret storage and rotation. Use when storing credentials, configuring automatic rotation, managing secret versions, retrieving secrets in applications, or integrating with RDS."
+    tags: ['aws', 'secrets-manager']
+
+  - id: sns
+    source: itsmostafa
+    path: "@itsmostafa/sns"
+    name: Sns
+    description: "AWS SNS notification service for pub/sub messaging. Use when creating topics, managing subscriptions, configuring message filtering, sending notifications, or setting up mobile push."
+    tags: ['aws', 'sns']
+
+  - id: sqs
+    source: itsmostafa
+    path: "@itsmostafa/sqs"
+    name: Sqs
+    description: "AWS SQS message queue service for decoupled architectures. Use when creating queues, configuring dead-letter queues, managing visibility timeouts, implementing FIFO ordering, or integrating with Lambda."
+    tags: ['aws', 'sqs']
+
+  - id: step-functions
+    source: itsmostafa
+    path: "@itsmostafa/step-functions"
+    name: Step Functions
+    description: "AWS Step Functions workflow orchestration with state machines. Use when designing workflows, implementing error handling, configuring parallel execution, integrating with AWS services, or debugging executions."
+    tags: ['aws', 'step-functions']
+
+  # Playwright (lackeyjb)
+  - id: playwright-skill
+    source: lackeyjb
+    path: "@lackeyjb/playwright-skill"
+    name: Playwright Skill
+    description: "Complete browser automation with Playwright. Auto-detects dev servers, writes clean test scripts to /tmp. Test pages, fill forms, take screenshots, check responsive design, validate UX, test login flows, check links, automate any browser task. Use when user wants to test websites, automate browser interactions, validate web functionality, or perform any browser-based testing."
+    tags: ['browser', 'testing']
+

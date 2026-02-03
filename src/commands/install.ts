@@ -243,11 +243,11 @@ async function resolveTargetsInteractive(): Promise<string[] | null> {
 
     // 构建完整选项列表（全部 10 个工具）
     const options = [
-        // Primary Source (.agent) 始终第一个
+        // Primary Source (.agent) 始终第一个，并说明 symlink 机制
         {
             value: PRIMARY_SOURCE.id,
             label: PRIMARY_SOURCE.name,
-            hint: `.agent (${t('primary_source')})`,
+            hint: `.agent (${t('primary_source')}) - ${t('primary_source_hint')}`,
         },
         // 其他 9 个工具
         ...TARGET_APPS.map((a) => {
@@ -266,6 +266,8 @@ async function resolveTargetsInteractive(): Promise<string[] | null> {
         : [];
 
     console.log();
+    // 显示操作提示
+    console.log(colors.muted(`  ${t('select_targets_hint')}`));
     const selected = await p.multiselect({
         message: t('select_targets'),
         options,

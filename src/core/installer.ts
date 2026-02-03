@@ -117,51 +117,74 @@ export function installResource(resource: Resource, options: InstallOptions = {}
             return result;
         }
 
-        // 多 App 或包含 PRIMARY：主源 + Symlink
-        const primaryDir = join(baseDir, getAppResourceDir(PRIMARY_SOURCE, resourceType), resource.id);
+        // 检查用户是否选择了 PRIMARY_SOURCE (.agent)
+        const hasPrimary = targetApps.some((a) => a.id === PRIMARY_SOURCE.id);
 
-        if (existsSync(primaryDir)) {
-            rmSync(primaryDir, { recursive: true, force: true });
-        }
+        if (hasPrimary) {
+            // 用户选了 .agent：使用主源 + Symlink 模式
+            const primaryDir = join(baseDir, getAppResourceDir(PRIMARY_SOURCE, resourceType), resource.id);
 
-        mkdirSync(primaryDir, { recursive: true });
-        cpSync(sourceDir, primaryDir, { recursive: true });
-        cleanGit(primaryDir);
-
-        result.primaryPath = primaryDir;
-        result.targets.push({ agent: PRIMARY_SOURCE.id, path: primaryDir, type: 'copy' });
-
-        // 为其他 App 创建 Symlink
-        for (const app of targetApps) {
-            if (app.id === PRIMARY_SOURCE.id) continue;
-            if (scope === 'global' && !app.globalBaseDir) continue;
-
-            const appDir = getAppResourceDir(app, resourceType);
-            const targetDir = join(baseDir, appDir, resource.id);
-
-            if (existsSync(targetDir)) {
-                rmSync(targetDir, { recursive: true, force: true });
+            if (existsSync(primaryDir)) {
+                rmSync(primaryDir, { recursive: true, force: true });
             }
 
-            mkdirSync(join(baseDir, appDir), { recursive: true });
+            mkdirSync(primaryDir, { recursive: true });
+            cpSync(sourceDir, primaryDir, { recursive: true });
+            cleanGit(primaryDir);
 
-            if (!useSymlinks) {
-                cpSync(sourceDir, targetDir, { recursive: true });
-                cleanGit(targetDir);
-                result.targets.push({ agent: app.id, path: targetDir, type: 'copy' });
-            } else {
-                try {
-                    const relativePath = relative(join(baseDir, appDir), primaryDir);
-                    symlinkSync(relativePath, targetDir);
-                    result.targets.push({ agent: app.id, path: targetDir, type: 'link' });
-                } catch {
-                    // Windows 回退
-                    if (platform() === 'win32') {
-                        cpSync(sourceDir, targetDir, { recursive: true });
-                        cleanGit(targetDir);
-                        result.targets.push({ agent: app.id, path: targetDir, type: 'copy' });
+            result.primaryPath = primaryDir;
+            result.targets.push({ agent: PRIMARY_SOURCE.id, path: primaryDir, type: 'copy' });
+
+            // 为其他 App 创建 Symlink
+            for (const app of targetApps) {
+                if (app.id === PRIMARY_SOURCE.id) continue;
+                if (scope === 'global' && !app.globalBaseDir) continue;
+
+                const appDir = getAppResourceDir(app, resourceType);
+                const targetDir = join(baseDir, appDir, resource.id);
+
+                if (existsSync(targetDir)) {
+                    rmSync(targetDir, { recursive: true, force: true });
+                }
+
+                mkdirSync(join(baseDir, appDir), { recursive: true });
+
+                if (!useSymlinks) {
+                    cpSync(sourceDir, targetDir, { recursive: true });
+                    cleanGit(targetDir);
+                    result.targets.push({ agent: app.id, path: targetDir, type: 'copy' });
+                } else {
+                    try {
+                        const relativePath = relative(join(baseDir, appDir), primaryDir);
+                        symlinkSync(relativePath, targetDir);
+                        result.targets.push({ agent: app.id, path: targetDir, type: 'link' });
+                    } catch {
+                        // Windows 回退
+                        if (platform() === 'win32') {
+                            cpSync(sourceDir, targetDir, { recursive: true });
+                            cleanGit(targetDir);
+                            result.targets.push({ agent: app.id, path: targetDir, type: 'copy' });
+                        }
                     }
                 }
+            }
+        } else {
+            // 用户没选 .agent：直接复制到每个选中的 App
+            for (const app of targetApps) {
+                if (scope === 'global' && !app.globalBaseDir) continue;
+
+                const appDir = getAppResourceDir(app, resourceType);
+                const targetDir = join(baseDir, appDir, resource.id);
+
+                if (existsSync(targetDir)) {
+                    rmSync(targetDir, { recursive: true, force: true });
+                }
+
+                mkdirSync(join(baseDir, appDir), { recursive: true });
+                cpSync(sourceDir, targetDir, { recursive: true });
+                cleanGit(targetDir);
+
+                result.targets.push({ agent: app.id, path: targetDir, type: 'copy' });
             }
         }
 

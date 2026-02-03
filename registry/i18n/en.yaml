@@ -20,22 +20,25 @@ ui:
   scope_global: "Global (user-wide)"
 
   # Target selection
-  select_targets: "Select target apps (Space to toggle, Enter to confirm)"
-  primary_source: "primary source"
+  select_targets: "Select apps to install to"
+  select_targets_hint: "←→ move · Space select · Enter confirm"
+  primary_source: "primary"
+  primary_source_hint: "enables symlinks for other selected apps"
   detected_mark: " ✓"
 
   # Browse
-  search_prompt: "Search resources (leave empty to show all)"
+  search_prompt: "Search resources (leave empty for all)"
   search_placeholder: "e.g. pdf, docx, git"
   select_resources: "Select resources to install"
+  select_resources_hint: "←→ move · Space select · Enter confirm"
   available_count: "available"
 
   # Quick install
-  enter_resource_id: "Enter resource ID"
+  enter_resource_id: "Enter resource name or ID"
   resource_id_placeholder: "e.g. pdf, docx, mcp-builder"
-  resource_id_required: "Resource ID is required"
+  resource_id_required: "Please enter a resource name"
   matched: "Matched"
-  found_matches: "Found matching resources"
+  found_matches: "Multiple matches found, please select"
 
   # Installation
   installing: "Installing"
@@ -44,8 +47,9 @@ ui:
 
   # Integrations
   integrations_title: "Integrations"
-  integrations_subtitle: "Set default installation targets for all future installs."
-  default_targets: "Default installation targets (Space to toggle)"
+  integrations_subtitle: "Set default targets — they'll be pre-selected next time."
+  default_targets: "Default installation targets"
+  default_targets_hint: "←→ move · Space select · Enter confirm"
   saved: "Saved"
 
   # Help

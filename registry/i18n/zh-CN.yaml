@@ -1,247 +1,248 @@
 # 简体中文翻译
+# 描述与索引及 SKILL.md 1:1 对应
 locale: zh-CN
 name: 简体中文
 
 skills:
-  # Anthropic Official
+  # Anthropic Official Skills
   anthropic:
-    pdf:
-      name: PDF 处理
-      description: 综合性 PDF 操作工具包，支持提取文本表格、创建 PDF、合并拆分文档、处理表单。
-    docx:
-      name: Word 文档处理
-      description: Word 文档创建、编辑、分析，支持批注、修订跟踪、格式保留。
-    pptx:
-      name: PowerPoint 处理
-      description: PowerPoint 演示文稿创建和编辑。
-    xlsx:
-      name: Excel 处理
-      description: Excel 电子表格处理和数据操作。
-    mcp-builder:
-      name: MCP 服务器构建
-      description: 为 Claude 集成生成 MCP 服务器。
-    skill-creator:
-      name: 技能创建指南
-      description: 创建高效 Skill 的指南，扩展 Claude 能力。
-    frontend-design:
-      name: 前端设计
-      description: 前端 Web 设计和开发辅助。
-    webapp-testing:
-      name: Web 应用测试
-      description: 自动化和手动方式测试 Web 应用。
-    brand-guidelines:
-      name: 品牌指南
-      description: 创建和维护品牌识别指南。
-    internal-comms:
-      name: 内部通讯
-      description: 内部沟通和文档辅助。
-    doc-coauthoring:
-      name: 文档协作
-      description: 协作式文档创建和编辑。
-    canvas-design:
-      name: Canvas 设计
-      description: 使用 HTML Canvas 进行图形和可视化设计。
     algorithmic-art:
       name: 算法艺术
-      description: 创建生成式和算法艺术作品。
-    theme-factory:
-      name: 主题工厂
-      description: 为应用创建和自定义主题。
-    web-artifacts-builder:
-      name: Web 工件构建
-      description: 构建 Web 工件和组件。
+      description: 使用 p5.js 创作带有种子随机性和交互参数探索的算法艺术。当用户请求使用代码创作生成艺术、算法艺术、流场或粒子系统时使用。创作原创算法艺术，避免复制现有艺术家作品以规避版权问题。
+    brand-guidelines:
+      name: 品牌规范
+      description: 将 Anthropic 官方品牌颜色和字体应用于任何可能受益于 Anthropic 视觉风格的产品。当涉及品牌颜色、样式指南、视觉格式或公司设计标准时使用。
+    canvas-design:
+      name: Canvas 设计
+      description: 使用设计理念在 .png 和 .pdf 文档中创建精美视觉艺术。当用户要求创建海报、艺术作品、设计或其他静态作品时使用。创作原创视觉设计，避免复制现有艺术家作品以规避版权问题。
+    doc-coauthoring:
+      name: 文档协作
+      description: 引导用户通过结构化工作流共同撰写文档。当用户想要撰写文档、提案、技术规格、决策文档或类似结构化内容时使用。
+    docx:
+      name: Word 文档处理
+      description: 支持修订跟踪、批注、格式保留和文本提取的综合性文档创建、编辑和分析。当 Claude 需要处理专业文档 (.docx) 时使用。
+    frontend-design:
+      name: 前端设计
+      description: 创建具有高设计质量的独特、生产级前端界面。当用户要求构建 Web 组件、页面、应用程序时使用。生成避免通用 AI 美学的创意、精致代码和 UI 设计。
+    internal-comms:
+      name: 内部通讯
+      description: 一套资源，帮助使用公司偏好格式撰写各类内部通讯（状态报告、领导层更新、公司简报、事故报告等）。
+    mcp-builder:
+      name: MCP 服务器构建
+      description: 创建高质量 MCP (模型上下文协议) 服务器的指南，使 LLM 能够通过精心设计的工具与外部服务交互。
+    pdf:
+      name: PDF 处理
+      description: 综合性 PDF 操作工具包，用于提取文本和表格、创建新 PDF、合并/拆分文档和处理表单。
+    pptx:
+      name: PowerPoint 处理
+      description: 演示文稿创建、编辑和分析。当 Claude 需要处理演示文稿 (.pptx) 时使用。
+    skill-creator:
+      name: 技能创建指南
+      description: 创建有效技能的指南。当用户想要创建新技能以扩展 Claude 的能力时使用。
     slack-gif-creator:
       name: Slack GIF 创建
-      description: 为 Slack 创建自定义 GIF。
+      description: 创建针对 Slack 优化的动画 GIF 的知识和工具。提供约束条件、验证工具和动画概念。
+    theme-factory:
+      name: 主题工厂
+      description: 创建和自定义 VS Code 主题。将设计概念转化为功能性主题。
+    web-artifacts-builder:
+      name: Web 工件构建器
+      description: 使用现代前端 Web 技术创建精细多组件 claude.ai HTML 工件的工具套件。
+    webapp-testing:
+      name: Web 应用测试
+      description: 使用 Playwright 测试本地 Web 应用的工具包。支持验证前端功能、调试 UI 行为、捕获浏览器截图和查看浏览器日志。
+    xlsx:
+      name: Excel 处理
+      description: 电子表格创建、编辑和分析。当 Claude 需要处理电子表格 (.xlsx) 进行数据处理时使用。
 
-  # Vercel Labs
-  vercel:
-    react-best-practices:
-      name: React 最佳实践
-      description: Vercel 工程团队的 React/Next.js 性能优化指南，8 大类 40+ 条规则。
-    web-design-guidelines:
-      name: Web 设计规范
-      description: Web UI 最佳实践审查，100+ 条规则覆盖可访问性、性能和用户体验。
-    react-native-skills:
-      name: React Native 技能
-      description: AI Agent 优化的 React Native 最佳实践，7 大类 16 条规则。
-    composition-patterns:
-      name: 组合模式
-      description: 可扩展的 React 组合模式，避免布尔属性泛滥。
-    claude-ai:
-      name: Claude.ai 集成
-      description: Vercel 的 Claude.ai 集成技能。
+  # AWS Skills (itsmostafa)
+  itsmostafa:
+    api-gateway:
+      name: AWS API Gateway
+      description: AWS API Gateway 用于 REST 和 HTTP API 管理。当创建 API、配置集成、设置授权、管理阶段时使用。
+    bedrock:
+      name: AWS Bedrock
+      description: AWS Bedrock 基础模型用于生成式 AI。当调用基础模型、构建 AI 应用、创建嵌入时使用。
+    cloudformation:
+      name: AWS CloudFormation
+      description: AWS CloudFormation 基础设施即代码用于堆栈管理。当编写模板、部署堆栈、管理漂移时使用。
+    cloudwatch:
+      name: AWS CloudWatch
+      description: AWS CloudWatch 监控日志、指标、告警和仪表板。当设置监控、创建告警、构建仪表板时使用。
+    cognito:
+      name: AWS Cognito
+      description: AWS Cognito 用户认证和授权服务。当设置用户池、配置身份池、实现 OAuth 流程时使用。
+    dynamodb:
+      name: AWS DynamoDB
+      description: AWS DynamoDB NoSQL 数据库用于可扩展数据存储。当设计表结构、编写查询、配置索引时使用。
+    ec2:
+      name: AWS EC2
+      description: AWS EC2 虚拟机管理。当启动实例、配置安全组、管理密钥对时使用。
+    ecs:
+      name: AWS ECS
+      description: AWS ECS 容器编排用于运行 Docker 容器。当部署容器化应用、配置任务定义时使用。
+    eks:
+      name: AWS EKS
+      description: AWS EKS Kubernetes 管理。当创建集群、配置 IRSA、管理节点组时使用。
+    eventbridge:
+      name: AWS EventBridge
+      description: AWS EventBridge 无服务器事件总线。当创建规则、配置事件模式、设置计划事件时使用。
+    iam:
+      name: AWS IAM
+      description: AWS 身份和访问管理用于用户、角色、策略和权限。当创建策略、配置跨账户访问时使用。
+    lambda:
+      name: AWS Lambda
+      description: AWS Lambda 无服务器函数用于事件驱动计算。当创建函数、配置触发器时使用。
+    rds:
+      name: AWS RDS
+      description: AWS RDS 关系数据库服务用于托管数据库。当配置数据库、管理备份时使用。
+    s3:
+      name: AWS S3
+      description: AWS S3 对象存储用于存储桶管理。当创建存储桶、上传文件、配置生命周期策略时使用。
+    secrets-manager:
+      name: AWS Secrets Manager
+      description: AWS Secrets Manager 用于安全的密钥存储和轮换。当存储凭证、配置自动轮换时使用。
+    sns:
+      name: AWS SNS
+      description: AWS SNS 通知服务用于发布/订阅消息。当创建主题、管理订阅时使用。
+    sqs:
+      name: AWS SQS
+      description: AWS SQS 消息队列服务用于解耦架构。当创建队列、配置死信队列时使用。
+    step-functions:
+      name: AWS Step Functions
+      description: AWS Step Functions 工作流编排与状态机。当设计工作流、实现错误处理时使用。
 
-  # Obsidian
+  # Playwright (lackeyjb)
+  lackeyjb:
+    playwright-skill:
+      name: Playwright 自动化
+      description: 使用 Playwright 的完整浏览器自动化。自动检测开发服务器，支持测试页面、填写表单、截图、检查响应式设计。
+
+  # Obsidian Skills
   obsidian:
-    obsidian-markdown:
-      name: Obsidian Markdown
-      description: Obsidian 风格的 Markdown 格式，支持 wiki 链接和 callouts。
-    obsidian-bases:
-      name: Obsidian Bases
-      description: Obsidian Bases 语法，支持类数据库查询的 .base 文件。
     json-canvas:
       name: JSON Canvas
-      description: Obsidian 使用的 JSON Canvas 画布格式。
+      description: 创建和编辑带有节点、边、组和连接的 JSON Canvas 文件 (.canvas)。当处理 .canvas 文件、创建思维导图、流程图时使用。
+    obsidian-bases:
+      name: Obsidian Bases
+      description: 创建和编辑带有视图、过滤器、公式的 Obsidian Bases (.base 文件)。当处理 .base 文件、创建类似数据库的笔记视图时使用。
+    obsidian-markdown:
+      name: Obsidian Markdown
+      description: 创建和编辑 Obsidian 风格 Markdown（支持 wikilinks、嵌入、callouts）。当处理 Obsidian 的 .md 文件时使用。
 
-  # AWS Agent Skills (Community - itsmostafa)
-  itsmostafa:
-    aws-iam:
-      name: AWS IAM
-      description: AWS 身份和访问管理策略创建与管理。
-    aws-lambda:
-      name: AWS Lambda
-      description: AWS Lambda 函数开发和部署。
-    aws-cloudformation:
-      name: AWS CloudFormation
-      description: CloudFormation 模板的基础设施即代码。
-    aws-dynamodb:
-      name: AWS DynamoDB
-      description: DynamoDB 表设计和查询模式。
-    aws-s3:
-      name: AWS S3
-      description: S3 存储桶配置和对象管理。
-    aws-ec2:
-      name: AWS EC2
-      description: EC2 实例管理和配置。
-    aws-ecs:
-      name: AWS ECS
-      description: Elastic Container Service 集群和任务管理。
-    aws-eks:
-      name: AWS EKS
-      description: Elastic Kubernetes Service 集群管理。
-    aws-rds:
-      name: AWS RDS
-      description: 关系型数据库服务配置和管理。
-    aws-bedrock:
-      name: AWS Bedrock
-      description: AWS Bedrock AI 模型集成和部署。
-    aws-api-gateway:
-      name: AWS API Gateway
-      description: API Gateway 配置和 REST API 管理。
-    aws-eventbridge:
-      name: AWS EventBridge
-      description: EventBridge 规则和事件驱动架构。
-    aws-step-functions:
-      name: AWS Step Functions
-      description: Step Functions 状态机设计和工作流编排。
-    aws-sqs:
-      name: AWS SQS
-      description: Simple Queue Service 消息队列模式。
-    aws-sns:
-      name: AWS SNS
-      description: Simple Notification Service 发布/订阅模式。
-    aws-cloudwatch:
-      name: AWS CloudWatch
-      description: CloudWatch 监控、日志和告警。
-    aws-cognito:
-      name: AWS Cognito
-      description: Cognito 用户池和身份管理。
-    aws-secrets-manager:
-      name: AWS Secrets Manager
-      description: Secrets Manager 安全凭证存储。
-
-  # Playwright (Community - lackeyjb)
-  lackeyjb:
-    playwright:
-      name: Playwright 自动化
-      description: Playwright 浏览器自动化，Claude 自主编写执行测试和验证脚本。
-
-  # OpenAI Curated Skills
-  openai:
-    figma:
-      name: Figma 设计
-      description: Codex 的 Figma 设计集成。
-    figma-implement-design:
-      name: Figma 设计实现
-      description: 从 Figma 规格实现设计稿。
-    cloudflare-deploy:
-      name: Cloudflare 部署
-      description: 部署应用到 Cloudflare。
-    netlify-deploy:
-      name: Netlify 部署
-      description: 部署应用到 Netlify。
+  # Vercel Labs Skills
+  vercel:
+    composition-patterns:
+      name: React 组合模式
+      description: 可扩展的 React 组合模式。当重构有布尔属性泛滥的组件、构建灵活的组件库或设计可复用 API 时使用。包含 React 19 API 变更。
+    react-best-practices:
+      name: React 最佳实践
+      description: 来自 Vercel 工程团队的 React 和 Next.js 性能优化指南。当编写、审查或重构 React/Next.js 代码时使用。
+    react-native-skills:
+      name: React Native 技能
+      description: 构建高性能移动应用的 React Native 和 Expo 最佳实践。当构建 React Native 组件、优化列表性能时使用。
+    web-design-guidelines:
+      name: Web 设计规范
+      description: 审查 UI 代码是否符合 Web 界面指南。当被要求审查 UI、检查可访问性、审计设计时使用。
     vercel-deploy:
       name: Vercel 部署
-      description: 部署应用到 Vercel。
-    render-deploy:
-      name: Render 部署
-      description: 部署应用到 Render。
-    gh-fix-ci:
-      name: GitHub 修复 CI
-      description: 修复 GitHub Actions CI 失败。
+      description: 部署应用和网站到 Vercel。当用户请求部署操作时使用。无需认证。
+
+  # OpenAI Skills
+  openai:
+    atlas:
+      name: Atlas
+      description: AI 驱动的地图和位置探索。
+    cloudflare-deploy:
+      name: Cloudflare 部署
+      description: 部署项目到 Cloudflare Pages/Workers。
+    develop-web-game:
+      name: Web 游戏开发
+      description: 开发和测试网页游戏。
+    doc:
+      name: 文档处理
+      description: 创建、编辑和处理文档。
+    figma:
+      name: Figma 设计
+      description: 读取 Figma 设计并生成代码。
+    figma-implement-design:
+      name: Figma 设计实现
+      description: 从 Figma 规格实现设计。
     gh-address-comments:
       name: GitHub 处理评论
       description: 处理 GitHub PR 上的审查评论。
+    gh-fix-ci:
+      name: GitHub 修复 CI
+      description: 修复 GitHub Actions CI 失败。
+    imagegen:
+      name: 图像生成
+      description: 使用 AI 生成图像。
     jupyter-notebook:
       name: Jupyter Notebook
       description: 创建和编辑 Jupyter notebooks。
-    openai-pdf:
-      name: PDF 处理
-      description: Codex 的 PDF 文档处理。
-    openai-doc:
-      name: 文档处理
-      description: 文档处理和创建。
-    spreadsheet:
-      name: 电子表格
-      description: 电子表格创建和操作。
-    imagegen:
-      name: 图像生成
-      description: AI 图像生成。
-    sora:
-      name: Sora 视频
-      description: 使用 Sora 生成视频。
-    speech:
-      name: 语音合成
-      description: 文本转语音和语音识别。
-    transcribe:
-      name: 音频转写
-      description: 使用 Whisper 进行音频转写。
-    screenshot:
-      name: 截图
-      description: 截取和处理屏幕截图。
-    openai-playwright:
-      name: Playwright (OpenAI)
-      description: Codex 的 Playwright 浏览器自动化。
     linear:
-      name: Linear
-      description: Linear 问题跟踪集成。
-    sentry:
-      name: Sentry
-      description: Sentry 错误跟踪集成。
-    atlas:
-      name: Atlas
-      description: MongoDB Atlas 集成。
-    develop-web-game:
-      name: Web 游戏开发
-      description: 开发基于 Web 的游戏。
-    openai-docs:
-      name: OpenAI 文档
-      description: OpenAI API 文档参考。
-    security-best-practices:
-      name: 安全最佳实践
-      description: 应用程序安全最佳实践。
-    security-threat-model:
-      name: 安全威胁模型
-      description: 创建安全威胁模型。
-    security-ownership-map:
-      name: 安全责任地图
-      description: 映射代码库的安全责任。
+      name: Linear 集成
+      description: 与 Linear 项目管理工具集成。
+    netlify-deploy:
+      name: Netlify 部署
+      description: 部署项目到 Netlify。
     notion-knowledge-capture:
       name: Notion 知识捕获
-      description: 将知识捕获到 Notion。
+      description: 将对话和决策捕获到 Notion 页面。
     notion-meeting-intelligence:
       name: Notion 会议智能
-      description: 在 Notion 中处理会议记录。
+      description: 准备会议材料并整合 Notion 上下文。
     notion-research-documentation:
       name: Notion 研究文档
-      description: 在 Notion 中记录研究成果。
+      description: 跨 Notion 研究并合成结构化文档。
     notion-spec-to-implementation:
       name: Notion 规格转实现
-      description: 将 Notion 规格转换为实现代码。
+      description: 将 Notion 规格转换为实施计划和任务。
+    openai-docs:
+      name: OpenAI 文档
+      description: 查询 OpenAI 官方文档。
+    pdf:
+      name: PDF 处理
+      description: 读取、创建和处理 PDF 文件。
+    playwright:
+      name: Playwright 自动化
+      description: 使用 Playwright 自动化浏览器。
+    render-deploy:
+      name: Render 部署
+      description: 部署应用到 Render 云平台。
+    screenshot:
+      name: 截图工具
+      description: 捕获桌面或窗口截图。
+    security-best-practices:
+      name: 安全最佳实践
+      description: 执行安全最佳实践审查。
+    security-ownership-map:
+      name: 安全所有权图
+      description: 分析仓库构建安全所有权拓扑。
+    security-threat-model:
+      name: 安全威胁模型
+      description: 基于仓库的威胁建模。
+    sentry:
+      name: Sentry 集成
+      description: 查询 Sentry 错误和事件。
+    sora:
+      name: Sora 视频
+      description: 使用 OpenAI Sora 生成视频。
+    speech:
+      name: 语音合成
+      description: 文本转语音和语音生成。
+    spreadsheet:
+      name: 电子表格
+      description: 创建和编辑电子表格。
+    transcribe:
+      name: 音频转写
+      description: 将音频转写为文本。
+    vercel-deploy:
+      name: Vercel 部署
+      description: 部署应用到 Vercel。
     yeet:
-      name: 快速部署
-      description: 快速部署和分享工具。
+      name: 快速提交
+      description: 一键 stage、commit、push 并创建 PR。
 
 ui:
   # 主菜单
@@ -261,22 +262,25 @@ ui:
   scope_global: "全局（用户级）"
 
   # 目标选择
-  select_targets: "选择目标应用（空格切换，回车确认）"
+  select_targets: "选择要安装到的应用"
+  select_targets_hint: "←→ 移动 · 空格 选中 · 回车 确认"
   primary_source: "主源"
+  primary_source_hint: "选中后，其他应用将以链接形式共享此副本"
   detected_mark: " ✓"
 
   # 浏览
-  search_prompt: "搜索资源（留空显示全部）"
+  search_prompt: "搜索资源（留空则显示全部）"
   search_placeholder: "例如: pdf, docx, git"
   select_resources: "选择要安装的资源"
+  select_resources_hint: "←→ 移动 · 空格 选中 · 回车 确认"
   available_count: "个可用"
 
   # 快速安装
-  enter_resource_id: "输入资源 ID"
+  enter_resource_id: "输入资源名称或 ID"
   resource_id_placeholder: "例如: pdf, docx, mcp-builder"
-  resource_id_required: "资源 ID 不能为空"
-  matched: "匹配到"
-  found_matches: "找到多个匹配资源"
+  resource_id_required: "请输入资源名称"
+  matched: "已匹配"
+  found_matches: "找到多个匹配结果，请选择"
 
   # 安装
   installing: "安装中"
@@ -285,8 +289,9 @@ ui:
 
   # 集成管理
   integrations_title: "集成管理"
-  integrations_subtitle: "设置默认安装目标，后续安装将自动使用。"
-  default_targets: "默认安装目标（空格切换）"
+  integrations_subtitle: "设置默认安装目标，之后安装时会自动选中。"
+  default_targets: "默认安装目标"
+  default_targets_hint: "←→ 移动 · 空格 选中 · 回车 确认"
   saved: "已保存"
 
   # 帮助
