@@ -244,11 +244,68 @@ skills:
       description: 快速部署和分享工具。
 
 ui:
-  installed: 已安装
-  available: 可用
-  searching: 正在搜索...
-  installing: 正在安装...
-  success: 安装成功
-  failed: 安装失败
-  noResults: 未找到匹配的资源
-  syncComplete: 同步完成
+  # 主菜单
+  welcome: "SkillWisp CLI"
+  welcome_subtitle: "开发工具集成安装器"
+  what_would_you_like: "你想做什么？"
+  menu_browse: "浏览并安装资源"
+  menu_install: "快速安装（输入 ID）"
+  menu_installed: "查看已安装资源"
+  menu_integrations: "管理集成（默认目标）"
+  menu_help: "帮助"
+  menu_exit: "退出"
+
+  # 范围选择
+  installation_scope: "安装范围"
+  scope_local: "当前工作区"
+  scope_global: "全局（用户级）"
+
+  # 目标选择
+  select_targets: "选择目标应用（空格切换，回车确认）"
+  primary_source: "主源"
+  detected_mark: " ✓"
+
+  # 浏览
+  search_prompt: "搜索资源（留空显示全部）"
+  search_placeholder: "例如: pdf, docx, git"
+  select_resources: "选择要安装的资源"
+  available_count: "个可用"
+
+  # 快速安装
+  enter_resource_id: "输入资源 ID"
+  resource_id_placeholder: "例如: pdf, docx, mcp-builder"
+  resource_id_required: "资源 ID 不能为空"
+  matched: "匹配到"
+  found_matches: "找到多个匹配资源"
+
+  # 安装
+  installing: "安装中"
+  install_success: "已安装"
+  install_failed: "安装失败"
+
+  # 集成管理
+  integrations_title: "集成管理"
+  integrations_subtitle: "设置默认安装目标，后续安装将自动使用。"
+  default_targets: "默认安装目标（空格切换）"
+  saved: "已保存"
+
+  # 帮助
+  help_title: "帮助"
+  help_subtitle: "从这里开始，逐步学习命令。"
+  help_interactive: "交互模式"
+  help_commands: "命令"
+  help_flags: "选项"
+  back: "返回"
+  back_to_menu: "返回菜单"
+
+  # 状态
+  no_results: "未找到匹配资源"
+  goodbye: "再见。"
+
+  # 语言选择
+  select_language: "选择你的语言"
+  language_saved: "语言偏好已保存"
+
+  # 首次使用
+  first_time_setup: "首次设置"
+  first_time_hint: "选择安装位置，此选择将被保存。"

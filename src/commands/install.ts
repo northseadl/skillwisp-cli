@@ -1,21 +1,22 @@
 /**
  * install 命令
  *
- * 安装资源
- * - 支持全名 @source/id 或短名 id
- * - 询问是否使用上次偏好
- * - --dry-run/--force 安全选项
+ * v2.3: Opt-in 模式 + i18n
+ * - 展示全部 10 个工具，从偏好读取初始选中
+ * - 静默保存选择，无确认步骤
+ * - 检测到的工具显示 ✓ hint
  */
 
 import * as p from '@clack/prompts';
 
-import { findResource, findResourceByFullName, searchResources, loadLocale, localizeResource } from '../core/registry.js';
+import { findResource, findResourceByFullName, searchResources, localizeResource } from '../core/registry.js';
 import { installResource, checkExists } from '../core/installer.js';
-import { detectApps, getAppsByIds, PRIMARY_SOURCE } from '../core/agents.js';
-import { getDefaultAgents, saveDefaultAgents, hasDefaultAgents } from '../core/preferences.js';
+import { detectApps, getAppsByIds, PRIMARY_SOURCE, TARGET_APPS } from '../core/agents.js';
+import { getDefaultAgents, saveDefaultAgents } from '../core/preferences.js';
 import type { ResourceType } from '../core/types.js';
 import { colors, symbols, createSpinner } from '../ui/theme.js';
 import { getFullName } from './search.js';
+import { initI18n, t, getLocaleData } from '../ui/i18n.js';
 
 interface InstallOptions {
     type?: string;
@@ -34,7 +35,8 @@ interface InstallOptions {
 
 export async function install(resourceId: string, options: InstallOptions = {}): Promise<void> {
     const isTTY = Boolean(process.stdout.isTTY);
-    const locale = loadLocale('zh-CN');
+    initI18n();
+    const locale = getLocaleData();
 
     // 解析资源类型
     let resourceType: ResourceType = 'skill';
@@ -82,7 +84,7 @@ export async function install(resourceId: string, options: InstallOptions = {}):
     const fullName = getFullName(resource);
     const scope = options.global ? 'global' : 'local';
 
-    // 解析目标 Agent（交互式确认）
+    // 解析目标 App
     let agents: string[];
 
     if (options.target) {
@@ -92,7 +94,7 @@ export async function install(resourceId: string, options: InstallOptions = {}):
         // 非交互模式：使用默认或自动检测
         agents = resolveTargetsNonInteractive();
     } else {
-        // 交互模式：询问是否使用上次偏好
+        // 交互模式：展示全部工具列表，静默保存
         const resolved = await resolveTargetsInteractive();
         if (!resolved) {
             process.exit(0);
@@ -236,80 +238,49 @@ function resolveTargetsNonInteractive(): string[] {
 }
 
 async function resolveTargetsInteractive(): Promise<string[] | null> {
-    const detectedAgents = detectApps();
+    const detectedSet = new Set(detectApps().map((a) => a.id));
+    const savedDefaults = getDefaultAgents();
 
-    if (detectedAgents.length === 0) {
-        console.log(colors.muted(`Installing to primary source (.agent)`));
-        return [PRIMARY_SOURCE.id];
-    }
-
-    // 已保存偏好时，询问是否复用
-    if (hasDefaultAgents()) {
-        const savedAgents = getDefaultAgents()!;
-        const names = getAppsByIds(savedAgents).map((a) => a.name).join(', ');
-
-        console.log();
-        const useDefault = await p.select({
-            message: `Install to previous targets?`,
-            options: [
-                { value: 'yes' as const, label: `Yes → ${names}` },
-                { value: 'no' as const, label: 'No, select targets manually' },
-            ],
-        });
-
-        if (p.isCancel(useDefault)) {
-            return null;
-        }
-
-        if (useDefault === 'yes') {
-            return savedAgents;
-        }
-    }
-
-    // 选项：Primary (.agent) + 检测到的 Agents
-    const targetOptions = [
-        { value: PRIMARY_SOURCE.id, label: PRIMARY_SOURCE.name, hint: 'Primary source (.agent)' },
-        ...detectedAgents.map((a) => ({
-            value: a.id,
-            label: a.name,
-            hint: a.baseDir,
-        })),
+    // 构建完整选项列表（全部 10 个工具）
+    const options = [
+        // Primary Source (.agent) 始终第一个
+        {
+            value: PRIMARY_SOURCE.id,
+            label: PRIMARY_SOURCE.name,
+            hint: `.agent (${t('primary_source')})`,
+        },
+        // 其他 9 个工具
+        ...TARGET_APPS.map((a) => {
+            const detected = detectedSet.has(a.id) ? t('detected_mark') : '';
+            return {
+                value: a.id,
+                label: `${a.name}${detected}`,
+                hint: a.baseDir,
+            };
+        }),
     ];
 
-    // 默认选中检测到的 Agents
-    const preselected = detectedAgents.map((a) => a.id);
+    // initialValues: 从上次保存的偏好读取，无偏好则为空
+    const initialValues = savedDefaults && savedDefaults.length > 0
+        ? savedDefaults
+        : [];
 
     console.log();
     const selected = await p.multiselect({
-        message: 'Select target apps (Space to select, Enter to confirm)',
-        options: targetOptions,
-        required: false,
-        initialValues: preselected,
+        message: t('select_targets'),
+        options,
+        required: true,
+        initialValues,
     });
 
     if (p.isCancel(selected)) {
         return null;
     }
 
-    // 无选中时，回退到第一个选项
-    let targets = selected as string[];
-    if (targets.length === 0) {
-        targets = [targetOptions[0].value];
-        console.log(colors.muted(`No selection made, defaulting to ${targetOptions[0].label}`));
-    }
+    // 静默保存，无确认
+    saveDefaultAgents(selected as string[]);
 
-    const savePreference = await p.confirm({
-        message: 'Save as default for future installs?',
-        initialValue: true,
-    });
-
-    if (!p.isCancel(savePreference) && savePreference) {
-        saveDefaultAgents(targets);
-        const names = getAppsByIds(targets).map((a) => a.name).join(', ');
-        console.log(colors.success(`${symbols.success} Default saved: ${names}`));
-    }
-
-    return targets;
+    return selected as string[];
 }
 
 function printError(message: string, options: InstallOptions): void {

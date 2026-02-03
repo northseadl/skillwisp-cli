@@ -1,0 +1,70 @@
+# English (Default)
+locale: en
+name: English
+
+ui:
+  # Main menu
+  welcome: "SkillWisp CLI"
+  welcome_subtitle: "Developer tool integrations installer"
+  what_would_you_like: "What would you like to do?"
+  menu_browse: "Browse and install resources"
+  menu_install: "Quick install by ID"
+  menu_installed: "View installed resources"
+  menu_integrations: "Manage integrations (default targets)"
+  menu_help: "Help"
+  menu_exit: "Exit"
+
+  # Scope selection
+  installation_scope: "Installation scope"
+  scope_local: "Current workspace"
+  scope_global: "Global (user-wide)"
+
+  # Target selection
+  select_targets: "Select target apps (Space to toggle, Enter to confirm)"
+  primary_source: "primary source"
+  detected_mark: " ✓"
+
+  # Browse
+  search_prompt: "Search resources (leave empty to show all)"
+  search_placeholder: "e.g. pdf, docx, git"
+  select_resources: "Select resources to install"
+  available_count: "available"
+
+  # Quick install
+  enter_resource_id: "Enter resource ID"
+  resource_id_placeholder: "e.g. pdf, docx, mcp-builder"
+  resource_id_required: "Resource ID is required"
+  matched: "Matched"
+  found_matches: "Found matching resources"
+
+  # Installation
+  installing: "Installing"
+  install_success: "Installed"
+  install_failed: "Failed"
+
+  # Integrations
+  integrations_title: "Integrations"
+  integrations_subtitle: "Set default installation targets for all future installs."
+  default_targets: "Default installation targets (Space to toggle)"
+  saved: "Saved"
+
+  # Help
+  help_title: "Help"
+  help_subtitle: "Start here, learn commands gradually."
+  help_interactive: "Interactive"
+  help_commands: "Commands"
+  help_flags: "Flags"
+  back: "Back"
+  back_to_menu: "Back to menu"
+
+  # Status
+  no_results: "No resources found"
+  goodbye: "Goodbye."
+
+  # Language selection
+  select_language: "Select your language"
+  language_saved: "Language preference saved"
+
+  # First time
+  first_time_setup: "First time setup"
+  first_time_hint: "Select where to install resources. This will be saved."

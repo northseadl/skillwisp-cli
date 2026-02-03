@@ -101,7 +101,7 @@ function createDefaultPreferences(): UserPreferences {
     };
 }
 
-function savePreferences(prefs: UserPreferences): void {
+export function savePreferences(prefs: UserPreferences): void {
     // 确保配置目录存在
     if (!existsSync(CONFIG_DIR)) {
         mkdirSync(CONFIG_DIR, { recursive: true });

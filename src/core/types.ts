@@ -64,6 +64,7 @@ export interface LocaleData {
 
 export interface UserPreferences {
     version: number;
+    locale?: string;
     defaultAgents?: string[];
     defaultResourceType?: ResourceType;
     lastUpdated?: string;
