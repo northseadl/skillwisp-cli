@@ -11,9 +11,9 @@ describe('commands/install (success and failure paths)', () => {
         const installResource = vi.fn().mockReturnValue({
             success: true,
             targets: [
-                { agent: 'agent', path: '/tmp/.agent/skills/pdf', type: 'copy' },
+                { agent: 'agents', path: '/tmp/.agents/skills/pdf', type: 'copy' },
             ],
-            primaryPath: '/tmp/.agent/skills/pdf',
+            primaryPath: '/tmp/.agents/skills/pdf',
         });
         const checkExists = vi.fn().mockReturnValue([]);
 
@@ -23,10 +23,10 @@ describe('commands/install (success and failure paths)', () => {
         const c = captureConsole();
 
         try {
-            await install('@anthropic/pdf', { json: true, yes: true, target: 'agent' });
+            await install('@anthropic/pdf', { json: true, yes: true, target: 'agents' });
             const last = JSON.parse(c.logs[c.logs.length - 1]);
             expect(last.resource.fullName).toBe('@anthropic/pdf');
-            expect(last.installations[0].agent).toBe('agent');
+            expect(last.installations[0].agent).toBe('agents');
             expect(installResource).toHaveBeenCalled();
         } finally {
             c.restore();
@@ -37,32 +37,50 @@ describe('commands/install (success and failure paths)', () => {
         const installResource = vi.fn().mockReturnValue({
             success: true,
             targets: [
-                { agent: 'agent', path: '/tmp/.agent/skills/pdf', type: 'copy' },
+                { agent: 'agents', path: '/tmp/.agents/skills/pdf', type: 'copy' },
                 { agent: 'claude', path: '/tmp/.claude/skills/pdf', type: 'link' },
             ],
-            primaryPath: '/tmp/.agent/skills/pdf',
+            primaryPath: '/tmp/.agents/skills/pdf',
         });
         const checkExists = vi.fn().mockReturnValue([]);
 
         vi.doMock('../src/core/installer.js', () => ({ installResource, checkExists }));
 
+        // Mock spinner to capture its output
+        const spinnerOutput: string[] = [];
+        const spinnerMock = {
+            start: vi.fn(),
+            update: vi.fn(),
+            stop: (msg: string) => spinnerOutput.push(msg),
+        };
+        vi.doMock('../src/ink/utils/index.js', async (importOriginal) => {
+            const original = await importOriginal() as Record<string, unknown>;
+            return {
+                ...original,
+                createSpinner: () => spinnerMock,
+            };
+        });
+
         const { install } = await import('../src/commands/install.js');
 
         const quiet = captureConsole();
         try {
-            await install('@anthropic/pdf', { quiet: true, yes: true, target: 'agent' });
-            expect(quiet.logs.join('\n')).toContain('@anthropic/pdf');
+            await install('@anthropic/pdf', { quiet: true, yes: true, target: 'agents' });
+            // Spinner.stop 被调用并输出资源名称
+            expect(spinnerOutput.some(s => s.includes('@anthropic/pdf'))).toBe(true);
         } finally {
             quiet.restore();
         }
 
+        spinnerOutput.length = 0;
+
         const verbose = captureConsole();
         try {
-            await install('@anthropic/pdf', { verbose: true, yes: true, target: 'agent' });
+            await install('@anthropic/pdf', { verbose: true, yes: true, target: 'agents' });
             const out = verbose.logs.join('\n');
             expect(out).toContain('Installation paths:');
             expect(out).toContain('Primary:');
-            expect(out).toContain('/tmp/.agent/skills/pdf');
+            expect(out).toContain('/tmp/.agents/skills/pdf');
         } finally {
             verbose.restore();
         }
@@ -82,7 +100,7 @@ describe('commands/install (success and failure paths)', () => {
         const c = captureConsole();
 
         try {
-            await expect(install('@anthropic/pdf', { yes: true, target: 'agent' }))
+            await expect(install('@anthropic/pdf', { yes: true, target: 'agents' }))
                 .rejects
                 .toThrow('process.exit:5');
             expect(c.errors.join('\n')).toContain('mock failure');
@@ -104,7 +122,7 @@ describe('commands/install (success and failure paths)', () => {
         const c = captureConsole();
 
         try {
-            await expect(install('@anthropic/pdf', { yes: true, target: 'agent' }))
+            await expect(install('@anthropic/pdf', { yes: true, target: 'agents' }))
                 .rejects
                 .toThrow('process.exit:4');
         } finally {

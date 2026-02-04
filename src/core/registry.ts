@@ -22,7 +22,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 // 路径定义
 // ═══════════════════════════════════════════════════════════════════════════
 
-const USER_REGISTRY_DIR = join(homedir(), '.agent', '.skillwisp', 'cache');
+const USER_REGISTRY_DIR = join(homedir(), '.agents', '.skillwisp', 'cache');
 
 function findBuiltinRegistryDir(): string {
     // 开发环境: src/core/ -> registry/

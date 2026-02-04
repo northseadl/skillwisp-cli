@@ -37,44 +37,44 @@ describe('getScopeBaseDir', () => {
 });
 
 // ═══════════════════════════════════════════════════════════════════════════
-// PRIMARY_SOURCE (.agent) 测试
+// PRIMARY_SOURCE (.agents) 测试
 // ═══════════════════════════════════════════════════════════════════════════
 
-describe('PRIMARY_SOURCE (.agent)', () => {
+describe('PRIMARY_SOURCE (.agents)', () => {
     const app = PRIMARY_SOURCE;
 
     it('should have correct config', () => {
-        expect(app.id).toBe('agent');
-        expect(app.baseDir).toBe('.agent');
-        expect(app.globalBaseDir).toBe('.agent');
+        expect(app.id).toBe('agents');
+        expect(app.baseDir).toBe('.agents');
+        expect(app.globalBaseDir).toBe('.agents');
     });
 
     it('should return dir-type for local skill install', () => {
         const result = getInstallRoot(app, 'skill', 'local');
         expect(result).not.toBeNull();
         expect(result?.kind).toBe('dir');
-        expect(result?.dir).toBe(join(process.cwd(), '.agent', 'skills'));
+        expect(result?.dir).toBe(join(process.cwd(), '.agents', 'skills'));
     });
 
     it('should return dir-type for global skill install', () => {
         const result = getInstallRoot(app, 'skill', 'global');
         expect(result).not.toBeNull();
         expect(result?.kind).toBe('dir');
-        expect(result?.dir).toBe(join(homedir(), '.agent', 'skills'));
+        expect(result?.dir).toBe(join(homedir(), '.agents', 'skills'));
     });
 
     it('should support rule type', () => {
         const result = getInstallRoot(app, 'rule', 'local');
         expect(result).not.toBeNull();
         expect(result?.kind).toBe('dir');
-        expect(result?.dir).toBe(join(process.cwd(), '.agent', 'rules'));
+        expect(result?.dir).toBe(join(process.cwd(), '.agents', 'rules'));
     });
 
     it('should support workflow type', () => {
         const result = getInstallRoot(app, 'workflow', 'local');
         expect(result).not.toBeNull();
         expect(result?.kind).toBe('dir');
-        expect(result?.dir).toBe(join(process.cwd(), '.agent', 'workflows'));
+        expect(result?.dir).toBe(join(process.cwd(), '.agents', 'workflows'));
     });
 });
 
@@ -389,7 +389,7 @@ describe('Antigravity', () => {
         expect(app.baseDir).toBe(''); // 项目级与 PRIMARY_SOURCE 冲突
         expect(app.globalBaseDir).toBe('.gemini/antigravity');
         expect(app.detectPaths).toContain('.gemini/antigravity');
-        expect(app.detectPaths).toContain('.agent/skills');
+        expect(app.detectPaths).toContain('.agents/skills');
     });
 
     it('should return null for local install (conflicts with PRIMARY_SOURCE)', () => {
@@ -476,7 +476,7 @@ describe('tryParseResourceIdFromFileName', () => {
 describe('All Apps Coverage', () => {
     it('should have all expected apps', () => {
         const expectedIds = [
-            'agent', 'claude', 'cursor', 'gemini', 'codex',
+            'agents', 'claude', 'cursor', 'gemini', 'codex',
             'copilot', 'trae', 'windsurf', 'kiro', 'augment', 'antigravity',
         ];
 

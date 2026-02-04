@@ -30,7 +30,7 @@ export function Header({
             {/* 品牌 Logo */}
             <Box>
                 <Text color={diamondColor} bold>
-                    {symbols.diamond}
+                    {symbols.wisp}
                 </Text>
                 <Text color={colors.primary} bold>
                     {' '}{brand.name}

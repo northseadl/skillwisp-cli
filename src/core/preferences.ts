@@ -12,7 +12,7 @@ import { homedir } from 'node:os';
 import type { UserPreferences } from './types.js';
 
 const PREFERENCES_VERSION = 1;
-const CONFIG_DIR = join(homedir(), '.agent', '.skillwisp');
+const CONFIG_DIR = join(homedir(), '.agents', '.skillwisp');
 const PREFERENCES_FILE = join(CONFIG_DIR, 'preferences.json');
 
 // ═══════════════════════════════════════════════════════════════════════════

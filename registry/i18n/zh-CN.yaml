@@ -265,8 +265,6 @@ ui:
   # 目标选择
   select_targets: "选择要安装到的应用"
   select_targets_hint: "←→ 移动 · 空格 选中 · 回车 确认"
-  primary_source: "主源"
-  primary_source_hint: "选中后，其他应用将以链接形式共享此副本"
   detected_mark: " ✓"
 
   # 浏览
@@ -353,3 +351,7 @@ ui:
   multi_shortcut_none: "全不选"
   multi_shortcut_invert: "反选"
   multi_shortcut_enter_confirm: "回车确认"
+
+  # 滚动指示器
+  scroll_more_above: "项在上方"
+  scroll_more_below: "项在下方"

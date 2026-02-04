@@ -5,9 +5,9 @@ import { join } from 'node:path';
 import { homedir } from 'node:os';
 
 function cleanInstallDirs(): void {
-    rmSync(join(process.cwd(), '.agent'), { recursive: true, force: true });
+    rmSync(join(process.cwd(), '.agents'), { recursive: true, force: true });
     rmSync(join(process.cwd(), '.kiro'), { recursive: true, force: true });
-    rmSync(join(homedir(), '.agent'), { recursive: true, force: true });
+    rmSync(join(homedir(), '.agents'), { recursive: true, force: true });
 }
 
 describe('commands/list', () => {
@@ -30,7 +30,7 @@ describe('commands/list', () => {
 
     it('scans both dir-based and file-based installations', async () => {
         // Dir-based: primary source local skill
-        const fooDir = join(process.cwd(), '.agent', 'skills', 'foo');
+        const fooDir = join(process.cwd(), '.agents', 'skills', 'foo');
         mkdirSync(fooDir, { recursive: true });
         writeFileSync(
             join(fooDir, 'SKILL.md'),
@@ -48,7 +48,7 @@ describe('commands/list', () => {
         );
 
         // Global: primary source global rule
-        const ruleDir = join(homedir(), '.agent', 'rules', 'r1');
+        const ruleDir = join(homedir(), '.agents', 'rules', 'r1');
         mkdirSync(ruleDir, { recursive: true });
         writeFileSync(join(ruleDir, 'RULE.md'), '# Rule\n', 'utf-8');
 
@@ -59,21 +59,21 @@ describe('commands/list', () => {
             await list({ json: true });
             const data = JSON.parse(c.logs[0]) as Array<any>;
 
-            expect(data.some((r) => r.id === 'foo' && r.agent === 'agent' && r.type === 'skill')).toBe(true);
+            expect(data.some((r) => r.id === 'foo' && r.agent === 'agents' && r.type === 'skill')).toBe(true);
             expect(data.some((r) => r.id === 'bar' && r.agent === 'kiro' && r.type === 'skill')).toBe(true);
-            expect(data.some((r) => r.id === 'r1' && r.agent === 'agent' && r.type === 'rule' && r.scope === 'global')).toBe(true);
+            expect(data.some((r) => r.id === 'r1' && r.agent === 'agents' && r.type === 'rule' && r.scope === 'global')).toBe(true);
         } finally {
             c.restore();
         }
     });
 
     it('quiet mode prints unique resource IDs', async () => {
-        const fooDir = join(process.cwd(), '.agent', 'skills', 'foo');
+        const fooDir = join(process.cwd(), '.agents', 'skills', 'foo');
         mkdirSync(fooDir, { recursive: true });
         writeFileSync(join(fooDir, 'SKILL.md'), '# Foo\n', 'utf-8');
 
         // Same ID in global should be de-duped
-        const fooGlobalDir = join(homedir(), '.agent', 'skills', 'foo');
+        const fooGlobalDir = join(homedir(), '.agents', 'skills', 'foo');
         mkdirSync(fooGlobalDir, { recursive: true });
         writeFileSync(join(fooGlobalDir, 'SKILL.md'), '# Foo\n', 'utf-8');
 
@@ -101,7 +101,7 @@ describe('commands/list', () => {
     });
 
     it('prints flat list by default and verbose list with paths', async () => {
-        const fooDir = join(process.cwd(), '.agent', 'skills', 'foo');
+        const fooDir = join(process.cwd(), '.agents', 'skills', 'foo');
         mkdirSync(fooDir, { recursive: true });
         writeFileSync(join(fooDir, 'SKILL.md'), '# Foo\n', 'utf-8');
 
@@ -122,9 +122,9 @@ describe('commands/list', () => {
             await list({ verbose: true });
             const out = verbose.logs.join('\n');
             expect(out).toContain('installation');
-            expect(out).toContain('.agent');
+            expect(out).toContain('.agents');
             expect(out).toContain('foo');
-            expect(out).toContain('.agent/skills/foo');
+            expect(out).toContain('.agents/skills/foo');
         } finally {
             verbose.restore();
         }

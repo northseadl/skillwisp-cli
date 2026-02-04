@@ -1,21 +1,17 @@
 /**
  * install 命令
  *
- * 安装资源
- * - 支持全名 @source/id 或短名 id
- * - 询问是否使用上次偏好
- * - --dry-run/--force 安全选项
+ * PRIMARY_SOURCE (.agents) 自动作为隐式主源，用户选择的应用创建符号链接
  */
-
-import * as p from '@clack/prompts';
 
 import { findResource, findResourceByFullName, searchResources, loadLocale, localizeResource } from '../core/registry.js';
 import { installResource, checkExists } from '../core/installer.js';
 import { detectApps, getAppsByIds, PRIMARY_SOURCE } from '../core/agents.js';
 import { getInstallRoot } from '../core/installPaths.js';
-import { getDefaultAgents, saveDefaultAgents, hasDefaultAgents } from '../core/preferences.js';
+import { getDefaultAgents, hasDefaultAgents } from '../core/preferences.js';
 import type { ResourceType } from '../core/types.js';
-import { colors, symbols, createSpinner } from '../ui/theme.js';
+import { colors, symbols, createSpinner } from '../ink/utils/index.js';
+import { runInstallFlow } from '../ink/flows/index.js';
 import { getFullName } from './search.js';
 
 interface InstallOptions {
@@ -83,7 +79,7 @@ export async function install(resourceId: string, options: InstallOptions = {}):
     const fullName = getFullName(resource);
     const scope = options.global ? 'global' : 'local';
 
-    // 解析目标 Agent（交互式确认）
+    // 解析目标 Agent
     let agents: string[];
 
     if (options.target) {
@@ -93,8 +89,8 @@ export async function install(resourceId: string, options: InstallOptions = {}):
         // 非交互模式：使用默认或自动检测
         agents = resolveTargetsNonInteractive();
     } else {
-        // 交互模式：询问是否使用上次偏好
-        const resolved = await resolveTargetsInteractive();
+        // 交互模式：使用 Ink 流程
+        const resolved = await runInstallFlow();
         if (!resolved) {
             process.exit(0);
         }
@@ -234,98 +230,24 @@ export async function install(resourceId: string, options: InstallOptions = {}):
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// 目标解析
+// 目标解析（非交互模式）
 // ═══════════════════════════════════════════════════════════════════════════
 
 function resolveTargetsNonInteractive(): string[] {
     const saved = getDefaultAgents();
+    // 自动添加 PRIMARY_SOURCE 作为隐式主源
     if (saved && saved.length > 0) {
-        return saved;
+        const filteredSaved = saved.filter(id => id !== PRIMARY_SOURCE.id);
+        return [PRIMARY_SOURCE.id, ...filteredSaved];
     }
 
     const detected = detectApps();
     if (detected.length > 0) {
-        return detected.map((a) => a.id);
+        return [PRIMARY_SOURCE.id, ...detected.map((a) => a.id)];
     }
 
+    // 如果没有检测到任何应用，仅安装到 PRIMARY_SOURCE
     return [PRIMARY_SOURCE.id];
-}
-
-async function resolveTargetsInteractive(): Promise<string[] | null> {
-    const detectedAgents = detectApps();
-
-    if (detectedAgents.length === 0) {
-        console.log(colors.muted(`Installing to primary source (.agent)`));
-        return [PRIMARY_SOURCE.id];
-    }
-
-    // 已保存偏好时，询问是否复用
-    if (hasDefaultAgents()) {
-        const savedAgents = getDefaultAgents()!;
-        const names = getAppsByIds(savedAgents).map((a) => a.name).join(', ');
-
-        console.log();
-        const useDefault = await p.select({
-            message: `Install to previous targets?`,
-            options: [
-                { value: 'yes' as const, label: `Yes → ${names}` },
-                { value: 'no' as const, label: 'No, select targets manually' },
-            ],
-        });
-
-        if (p.isCancel(useDefault)) {
-            return null;
-        }
-
-        if (useDefault === 'yes') {
-            return savedAgents;
-        }
-    }
-
-    // 选项：Primary (.agent) + 检测到的 Agents
-    const targetOptions = [
-        { value: PRIMARY_SOURCE.id, label: PRIMARY_SOURCE.name, hint: 'Primary source (.agent)' },
-        ...detectedAgents.map((a) => ({
-            value: a.id,
-            label: a.name,
-            hint: a.baseDir,
-        })),
-    ];
-
-    // 默认选中检测到的 Agents
-    const preselected = detectedAgents.map((a) => a.id);
-
-    console.log();
-    const selected = await p.multiselect({
-        message: 'Select target apps (Space to select, Enter to confirm)',
-        options: targetOptions,
-        required: false,
-        initialValues: preselected,
-    });
-
-    if (p.isCancel(selected)) {
-        return null;
-    }
-
-    // 无选中时，回退到第一个选项
-    let targets = selected as string[];
-    if (targets.length === 0) {
-        targets = [targetOptions[0].value];
-        console.log(colors.muted(`No selection made, defaulting to ${targetOptions[0].label}`));
-    }
-
-    const savePreference = await p.confirm({
-        message: 'Save as default for future installs?',
-        initialValue: true,
-    });
-
-    if (!p.isCancel(savePreference) && savePreference) {
-        saveDefaultAgents(targets);
-        const names = getAppsByIds(targets).map((a) => a.name).join(', ');
-        console.log(colors.success(`${symbols.success} Default saved: ${names}`));
-    }
-
-    return targets;
 }
 
 function printError(message: string, options: InstallOptions): void {

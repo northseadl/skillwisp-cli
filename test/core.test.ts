@@ -4,7 +4,7 @@
  * 设计原则：
  * 1. 完整覆盖：实现所有核心功能测试
  * 2. 允许读写：使用真实文件系统操作
- * 3. 自动清理：测试前后清理 ~/.agent/.skillwisp 目录
+ * 3. 自动清理：测试前后清理 ~/.agents/.skillwisp 目录
  * 4. 可重复运行：每次测试状态独立
  */
 
@@ -17,7 +17,7 @@ import { homedir } from 'node:os';
 // 测试环境配置
 // ═══════════════════════════════════════════════════════════════════════════
 
-const TEST_DATA_DIR = join(homedir(), '.agent', '.skillwisp');
+const TEST_DATA_DIR = join(homedir(), '.agents', '.skillwisp');
 const TEST_CACHE_DIR = join(TEST_DATA_DIR, 'cache');
 
 /**
@@ -157,7 +157,7 @@ describe('Version', () => {
 
         expect(CLI_VERSION).toBeDefined();
         expect(CLI_VERSION).toMatch(/^\d+\.\d+\.\d+/);
-        expect(CLI_VERSION).toBe('0.6.0');
+        // 不硬编码版本号，只验证格式
     });
 
     it('should compare versions correctly - lower', async () => {
@@ -249,7 +249,7 @@ describe('Updater', () => {
     it('should have valid user registry path', async () => {
         const { USER_REGISTRY_DIR } = await import('../src/core/updater.js');
 
-        expect(USER_REGISTRY_DIR).toBe(join(homedir(), '.agent', '.skillwisp', 'cache'));
+        expect(USER_REGISTRY_DIR).toBe(join(homedir(), '.agents', '.skillwisp', 'cache'));
     });
 
     it('should return true for shouldCheckUpdate when no meta exists', async () => {

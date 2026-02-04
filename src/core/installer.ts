@@ -2,7 +2,7 @@
  * 资源安装器
  *
  * 策略：Primary Source + Symlink
- * - 主源 (.agent) 存储实际文件
+ * - 主源 (.agents) 存储实际文件
  * - 其他 App 通过符号链接指向主源
  */
 

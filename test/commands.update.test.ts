@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { captureConsole } from './testUtils.js';
 
 describe('commands/update', () => {
     beforeEach(() => {
@@ -7,17 +8,25 @@ describe('commands/update', () => {
     });
 
     it('stops when no index update is available', async () => {
-        const spinner = { start: vi.fn(), stop: vi.fn(), message: vi.fn() };
-        const log = { info: vi.fn(), warn: vi.fn(), error: vi.fn() };
         const clearCache = vi.fn();
 
-        vi.doMock('@clack/prompts', () => ({ spinner: () => spinner, log }));
-        vi.doMock('picocolors', () => ({
-            default: {
-                cyan: (s: unknown) => String(s),
-                green: (s: unknown) => String(s),
-                yellow: (s: unknown) => String(s),
+        // Mock ink/utils 的 spinner
+        const spinnerMock = {
+            start: vi.fn(),
+            update: vi.fn(),
+            stop: vi.fn(),
+        };
+        vi.doMock('../src/ink/utils/index.js', () => ({
+            colors: {
+                primary: (s: unknown) => String(s),
+                info: (s: unknown) => String(s),
+                success: (s: unknown) => String(s),
+                warning: (s: unknown) => String(s),
+                error: (s: unknown) => String(s),
+                muted: (s: unknown) => String(s),
             },
+            symbols: { info: 'ℹ', success: '✓', warning: '⚠', error: '✗' },
+            createSpinner: () => spinnerMock,
         }));
 
         vi.doMock('../src/core/registry.js', () => ({
@@ -47,27 +56,37 @@ describe('commands/update', () => {
             shouldPromptCliUpdate,
         }));
 
-        const { update } = await import('../src/commands/update.js');
-        await update();
+        const c = captureConsole();
+        try {
+            const { update } = await import('../src/commands/update.js');
+            await update();
 
-        expect(spinner.start).toHaveBeenCalledWith('正在检查更新...');
-        expect(spinner.stop).toHaveBeenCalledWith('索引已是最新版本');
-        expect(updateIndex).not.toHaveBeenCalled();
-        expect(clearCache).not.toHaveBeenCalled();
-        expect(log.warn).not.toHaveBeenCalled();
+            expect(spinnerMock.start).toHaveBeenCalledWith('正在检查更新...');
+            expect(spinnerMock.stop).toHaveBeenCalledWith('索引已是最新版本', 'success');
+            expect(updateIndex).not.toHaveBeenCalled();
+            expect(clearCache).not.toHaveBeenCalled();
+        } finally {
+            c.restore();
+        }
     });
 
     it('warns when remote index requires CLI upgrade', async () => {
-        const spinner = { start: vi.fn(), stop: vi.fn(), message: vi.fn() };
-        const log = { info: vi.fn(), warn: vi.fn(), error: vi.fn() };
-
-        vi.doMock('@clack/prompts', () => ({ spinner: () => spinner, log }));
-        vi.doMock('picocolors', () => ({
-            default: {
-                cyan: (s: unknown) => String(s),
-                green: (s: unknown) => String(s),
-                yellow: (s: unknown) => String(s),
+        const spinnerMock = {
+            start: vi.fn(),
+            update: vi.fn(),
+            stop: vi.fn(),
+        };
+        vi.doMock('../src/ink/utils/index.js', () => ({
+            colors: {
+                primary: (s: unknown) => String(s),
+                info: (s: unknown) => String(s),
+                success: (s: unknown) => String(s),
+                warning: (s: unknown) => String(s),
+                error: (s: unknown) => String(s),
+                muted: (s: unknown) => String(s),
             },
+            symbols: { info: 'ℹ', success: '✓', warning: '⚠', error: '✗' },
+            createSpinner: () => spinnerMock,
         }));
 
         vi.doMock('../src/core/registry.js', () => ({
@@ -97,25 +116,37 @@ describe('commands/update', () => {
             shouldPromptCliUpdate: vi.fn().mockReturnValue(false),
         }));
 
-        const { update } = await import('../src/commands/update.js');
-        await update();
+        const c = captureConsole();
+        try {
+            const { update } = await import('../src/commands/update.js');
+            await update();
 
-        expect(spinner.stop).toHaveBeenCalledWith('需要升级 CLI');
-        expect(log.warn).toHaveBeenCalled();
+            expect(spinnerMock.stop).toHaveBeenCalledWith('需要升级 CLI', 'warning');
+            // 检查是否输出了升级警告
+            expect(c.logs.join('\n')).toContain('9.0.0');
+        } finally {
+            c.restore();
+        }
     });
 
     it('updates index and clears cache when update succeeds', async () => {
-        const spinner = { start: vi.fn(), stop: vi.fn(), message: vi.fn() };
-        const log = { info: vi.fn(), warn: vi.fn(), error: vi.fn() };
         const clearCache = vi.fn();
-
-        vi.doMock('@clack/prompts', () => ({ spinner: () => spinner, log }));
-        vi.doMock('picocolors', () => ({
-            default: {
-                cyan: (s: unknown) => String(s),
-                green: (s: unknown) => String(s),
-                yellow: (s: unknown) => String(s),
+        const spinnerMock = {
+            start: vi.fn(),
+            update: vi.fn(),
+            stop: vi.fn(),
+        };
+        vi.doMock('../src/ink/utils/index.js', () => ({
+            colors: {
+                primary: (s: unknown) => String(s),
+                info: (s: unknown) => String(s),
+                success: (s: unknown) => String(s),
+                warning: (s: unknown) => String(s),
+                error: (s: unknown) => String(s),
+                muted: (s: unknown) => String(s),
             },
+            symbols: { info: 'ℹ', success: '✓', warning: '⚠', error: '✗' },
+            createSpinner: () => spinnerMock,
         }));
 
         vi.doMock('../src/core/registry.js', () => ({
@@ -145,13 +176,19 @@ describe('commands/update', () => {
             shouldPromptCliUpdate: vi.fn().mockReturnValue(false),
         }));
 
-        const { update } = await import('../src/commands/update.js');
-        await update();
+        const c = captureConsole();
+        try {
+            const { update } = await import('../src/commands/update.js');
+            await update();
 
-        expect(updateIndex).toHaveBeenCalled();
-        expect(clearCache).toHaveBeenCalled();
-        expect(spinner.stop).toHaveBeenCalledWith('✓ 索引已更新到 2026.02.01.1');
-        expect(log.error).not.toHaveBeenCalled();
+            expect(updateIndex).toHaveBeenCalled();
+            expect(clearCache).toHaveBeenCalled();
+            expect(spinnerMock.stop).toHaveBeenCalledWith(
+                expect.stringContaining('2026.02.01.1'),
+                'success'
+            );
+        } finally {
+            c.restore();
+        }
     });
 });
-

@@ -5,7 +5,7 @@
 import { loadResources, loadLocale, localizeResource, getResourceRepoUrl } from '../core/registry.js';
 import type { Resource, ResourceType } from '../core/types.js';
 import { RESOURCE_CONFIG } from '../core/types.js';
-import { colors, symbols, truncate, getResourceColor } from '../ui/theme.js';
+import { colors, symbols, truncate, getResourceColor } from '../ink/utils/index.js';
 
 const DEFAULT_PAGE_SIZE = 20;
 

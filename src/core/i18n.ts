@@ -1,12 +1,12 @@
 /**
- * 国际化 (i18n) 工具模块
+ * 国际化 (i18n) 系统
  *
  * 提供 UI 字符串翻译和语言偏好管理
  */
 
-import { loadLocale } from '../core/registry.js';
-import { loadPreferences, savePreferences } from '../core/preferences.js';
-import type { LocaleData } from '../core/types.js';
+import { loadLocale } from './registry.js';
+import { loadPreferences, savePreferences } from './preferences.js';
+import type { LocaleData } from './types.js';
 
 // 支持的语言列表
 export const SUPPORTED_LOCALES = [

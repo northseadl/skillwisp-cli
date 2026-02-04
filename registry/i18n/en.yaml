@@ -23,8 +23,6 @@ ui:
   # Target selection
   select_targets: "Select apps to install to"
   select_targets_hint: "←→ move · Space select · Enter confirm"
-  primary_source: "primary"
-  primary_source_hint: "enables symlinks for other selected apps"
   detected_mark: " ✓"
 
   # Browse
@@ -111,3 +109,7 @@ ui:
   multi_shortcut_none: "none"
   multi_shortcut_invert: "invert"
   multi_shortcut_enter_confirm: "Enter confirm"
+
+  # Scroll indicators
+  scroll_more_above: "more above"
+  scroll_more_below: "more below"

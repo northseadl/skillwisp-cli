@@ -4,18 +4,18 @@ import { join } from 'node:path';
 import { homedir } from 'node:os';
 
 function removePreferencesFile(): void {
-    const prefsFile = join(homedir(), '.agent', '.skillwisp', 'preferences.json');
+    const prefsFile = join(homedir(), '.agents', '.skillwisp', 'preferences.json');
     rmSync(prefsFile, { force: true });
 }
 
-describe('ui/i18n', () => {
+describe('core/i18n', () => {
     beforeEach(() => {
         vi.resetModules();
         removePreferencesFile();
     });
 
     it('initializes to English when no preference exists', async () => {
-        const { initI18n, t, needsLanguageSetup, getLocaleCode } = await import('../src/ui/i18n.js');
+        const { initI18n, t, needsLanguageSetup, getLocaleCode } = await import('../src/core/i18n.js');
 
         const hasSavedLocale = initI18n();
         expect(hasSavedLocale).toBe(false);
@@ -25,7 +25,7 @@ describe('ui/i18n', () => {
     });
 
     it('setLocale persists and switches translations', async () => {
-        const { initI18n, setLocale, getLocaleCode, needsLanguageSetup, t } = await import('../src/ui/i18n.js');
+        const { initI18n, setLocale, getLocaleCode, needsLanguageSetup, t } = await import('../src/core/i18n.js');
 
         initI18n();
         setLocale('zh-CN');
@@ -36,7 +36,7 @@ describe('ui/i18n', () => {
     });
 
     it('t falls back to English and then to key/fallback', async () => {
-        const { initI18n, setLocale, t } = await import('../src/ui/i18n.js');
+        const { initI18n, setLocale, t } = await import('../src/core/i18n.js');
 
         initI18n();
         setLocale('zh-CN');

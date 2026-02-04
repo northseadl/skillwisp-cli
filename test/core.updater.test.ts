@@ -3,7 +3,7 @@ import { existsSync, readFileSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { homedir } from 'node:os';
 
-const USER_DATA_DIR = join(homedir(), '.agent', '.skillwisp');
+const USER_DATA_DIR = join(homedir(), '.agents', '.skillwisp');
 const META_FILE = join(USER_DATA_DIR, 'meta.json');
 
 function cleanUserData(): void {

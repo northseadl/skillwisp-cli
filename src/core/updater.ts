@@ -29,7 +29,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 // 路径定义
 // ═══════════════════════════════════════════════════════════════════════════
 
-const USER_DATA_DIR = join(homedir(), '.agent', '.skillwisp');
+const USER_DATA_DIR = join(homedir(), '.agents', '.skillwisp');
 const USER_REGISTRY_DIR = join(USER_DATA_DIR, 'cache');
 const META_FILE = join(USER_DATA_DIR, 'meta.json');
 

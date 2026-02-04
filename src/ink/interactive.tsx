@@ -6,7 +6,7 @@
 
 import { render } from 'ink';
 import { App } from './App.js';
-import { initI18n } from '../ui/i18n.js';
+import { initI18n } from '../core/i18n.js';
 
 export async function main(): Promise<void> {
     // 初始化 i18n（从偏好加载，如果没有则使用默认值）

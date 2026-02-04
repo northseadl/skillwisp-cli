@@ -12,7 +12,7 @@ import { ALL_APPS } from '../core/agents.js';
 import type { ResourceType } from '../core/types.js';
 import { RESOURCE_CONFIG, RESOURCE_TYPES } from '../core/types.js';
 import { getInstallRoot, tryParseResourceIdFromFileName } from '../core/installPaths.js';
-import { colors, symbols, getResourceColor } from '../ui/theme.js';
+import { colors, symbols, getResourceColor } from '../ink/utils/index.js';
 
 interface ListOptions {
     verbose?: boolean;

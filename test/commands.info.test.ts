@@ -45,7 +45,7 @@ describe('commands/info', () => {
         const { info } = await import('../src/commands/info.js');
         const c = captureConsole();
 
-        const skillDir = join(process.cwd(), '.agent', 'skills', 'pdf');
+        const skillDir = join(process.cwd(), '.agents', 'skills', 'pdf');
         mkdirSync(skillDir, { recursive: true });
         writeFileSync(join(skillDir, 'SKILL.md'), '# pdf\n', 'utf-8');
 
@@ -53,7 +53,7 @@ describe('commands/info', () => {
             await info('pdf', { installed: true });
             const output = c.logs.join('\n');
             expect(output).toContain('Installed at:');
-            expect(output).toContain('.agent');
+            expect(output).toContain('.agents');
         } finally {
             c.restore();
         }
@@ -64,7 +64,7 @@ describe('commands/info', () => {
         const c = captureConsole();
 
         // Create a fake installed skill in primary source (local scope)
-        const skillDir = join(process.cwd(), '.agent', 'skills', 'pdf');
+        const skillDir = join(process.cwd(), '.agents', 'skills', 'pdf');
         mkdirSync(skillDir, { recursive: true });
         writeFileSync(join(skillDir, 'SKILL.md'), '# pdf\n', 'utf-8');
 
@@ -72,7 +72,7 @@ describe('commands/info', () => {
             await info('pdf', { json: true, installed: true });
             const data = JSON.parse(c.logs[0]);
             expect(Array.isArray(data.installedAt)).toBe(true);
-            expect(data.installedAt).toContain('.agent');
+            expect(data.installedAt).toContain('.agents');
         } finally {
             c.restore();
         }

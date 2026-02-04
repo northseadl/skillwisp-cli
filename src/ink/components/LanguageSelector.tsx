@@ -8,7 +8,7 @@ import { Box, Text, useInput } from 'ink';
 import { useState, type ReactNode } from 'react';
 import { colors, symbols, brand } from '../theme.js';
 import { useTypewriter, useFadeIn } from '../hooks/index.js';
-import { SUPPORTED_LOCALES, type LocaleCode } from '../../ui/i18n.js';
+import { SUPPORTED_LOCALES, type LocaleCode } from '../../core/i18n.js';
 
 interface LanguageSelectorProps {
     onSelect: (locale: LocaleCode) => void;

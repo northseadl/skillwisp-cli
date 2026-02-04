@@ -37,7 +37,7 @@ export function TextInput({
             {/* 提示消息 */}
             <Box marginBottom={1}>
                 <Text color={colors.primary} bold>
-                    {symbols.diamond}
+                    {symbols.wisp}
                 </Text>
                 <Text> {message}</Text>
             </Box>

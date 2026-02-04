@@ -7,7 +7,7 @@ import { checkExists } from '../core/installer.js';
 import { detectApps } from '../core/agents.js';
 import type { ResourceType } from '../core/types.js';
 import { RESOURCE_CONFIG } from '../core/types.js';
-import { colors, symbols, getResourceColor } from '../ui/theme.js';
+import { colors, symbols, getResourceColor } from '../ink/utils/index.js';
 
 interface InfoOptions {
     type?: string;

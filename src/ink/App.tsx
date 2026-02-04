@@ -43,7 +43,7 @@ import { PRIMARY_SOURCE, TARGET_APPS } from '../core/agents.js';
 import type { Resource, ResourceType } from '../core/types.js';
 import { RESOURCE_CONFIG, RESOURCE_TYPES } from '../core/types.js';
 import { CLI_VERSION } from '../core/version.js';
-import { needsLanguageSetup, setLocale, t, getLocaleData, type LocaleCode } from '../ui/i18n.js';
+import { needsLanguageSetup, setLocale, t, getLocaleData, type LocaleCode } from '../core/i18n.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // 类型定义
@@ -319,7 +319,11 @@ export function App(): ReactNode {
             return;
         }
 
-        navigate('installing', { selectedTargets: targets, isInstalling: true });
+        // 自动添加 PRIMARY_SOURCE 作为隐式主源
+        // 用户选择的应用将创建符号链接指向主源
+        const allTargets = [PRIMARY_SOURCE.id, ...targets.filter(t => t !== PRIMARY_SOURCE.id)];
+
+        navigate('installing', { selectedTargets: allTargets, isInstalling: true });
 
         // 异步执行安装
         setTimeout(() => {
@@ -333,7 +337,7 @@ export function App(): ReactNode {
 
             for (const resource of resources) {
                 const result = installResource(resource, {
-                    agents: targets,
+                    agents: allTargets,
                     scope: state.installScope,
                 });
 
@@ -349,6 +353,7 @@ export function App(): ReactNode {
                 successCount,
                 failCount,
                 installedNames: Array.from(installedNames),
+                // 对用户只显示他们选择的目标应用，隐藏 PRIMARY_SOURCE
                 targetApps: targets,
             };
 
@@ -460,24 +465,19 @@ export function App(): ReactNode {
             case 'install-targets': {
                 const isGlobal = state.installScope === 'global';
                 const detectedSet = new Set(detectApps().map((a) => a.id));
-                const options = [
-                    {
-                        label: PRIMARY_SOURCE.name,
-                        value: PRIMARY_SOURCE.id,
-                        hint: isGlobal ? '~/.agent' : '.agent',
-                    },
-                    ...TARGET_APPS.map((app) => ({
-                        label: `${app.name}${detectedSet.has(app.id) ? ' ✓' : ''}`,
-                        value: app.id,
-                        hint: isGlobal ? `~/${app.globalBaseDir || app.baseDir}` : app.baseDir,
-                    })),
-                ];
+                // PRIMARY_SOURCE (.agents) 作为隐式主源，不在选项中显示
+                // 用户只需选择实际的 AI 应用，系统自动管理主副本
+                const options = TARGET_APPS.map((app) => ({
+                    label: `${app.name}${detectedSet.has(app.id) ? ' ✓' : ''}`,
+                    value: app.id,
+                    hint: isGlobal ? `~/${app.globalBaseDir || app.baseDir}` : app.baseDir,
+                }));
 
                 return (
                     <MultiSelectMenu
                         message={t('select_targets')}
                         items={options}
-                        initialValues={getDefaultAgents() || []}
+                        initialValues={getDefaultAgents()?.filter(id => id !== PRIMARY_SOURCE.id) || []}
                         required={true}
                         onSubmit={handleTargetsSubmit}
                         onCancel={() => navigate('main-menu')}

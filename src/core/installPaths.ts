@@ -85,7 +85,7 @@ export function getInstallRoot(
     }
 
     // Antigravity (Google Gemini Agent)：
-    // 项目级 .agent 与 PRIMARY_SOURCE 冲突，返回 null（用户应选择 .agent）
+    // 项目级 .agents 与 PRIMARY_SOURCE 冲突，返回 null（用户应选择 .agents）
     // 全局级使用专属目录 ~/.gemini/antigravity/skills/
     if (app.id === 'antigravity') {
         if (resourceType !== 'skill') return null;

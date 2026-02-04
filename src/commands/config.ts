@@ -2,15 +2,14 @@
  * config 命令
  *
  * 管理偏好设置
- * - 交互模式：选择配置项
+ * - 交互模式：使用 Ink 流程
  * - 命令行模式：get/set/reset
  */
 
-import * as p from '@clack/prompts';
-
-import { detectApps, getAppsByIds, PRIMARY_SOURCE, ALL_APPS } from '../core/agents.js';
+import { detectApps, getAppsByIds, ALL_APPS } from '../core/agents.js';
 import { getDefaultAgents, saveDefaultAgents, resetPreferences, loadPreferences } from '../core/preferences.js';
-import { colors, symbols } from '../ui/theme.js';
+import { colors, symbols } from '../ink/utils/index.js';
+import { runConfigFlow } from '../ink/flows/index.js';
 
 interface ConfigOptions {
     json?: boolean;
@@ -29,81 +28,8 @@ export async function config(subcommand?: string, options: ConfigOptions = {}): 
         return showConfig(options);
     }
 
-    // 交互模式
-    console.log();
-    console.log(colors.bold('Configuration'));
-    console.log();
-
-    const prefs = loadPreferences();
-    const detectedApps = detectApps();
-
-    // 显示当前配置
-    console.log(colors.muted('Current settings:'));
-    if (prefs.defaultAgents?.length) {
-        const names = getAppsByIds(prefs.defaultAgents).map((a) => a.name);
-        console.log(`  Default targets: ${names.join(', ')}`);
-    } else {
-        console.log(`  Default targets: ${colors.muted('(auto-detect)')}`);
-    }
-    console.log();
-
-    // 选择操作
-    const action = await p.select({
-        message: 'What would you like to configure?',
-        options: [
-            { value: 'targets' as const, label: 'Default installation targets' },
-            { value: 'reset' as const, label: 'Reset all preferences' },
-            { value: 'exit' as const, label: 'Exit' },
-        ],
-    });
-
-    if (p.isCancel(action) || action === 'exit') {
-        return;
-    }
-
-    if (action === 'reset') {
-        const confirm = await p.confirm({
-            message: 'Reset all preferences?',
-            initialValue: false,
-        });
-
-        if (!p.isCancel(confirm) && confirm) {
-            resetPreferences();
-            console.log();
-            console.log(colors.success(`${symbols.success} Preferences reset`));
-            console.log();
-        }
-        return;
-    }
-
-    if (action === 'targets') {
-        const existingDefault = getDefaultAgents();
-        const initialValues = existingDefault?.length
-            ? existingDefault
-            : detectedApps.map((a) => a.id);
-
-        const selected = await p.multiselect({
-            message: 'Select default installation targets',
-            options: [
-                { value: PRIMARY_SOURCE.id, label: PRIMARY_SOURCE.name, hint: 'Primary source (.agent)' },
-                ...detectedApps.map((a) => ({
-                    value: a.id,
-                    label: a.name,
-                    hint: a.baseDir,
-                })),
-            ],
-            required: true,
-            initialValues,
-        });
-
-        if (!p.isCancel(selected)) {
-            saveDefaultAgents(selected as string[]);
-            const names = getAppsByIds(selected as string[]).map((a) => a.name);
-            console.log();
-            console.log(colors.success(`${symbols.success} Default targets saved: ${names.join(', ')}`));
-            console.log();
-        }
-    }
+    // 交互模式：使用 Ink 流程
+    await runConfigFlow();
 }
 
 // ═══════════════════════════════════════════════════════════════════════════

@@ -5,9 +5,9 @@ import { join } from 'node:path';
 import { homedir } from 'node:os';
 
 function cleanAll(): void {
-    rmSync(join(process.cwd(), '.agent'), { recursive: true, force: true });
-    rmSync(join(homedir(), '.agent'), { recursive: true, force: true });
-    rmSync(join(homedir(), '.agent', '.skillwisp'), { recursive: true, force: true });
+    rmSync(join(process.cwd(), '.agents'), { recursive: true, force: true });
+    rmSync(join(homedir(), '.agents'), { recursive: true, force: true });
+    rmSync(join(homedir(), '.agents', '.skillwisp'), { recursive: true, force: true });
 }
 
 describe('commands/install', () => {
@@ -18,12 +18,12 @@ describe('commands/install', () => {
         const c = captureConsole();
 
         try {
-            await install('@anthropic/pdf', { dryRun: true, json: true, yes: true, target: 'agent' });
+            await install('@anthropic/pdf', { dryRun: true, json: true, yes: true, target: 'agents' });
             const data = JSON.parse(c.logs[0]);
             expect(data.dryRun).toBe(true);
             expect(data.resource.fullName).toBe('@anthropic/pdf');
             expect(data.scope).toBe('local');
-            expect(data.targets).toEqual(['.agent']);
+            expect(data.targets).toEqual(['.agents']);
         } finally {
             c.restore();
         }
@@ -106,12 +106,12 @@ describe('commands/install', () => {
         const exitSpy = mockProcessExit();
         const c = captureConsole();
 
-        const existingDir = join(process.cwd(), '.agent', 'skills', 'pdf');
+        const existingDir = join(process.cwd(), '.agents', 'skills', 'pdf');
         mkdirSync(existingDir, { recursive: true });
         writeFileSync(join(existingDir, 'SKILL.md'), '# pdf\n', 'utf-8');
 
         try {
-            await expect(install('@anthropic/pdf', { json: true, yes: true, target: 'agent', dryRun: true }))
+            await expect(install('@anthropic/pdf', { json: true, yes: true, target: 'agents', dryRun: true }))
                 .rejects
                 .toThrow('process.exit:5');
 
@@ -133,7 +133,7 @@ describe('commands/install', () => {
         try {
             await install('@anthropic/pdf', { dryRun: true, json: true, yes: true });
             const data = JSON.parse(c.logs[0]);
-            expect(data.targets).toEqual(['Claude Code']);
+            expect(data.targets).toEqual(['.agents', 'Claude Code']);
         } finally {
             c.restore();
         }

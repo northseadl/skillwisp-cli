@@ -12,8 +12,7 @@
 
 import { Command } from 'commander';
 
-import { main } from './commands/interactive.js';
-import { main as mainInk } from './ink/interactive.js';
+import { main } from './ink/interactive.js';
 import { install } from './commands/install.js';
 import { search, catalog } from './commands/search.js';
 import { list } from './commands/list.js';
@@ -31,7 +30,7 @@ program
     .option('--offline', 'Skip all network operations');
 
 // ═══════════════════════════════════════════════════════════════════════════
-// 交互模式（默认入口）
+// 交互模式（默认入口）- 使用 Ink 渲染
 // ═══════════════════════════════════════════════════════════════════════════
 
 program
@@ -150,7 +149,7 @@ program
 // ═══════════════════════════════════════════════════════════════════════════
 
 if (process.argv.length === 2) {
-    mainInk();
+    main();
 } else {
     program.parse();
 }

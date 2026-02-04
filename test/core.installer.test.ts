@@ -4,10 +4,10 @@ import { join } from 'node:path';
 import { homedir } from 'node:os';
 
 function cleanInstallDirs(): void {
-    rmSync(join(process.cwd(), '.agent'), { recursive: true, force: true });
+    rmSync(join(process.cwd(), '.agents'), { recursive: true, force: true });
     rmSync(join(process.cwd(), '.claude'), { recursive: true, force: true });
     rmSync(join(process.cwd(), '.kiro'), { recursive: true, force: true });
-    rmSync(join(homedir(), '.agent'), { recursive: true, force: true });
+    rmSync(join(homedir(), '.agents'), { recursive: true, force: true });
 }
 
 const testResource = {
@@ -74,7 +74,7 @@ describe('core/installer', () => {
         const result = installResource(testResource as any, { agents: ['claude'], scope: 'local' });
         expect(result.success).toBe(true);
 
-        const primaryPath = join(process.cwd(), '.agent', 'skills', testResource.id, 'SKILL.md');
+        const primaryPath = join(process.cwd(), '.agents', 'skills', testResource.id, 'SKILL.md');
         expect(existsSync(primaryPath)).toBe(true);
 
         const claudePath = join(process.cwd(), '.claude', 'skills', testResource.id);
@@ -145,7 +145,7 @@ describe('core/installer', () => {
         });
 
         const { installResource } = await import('../src/core/installer.js');
-        const result = installResource(testResource as any, { agents: ['agent'], scope: 'local' });
+        const result = installResource(testResource as any, { agents: ['agents'], scope: 'local' });
 
         expect(result.success).toBe(false);
         expect(result.error).toContain('git is required');
@@ -154,14 +154,14 @@ describe('core/installer', () => {
     it('checkExists finds existing installations across targets', async () => {
         const { checkExists } = await import('../src/core/installer.js');
 
-        const primaryDir = join(process.cwd(), '.agent', 'skills', 'exists');
+        const primaryDir = join(process.cwd(), '.agents', 'skills', 'exists');
         mkdirSync(primaryDir, { recursive: true });
 
         const claudeDir = join(process.cwd(), '.claude', 'skills', 'exists');
         mkdirSync(claudeDir, { recursive: true });
 
         const existing = checkExists('exists', 'skill', ['claude'], 'local');
-        expect(existing).toContain('.agent');
+        expect(existing).toContain('.agents');
         expect(existing).toContain('Claude Code');
     });
 });

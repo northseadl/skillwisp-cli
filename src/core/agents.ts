@@ -21,11 +21,11 @@ export interface AgentConfig {
 }
 
 export const PRIMARY_SOURCE: AgentConfig = {
-    id: 'agent',
-    name: '.agent',
-    baseDir: '.agent',
-    globalBaseDir: '.agent',
-    detectPaths: ['.agent'],
+    id: 'agents',
+    name: '.agents',
+    baseDir: '.agents',
+    globalBaseDir: '.agents',
+    detectPaths: ['.agents'],
     priority: 0,
 };
 
@@ -104,13 +104,13 @@ export const TARGET_APPS: AgentConfig[] = [
     },
     {
         // Antigravity (Google Gemini Agent)
-        // 项目级目录 .agent 与 PRIMARY_SOURCE 重叠，不支持独立项目级安装
+        // 项目级目录 .agents 与 PRIMARY_SOURCE 重叠，不支持独立项目级安装
         // 全局级使用专属目录 ~/.gemini/antigravity/skills/
         id: 'antigravity',
         name: 'Antigravity',
-        baseDir: '', // 空：项目级复用 PRIMARY_SOURCE (.agent)
+        baseDir: '', // 空：项目级复用 PRIMARY_SOURCE (.agents)
         globalBaseDir: '.gemini/antigravity',
-        detectPaths: ['.gemini/antigravity', '.agent/skills'],
+        detectPaths: ['.gemini/antigravity', '.agents/skills'],
         priority: 10,
     },
 ];
