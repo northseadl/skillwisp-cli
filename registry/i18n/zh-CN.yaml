@@ -345,3 +345,11 @@ ui:
   menu_installed_hint: "查看已安装的内容"
   please_wait: "请稍候..."
   press_any_key_back: "按 Enter 或 Esc 返回"
+
+  # 多选菜单
+  multi_selected: "已选"
+  multi_shortcut_space_toggle: "空格切换"
+  multi_shortcut_all: "全选"
+  multi_shortcut_none: "全不选"
+  multi_shortcut_invert: "反选"
+  multi_shortcut_enter_confirm: "回车确认"

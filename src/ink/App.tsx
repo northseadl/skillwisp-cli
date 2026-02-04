@@ -15,7 +15,9 @@
 
 import { Box, Text, useApp, useInput } from 'ink';
 import Spinner from 'ink-spinner';
-import { useState, useCallback, useEffect, type ReactNode } from 'react';
+import { useState, useCallback, type ReactNode } from 'react';
+import { existsSync, readdirSync } from 'node:fs';
+import { join } from 'node:path';
 import {
     Header,
     Footer,
@@ -34,11 +36,12 @@ import {
     searchResources,
     getIndexVersion,
 } from '../core/registry.js';
-import { installResource, detectApps, getAppsByIds } from '../core/installer.js';
+import { installResource, detectApps } from '../core/installer.js';
+import { getInstallRoot } from '../core/installPaths.js';
 import { getDefaultAgents } from '../core/preferences.js';
 import { PRIMARY_SOURCE, TARGET_APPS } from '../core/agents.js';
-import type { Resource } from '../core/types.js';
-import { RESOURCE_CONFIG } from '../core/types.js';
+import type { Resource, ResourceType } from '../core/types.js';
+import { RESOURCE_CONFIG, RESOURCE_TYPES } from '../core/types.js';
 import { CLI_VERSION } from '../core/version.js';
 import { needsLanguageSetup, setLocale, t, getLocaleData, type LocaleCode } from '../ui/i18n.js';
 
@@ -56,10 +59,17 @@ type Screen =
     | 'installing'
     | 'install-complete'
     | 'quick-install'
+    | 'quick-install-select'
     | 'installed-list'
     | 'help';
 
 type InstallScope = 'local' | 'global';
+
+interface InstalledItem {
+    id: string;
+    type: ResourceType;
+    scope: InstallScope;
+}
 
 interface InstallResult {
     successCount: number;
@@ -76,6 +86,7 @@ interface AppState {
     installScope: InstallScope;
     selectedTargets: string[];
     installResult: InstallResult | null;
+    installedItems: InstalledItem[];
     hint: string;
     isInstalling: boolean;
 }
@@ -92,6 +103,54 @@ function formatResourceLabel(r: Resource): string {
 function truncate(str: string, maxLength: number): string {
     if (str.length <= maxLength) return str;
     return str.slice(0, maxLength - 1) + '…';
+}
+
+function scanInstalledPrimary(scope: InstallScope): InstalledItem[] {
+    const items: InstalledItem[] = [];
+
+    for (const type of RESOURCE_TYPES) {
+        const root = getInstallRoot(PRIMARY_SOURCE, type, scope);
+        if (!root || root.kind !== 'dir') continue;
+        if (!existsSync(root.dir)) continue;
+
+        try {
+            const entries = readdirSync(root.dir, { withFileTypes: true });
+            for (const entry of entries) {
+                if (!entry.isDirectory() && !entry.isSymbolicLink()) continue;
+                const resourceDir = join(root.dir, entry.name);
+                const entryFile = join(resourceDir, root.entryFile);
+                if (!existsSync(entryFile)) continue;
+                items.push({ id: entry.name, type, scope });
+            }
+        } catch {
+            // ignore permission errors
+        }
+    }
+
+    return items;
+}
+
+function loadInstalledItems(): InstalledItem[] {
+    const all = [
+        ...scanInstalledPrimary('local'),
+        ...scanInstalledPrimary('global'),
+    ];
+
+    const seen = new Set<string>();
+    const unique: InstalledItem[] = [];
+
+    for (const item of all) {
+        const key = `${item.scope}:${item.type}:${item.id}`;
+        if (seen.has(key)) continue;
+        seen.add(key);
+        unique.push(item);
+    }
+
+    return unique.sort((a, b) => {
+        if (a.scope !== b.scope) return a.scope.localeCompare(b.scope);
+        if (a.type !== b.type) return a.type.localeCompare(b.type);
+        return a.id.localeCompare(b.id);
+    });
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -113,6 +172,7 @@ export function App(): ReactNode {
         installScope: 'local',
         selectedTargets: [],
         installResult: null,
+        installedItems: [],
         hint: t('hint_navigation'),
         isInstalling: false,
     });
@@ -160,7 +220,7 @@ export function App(): ReactNode {
                 navigate('quick-install');
                 break;
             case 'installed':
-                navigate('installed-list');
+                navigate('installed-list', { installedItems: loadInstalledItems() });
                 break;
             case 'help':
                 navigate('help');
@@ -171,6 +231,39 @@ export function App(): ReactNode {
                 break;
         }
     }, [navigate, exit]);
+
+    const handleQuickInstallSubmit = useCallback((query: string) => {
+        if (!query) {
+            navigate('quick-install', { hint: t('resource_id_required') });
+            return;
+        }
+
+        const matches = searchResources(query)
+            .map((r) => localizeResource(r, locale));
+
+        if (matches.length === 0) {
+            navigate('quick-install', { hint: t('no_results') });
+            return;
+        }
+
+        if (matches.length === 1) {
+            navigate('install-scope', {
+                searchQuery: query,
+                searchResults: matches,
+                selectedResources: [matches[0].id],
+            });
+            return;
+        }
+
+        navigate('quick-install-select', {
+            searchQuery: query,
+            searchResults: matches.slice(0, 5),
+        });
+    }, [navigate, locale]);
+
+    const handleQuickInstallSelect = useCallback((id: string) => {
+        navigate('install-scope', { selectedResources: [id] });
+    }, [navigate]);
 
     // ═══════════════════════════════════════════════════════════════════════
     // 搜索处理
@@ -233,34 +326,29 @@ export function App(): ReactNode {
             const resources = state.searchResults.filter(
                 (r) => state.selectedResources.includes(r.id)
             );
-            const apps = getAppsByIds(targets);
-            const isGlobal = state.installScope === 'global';
 
             let successCount = 0;
             let failCount = 0;
-            const installedNames: string[] = [];
+            const installedNames = new Set<string>();
 
             for (const resource of resources) {
-                for (const app of apps) {
-                    try {
-                        installResource(resource, {
-                            agents: [app.id],
-                            scope: isGlobal ? 'global' : 'local',
-                        });
-                        successCount++;
-                        if (!installedNames.includes(resource.name)) {
-                            installedNames.push(resource.name);
-                        }
-                    } catch {
-                        failCount++;
-                    }
+                const result = installResource(resource, {
+                    agents: targets,
+                    scope: state.installScope,
+                });
+
+                if (result.success) {
+                    successCount++;
+                    installedNames.add(resource.name);
+                } else {
+                    failCount++;
                 }
             }
 
             const result: InstallResult = {
                 successCount,
                 failCount,
-                installedNames,
+                installedNames: Array.from(installedNames),
                 targetApps: targets,
             };
 
@@ -286,7 +374,7 @@ export function App(): ReactNode {
     // ═══════════════════════════════════════════════════════════════════════
 
     useInput((input, key) => {
-        if (state.screen === 'help' && (key.return || key.escape)) {
+        if ((state.screen === 'help' || state.screen === 'installed-list') && (key.return || key.escape)) {
             navigate('main-menu');
         }
     });
@@ -316,6 +404,30 @@ export function App(): ReactNode {
                         placeholder={t('search_placeholder')}
                         onSubmit={handleSearchSubmit}
                         onCancel={() => navigate('main-menu')}
+                    />
+                );
+
+            case 'quick-install':
+                return (
+                    <TextInput
+                        message={t('enter_resource_id')}
+                        placeholder={t('resource_id_placeholder')}
+                        onSubmit={handleQuickInstallSubmit}
+                        onCancel={() => navigate('main-menu')}
+                    />
+                );
+
+            case 'quick-install-select':
+                return (
+                    <SelectMenu
+                        message={t('found_matches')}
+                        items={state.searchResults.map((r) => ({
+                            label: formatResourceLabel(r),
+                            value: r.id,
+                            hint: truncate(r.description, 40),
+                        }))}
+                        onSelect={handleQuickInstallSelect}
+                        onCancel={() => navigate('quick-install')}
                     />
                 );
 
@@ -441,6 +553,39 @@ export function App(): ReactNode {
                         </Box>
                     </Box>
                 );
+
+            case 'installed-list': {
+                const items = state.installedItems;
+
+                return (
+                    <Box flexDirection="column" paddingX={2}>
+                        <Box marginBottom={1}>
+                            <Text color={colors.primary} bold>{symbols.info} {t('menu_installed')}</Text>
+                        </Box>
+                        {items.length === 0 ? (
+                            <Text color={colors.textMuted}>{t('no_results')}</Text>
+                        ) : (
+                            <Box flexDirection="column" marginLeft={2}>
+                                {items.map((item) => {
+                                    const typeLabel = RESOURCE_CONFIG[item.type].label;
+                                    const scopeHint = item.scope === 'global' ? ' [global]' : '';
+                                    return (
+                                        <Text
+                                            key={`${item.scope}:${item.type}:${item.id}`}
+                                            color={colors.textDim}
+                                        >
+                                            {symbols.pointerSmall} [{typeLabel}] {item.id}{scopeHint}
+                                        </Text>
+                                    );
+                                })}
+                            </Box>
+                        )}
+                        <Box marginTop={2}>
+                            <Text color={colors.textMuted}>{t('press_any_key_back')}</Text>
+                        </Box>
+                    </Box>
+                );
+            }
 
             default:
                 return <Text>Unknown screen</Text>;

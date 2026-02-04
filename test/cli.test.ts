@@ -73,7 +73,7 @@ describe('Registry Validation', () => {
 describe('CLI Commands', () => {
     it('should show help with --help', () => {
         const output = runCli('--help')
-        expect(output).toContain('skillwisp')
+        expect(output).toContain('Usage: skillwisp')
     })
 
     it('should show version with --version', () => {
@@ -83,12 +83,16 @@ describe('CLI Commands', () => {
 
     it('should search skills', () => {
         const output = runCli('search pdf --json')
-        expect(output).toBeDefined()
+        const data = JSON.parse(output)
+        expect(Array.isArray(data)).toBe(true)
+        expect(data.length).toBeGreaterThan(0)
     })
 
     it('should show skill info', () => {
         const output = runCli('info pdf --json')
-        expect(output).toBeDefined()
+        const data = JSON.parse(output)
+        expect(data).toBeDefined()
+        expect(data.id).toBe('pdf')
     })
 
     it('should perform dry-run install', () => {
@@ -98,7 +102,8 @@ describe('CLI Commands', () => {
 
     it('should list installed resources', () => {
         const output = runCli('list --json')
-        expect(output).toBeDefined()
+        const data = JSON.parse(output)
+        expect(Array.isArray(data)).toBe(true)
     })
 })
 

@@ -15,8 +15,3 @@ export async function main(): Promise<void> {
     // 使用 ink 渲染主应用（语言选择在 App 内部处理）
     render(<App />);
 }
-
-// 如果直接运行此文件
-if (import.meta.url === `file://${process.argv[1]}`) {
-    main().catch(console.error);
-}

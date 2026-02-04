@@ -19,6 +19,7 @@ interface SelectMenuProps<T> {
     message: string;
     items: MenuItem<T>[];
     onSelect: (value: T) => void;
+    onCancel?: () => void;
     showNumbers?: boolean; // 是否显示数字快捷键
 }
 
@@ -26,11 +27,17 @@ export function SelectMenu<T>({
     message,
     items,
     onSelect,
+    onCancel,
     showNumbers = true,
 }: SelectMenuProps<T>): ReactNode {
     const [selectedIndex, setSelectedIndex] = useState(0);
 
     useInput((input, key) => {
+        if (key.escape && onCancel) {
+            onCancel();
+            return;
+        }
+
         // 方向键导航
         if (key.upArrow || input === 'k') {
             setSelectedIndex((prev) => (prev > 0 ? prev - 1 : items.length - 1));

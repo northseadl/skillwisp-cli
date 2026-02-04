@@ -103,3 +103,11 @@ ui:
   menu_installed_hint: "See what you've installed"
   please_wait: "Please wait..."
   press_any_key_back: "Press Enter or Esc to go back"
+
+  # Multi select menu
+  multi_selected: "selected"
+  multi_shortcut_space_toggle: "Space toggle"
+  multi_shortcut_all: "all"
+  multi_shortcut_none: "none"
+  multi_shortcut_invert: "invert"
+  multi_shortcut_enter_confirm: "Enter confirm"

@@ -224,6 +224,9 @@ export async function install(resourceId: string, options: InstallOptions = {}):
 
         console.log();
     } catch (error) {
+        if (error instanceof Error && error.message.startsWith('process.exit:')) {
+            throw error;
+        }
         const message = error instanceof Error ? error.message : String(error);
         spinner.stop(`Failed: ${message}`, 'error');
         process.exit(4);

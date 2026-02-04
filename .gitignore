@@ -3,6 +3,7 @@ dist/
 *.log
 .DS_Store
 .npmrc
+coverage/
 
 # 本地安装的资源（用户产物，不应提交）
 .agent/

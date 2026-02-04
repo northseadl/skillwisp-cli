@@ -101,18 +101,18 @@ export function MultiSelectMenu<T>({
                 </Text>
                 <Text> {message}</Text>
                 <Text color={colors.textMuted}>
-                    {' '}({selectedCount} selected)
+                    {' '}({selectedCount} {t('multi_selected')})
                 </Text>
             </Box>
 
             {/* 快捷键提示 */}
             <Box marginBottom={1} marginLeft={2}>
                 <Text color={colors.textSubtle}>
-                    Space toggle ·
-                    <Text color={colors.primaryBright}> a</Text> all ·
-                    <Text color={colors.primaryBright}> n</Text> none ·
-                    <Text color={colors.primaryBright}> i</Text> invert ·
-                    Enter confirm
+                    {t('multi_shortcut_space_toggle')} ·
+                    <Text color={colors.primaryBright}> a</Text> {t('multi_shortcut_all')} ·
+                    <Text color={colors.primaryBright}> n</Text> {t('multi_shortcut_none')} ·
+                    <Text color={colors.primaryBright}> i</Text> {t('multi_shortcut_invert')} ·
+                    {t('multi_shortcut_enter_confirm')}
                 </Text>
             </Box>
 
