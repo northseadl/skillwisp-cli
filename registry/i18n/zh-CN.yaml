@@ -4,7 +4,101 @@ locale: zh-CN
 name: 简体中文
 
 skills:
-  # Anthropic Official Skills
+  # Muratcankoylan - AI 代理上下文工程技能
+  muratcankoylan:
+    context-fundamentals:
+      name: 上下文基础
+      description: AI 代理系统的上下文工程基础知识。涵盖上下文解剖（系统提示、工具定义、检索文档、消息历史、工具输出）、注意力机制、渐进式披露和上下文预算。设计新代理系统、调试代理行为或优化上下文使用时使用。
+    context-degradation:
+      name: 上下文退化
+      description: 理解 AI 代理中的上下文失效机制。涵盖中间丢失效应、注意力分散、上下文污染模式和退化检测技术。当代理在长对话中表现下降或响应不一致时使用。
+    context-compression:
+      name: 上下文压缩
+      description: 高效上下文表示技术。涵盖摘要策略、分层压缩、选择性保留和语义去重。当上下文窗口接近限制且需要保留关键信息时使用。
+    context-optimization:
+      name: 上下文优化
+      description: 扩展有效上下文容量的技术。涵盖上下文分区、缓存策略、压缩触发器和注意力感知定位。当需要提高代理在长任务中的性能时使用。
+    multi-agent-patterns:
+      name: 多代理模式
+      description: 多代理系统的架构模式。涵盖监督者/编排器、点对点/群体和层级模式。包括上下文隔离、共识机制和协调协议。设计需要多个专业代理协作的系统时使用。
+    memory-systems:
+      name: 记忆系统
+      description: 为 AI 代理设计记忆架构。涵盖工作记忆、情景记忆、语义记忆和跨代理状态管理模式。当代理需要在会话间保持信息或需要共享状态时使用。
+    tool-design:
+      name: 工具设计
+      description: 设计有效代理工具的原则。涵盖工具描述、参数模式、错误处理和工具选择的整合原则。创建新工具或优化现有工具以更好地服务代理时使用。
+    filesystem-context:
+      name: 文件系统上下文
+      description: 利用文件系统进行上下文管理。涵盖渐进式文档加载、基于文件的记忆模式和元数据驱动的上下文精炼。当代理需要处理大型代码库或文档集合时使用。
+    hosted-agents:
+      name: 托管代理
+      description: 部署和管理托管代理系统的模式。涵盖扩展、隔离、监控和生产部署考虑。将代理系统部署到生产环境时使用。
+    evaluation:
+      name: 代理评估
+      description: 代理系统的评估框架。涵盖基准设计、指标选择、回归测试和持续评估流水线。建立代理质量保证流程时使用。
+    advanced-evaluation:
+      name: 高级评估
+      description: 高级评估技术，包括 LLM-as-judge 模式、成对比较、多维度评分和评估校准方法。当需要详细的代理输出质量分析时使用。
+    project-development:
+      name: 项目开发
+      description: 构建 LLM 驱动项目的元级实践。涵盖迭代开发、提示版本控制、实验跟踪和生产最佳实践。启动或管理 AI 代理项目时使用。
+    bdi-mental-states:
+      name: BDI 心智状态
+      description: 理性代理系统的形式化认知建模。涵盖信念-愿望-意图架构、心智状态转换和目标导向推理模式。设计具有显式目标推理能力的代理时使用。
+
+  # Obra Superpowers - 代理技能框架
+  obra:
+
+    brainstorming:
+      name: 头脑风暴
+      description: 通过苏格拉底式对话将想法转化为设计。在实现之前探索用户意图和需求。一次问一个问题，提出 2-3 个带有权衡的方案，分小节呈现设计并逐步验证。当开始任何创意工作、创建功能、构建组件或修改行为时使用。
+    dispatching-parallel-agents:
+      name: 并行代理调度
+      description: 协调并发子代理工作流。调度多个代理并行处理独立任务，然后合并结果。包含交接协议和同步策略。当需要将复杂任务分解为可并行执行的子任务时使用。
+    executing-plans:
+      name: 执行计划
+      description: 带检查点的批量执行。按步骤逐一遵循详细实现计划，每步都进行验证。支持暂停/恢复和回滚。当拥有标准实现计划并准备开始代码工作时使用。
+    finishing-a-development-branch:
+      name: 完成开发分支
+      description: 合并/PR 决策工作流。指导完成开发分支，包括合并前检查、冲突解决和清理提交历史准备。当功能完成并准备合并回主分支时使用。
+    receiving-code-review:
+      name: 接收代码评审
+      description: 系统地处理和响应代码评审反馈。分类评论、解决关注点、实施修复、清晰沟通更改。当收到代码评审反馈并需要进行修改时使用。
+    requesting-code-review:
+      name: 请求代码评审
+      description: 代码提交前的预评审清单。通过自查、文档、测试验证和清晰的 PR 描述为评审准备更改。当准备提交代码等待评审时使用。
+    subagent-driven-development:
+      name: 子代理驱动开发
+      description: 两阶段评审的快速迭代。每个任务调度新的子代理实现，然后进行规范合规性审查和代码质量审查。包含实现者和审查者提示模板。当希望保持开发循环快速且专注时使用。
+    systematic-debugging:
+      name: 系统化调试
+      description: 四阶段根因分析：调查、模式分析、假设测试、实现。包含根因追踪、纵深防御和条件等待技术。核心原则：修复之前必须先找到根因。遇到任何 Bug、测试失败或意外行为时使用。
+    test-driven-development:
+      name: 测试驱动开发
+      description: RED-GREEN-REFACTOR 循环，附带测试反模式参考。先写测试、看它失败、写最小代码使其通过。核心原则：没有失败的测试就不写生产代码。实现任何功能或修复 Bug 前使用。
+    using-git-worktrees:
+      name: 使用 Git Worktrees
+      description: 使用 git worktrees 进行并行开发分支。无需切换分支即可为不同功能创建隔离工作区。高效管理多个 worktree。当需要同时处理多个功能分支时使用。
+    using-superpowers:
+      name: 使用 Superpowers
+      description: Superpowers 技能系统介绍。确定如何查找和使用技能，在任何响应之前都需要调用技能。核心原则：如果技能适用于你的任务，你必须使用它。开始任何对话时使用。
+    verification-before-completion:
+      name: 完成前验证
+      description: 确保修复确实生效后再声称成功。运行验证测试、检查回归、确认预期行为。没有验证永远不要标记为完成。声称任何修复或功能完成之前使用。
+    writing-plans:
+      name: 编写计划
+      description: 为多步骤任务创建详细实现计划。粒度细化（2-5 分钟步骤）、精确文件路径、完整代码片段、TDD 集成。计划保存到 docs/plans/。当有规范或需求需要多步实现时使用。
+    writing-skills:
+      name: 编写技能
+      description: 遵循最佳实践创建新技能。包含使用子代理的测试方法论、Anthropic 最佳实践、说服原则和流程图的 graphviz 约定。当需要创建新技能以扩展 Agent 能力时使用。
+
+  # NextLevelBuilder Skills
+  nextlevelbuilder:
+    ui-ux-pro-max:
+      name: UI/UX 设计大师
+      description: AI 驱动的 UI/UX 设计智能。67 种设计风格、96 套行业配色方案、57 组字体搭配、25 种图表类型、13 种技术栈支持。具备 100 条行业推理规则的智能设计系统生成、交付前检查清单和全面的 UX 指南。当设计新组件、构建落地页、选择配色和字体、审查 UI 代码、实现无障碍要求时使用。
+
+
   anthropic:
     algorithmic-art:
       name: 算法艺术

@@ -1,10 +1,268 @@
 # 资源索引
 # 由 sync 命令自动生成，也可手动维护
-index_version: "2026.02.04.6"
+index_version: "2026.02.04.10"
 min_cli_version: "0.6.0"
-updated: "2026-02-04T21:45:00+08:00"
+updated: "2026-02-04T23:45:00+08:00"
 
 skills:
+  # Muratcankoylan - Agent Skills for Context Engineering
+  - id: context-fundamentals
+    source: muratcankoylan
+    path: "@muratcankoylan/context-fundamentals"
+    name: Context Fundamentals
+    description: "Foundational understanding of context engineering for AI agent systems. Covers context anatomy (system prompts, tool definitions, retrieved documents, message history, tool outputs), attention mechanics, progressive disclosure, and context budgeting."
+    tags: [context-engineering, agent, architecture, fundamentals]
+    lastUpdated: "2026-02-04"
+    commitHash: "a1b2c3d"
+
+  - id: context-degradation
+    source: muratcankoylan
+    path: "@muratcankoylan/context-degradation"
+    name: Context Degradation
+    description: "Understanding how context fails in AI agents. Covers lost-in-middle effect, attention scattering, context poisoning patterns, and degradation detection techniques."
+    tags: [context-engineering, debugging, performance]
+    lastUpdated: "2026-02-04"
+    commitHash: "a1b2c3d"
+
+  - id: context-compression
+    source: muratcankoylan
+    path: "@muratcankoylan/context-compression"
+    name: Context Compression
+    description: "Techniques for efficient context representation. Covers summarization strategies, hierarchical compression, selective retention, and semantic deduplication."
+    tags: [context-engineering, optimization, compression]
+    lastUpdated: "2026-02-04"
+    commitHash: "a1b2c3d"
+
+  - id: context-optimization
+    source: muratcankoylan
+    path: "@muratcankoylan/context-optimization"
+    name: Context Optimization
+    description: "Techniques for extending effective context capacity. Covers context partitioning, caching strategies, compaction triggers, and attention-aware placement."
+    tags: [context-engineering, optimization, performance]
+    lastUpdated: "2026-02-04"
+    commitHash: "a1b2c3d"
+
+  - id: multi-agent-patterns
+    source: muratcankoylan
+    path: "@muratcankoylan/multi-agent-patterns"
+    name: Multi-Agent Patterns
+    description: "Architectural patterns for multi-agent systems. Covers supervisor/orchestrator, peer-to-peer/swarm, and hierarchical patterns. Includes context isolation, consensus mechanisms, and coordination protocols."
+    tags: [multi-agent, architecture, patterns, coordination]
+    lastUpdated: "2026-02-04"
+    commitHash: "a1b2c3d"
+
+  - id: memory-systems
+    source: muratcankoylan
+    path: "@muratcankoylan/memory-systems"
+    name: Memory Systems
+    description: "Designing memory architectures for AI agents. Covers working memory, episodic memory, semantic memory, and cross-agent state management patterns."
+    tags: [memory, architecture, agent, state-management]
+    lastUpdated: "2026-02-04"
+    commitHash: "a1b2c3d"
+
+  - id: tool-design
+    source: muratcankoylan
+    path: "@muratcankoylan/tool-design"
+    name: Tool Design
+    description: "Principles for designing effective agent tools. Covers tool descriptions, parameter schemas, error handling, and the consolidation principle for tool selection."
+    tags: [tools, design, api, agent]
+    lastUpdated: "2026-02-04"
+    commitHash: "a1b2c3d"
+
+  - id: filesystem-context
+    source: muratcankoylan
+    path: "@muratcankoylan/filesystem-context"
+    name: Filesystem Context
+    description: "Leveraging file systems for context management. Covers progressive document loading, file-based memory patterns, and metadata-driven context refinement."
+    tags: [filesystem, context-engineering, storage]
+    lastUpdated: "2026-02-04"
+    commitHash: "a1b2c3d"
+
+  - id: hosted-agents
+    source: muratcankoylan
+    path: "@muratcankoylan/hosted-agents"
+    name: Hosted Agents
+    description: "Patterns for deploying and managing hosted agent systems. Covers scaling, isolation, monitoring, and production deployment considerations."
+    tags: [deployment, production, hosting, agent]
+    lastUpdated: "2026-02-04"
+    commitHash: "a1b2c3d"
+
+  - id: evaluation
+    source: muratcankoylan
+    path: "@muratcankoylan/evaluation"
+    name: Agent Evaluation
+    description: "Evaluation frameworks for agent systems. Covers benchmark design, metric selection, regression testing, and continuous evaluation pipelines."
+    tags: [evaluation, testing, metrics, benchmarks]
+    lastUpdated: "2026-02-04"
+    commitHash: "a1b2c3d"
+
+  - id: advanced-evaluation
+    source: muratcankoylan
+    path: "@muratcankoylan/advanced-evaluation"
+    name: Advanced Evaluation
+    description: "Advanced evaluation techniques including LLM-as-judge patterns, pairwise comparison, multi-dimensional scoring, and evaluation calibration methods."
+    tags: [evaluation, llm-as-judge, advanced, testing]
+    lastUpdated: "2026-02-04"
+    commitHash: "a1b2c3d"
+
+  - id: project-development
+    source: muratcankoylan
+    path: "@muratcankoylan/project-development"
+    name: Project Development
+    description: "Meta-level practices for building LLM-powered projects. Covers iterative development, prompt versioning, experiment tracking, and production best practices."
+    tags: [methodology, development, workflow, best-practices]
+    lastUpdated: "2026-02-04"
+    commitHash: "a1b2c3d"
+
+  - id: bdi-mental-states
+    source: muratcankoylan
+    path: "@muratcankoylan/bdi-mental-states"
+    name: BDI Mental States
+    description: "Formal cognitive modeling for rational agent systems. Covers Belief-Desire-Intention architecture, mental state transitions, and goal-directed reasoning patterns."
+    tags: [cognitive-architecture, bdi, agent, reasoning]
+    lastUpdated: "2026-02-04"
+    commitHash: "a1b2c3d"
+
+
+  # Obra Superpowers - Agentic Skills Framework
+  - id: brainstorming
+    source: obra
+    path: "@obra/brainstorming"
+    name: Brainstorming
+    description: "Turn ideas into designs through Socratic dialogue. Explore user intent and requirements before implementation. Ask questions one at a time, propose 2-3 approaches with trade-offs, present designs in small sections with incremental validation."
+    tags: [workflow, planning, design, collaboration]
+    lastUpdated: "2026-02-04"
+    commitHash: "f4e5d6c"
+
+  - id: dispatching-parallel-agents
+    source: obra
+    path: "@obra/dispatching-parallel-agents"
+    name: Dispatching Parallel Agents
+    description: "Coordinate concurrent subagent workflows. Dispatch multiple agents to work on independent tasks in parallel, then merge results. Includes handoff protocols and synchronization strategies."
+    tags: [workflow, subagent, parallel, coordination]
+    lastUpdated: "2026-02-04"
+    commitHash: "f4e5d6c"
+
+  - id: executing-plans
+    source: obra
+    path: "@obra/executing-plans"
+    name: Executing Plans
+    description: "Batch execution with checkpoints. Follow detailed implementation plans task by task with verification at each step. Supports pause/resume and rollback."
+    tags: [workflow, execution, planning]
+    lastUpdated: "2026-02-04"
+    commitHash: "f4e5d6c"
+
+  - id: finishing-a-development-branch
+    source: obra
+    path: "@obra/finishing-a-development-branch"
+    name: Finishing Development Branch
+    description: "Merge/PR decision workflow. Guide the completion of a development branch with pre-merge checks, conflict resolution, and clean commit history preparation."
+    tags: [git, workflow, branching, merge]
+    lastUpdated: "2026-02-04"
+    commitHash: "f4e5d6c"
+
+  - id: receiving-code-review
+    source: obra
+    path: "@obra/receiving-code-review"
+    name: Receiving Code Review
+    description: "Process and respond to code review feedback systematically. Categorize comments, address concerns, implement fixes, and communicate changes clearly."
+    tags: [workflow, code-review, collaboration]
+    lastUpdated: "2026-02-04"
+    commitHash: "f4e5d6c"
+
+  - id: requesting-code-review
+    source: obra
+    path: "@obra/requesting-code-review"
+    name: Requesting Code Review
+    description: "Pre-review checklist for code submissions. Prepare changes for review with self-review, documentation, testing verification, and clear PR descriptions."
+    tags: [workflow, code-review, collaboration]
+    lastUpdated: "2026-02-04"
+    commitHash: "f4e5d6c"
+
+  - id: subagent-driven-development
+    source: obra
+    path: "@obra/subagent-driven-development"
+    name: Subagent-Driven Development
+    description: "Fast iteration with two-stage review. Dispatch fresh subagent per task for implementation, then review for spec compliance followed by code quality. Includes implementer and reviewer prompt templates."
+    tags: [workflow, subagent, development, tdd]
+    lastUpdated: "2026-02-04"
+    commitHash: "f4e5d6c"
+
+  - id: systematic-debugging
+    source: obra
+    path: "@obra/systematic-debugging"
+    name: Systematic Debugging
+    description: "4-phase root cause analysis: investigate, pattern analysis, hypothesis testing, implementation. Includes root-cause-tracing, defense-in-depth, and condition-based-waiting techniques. NO FIXES WITHOUT ROOT CAUSE INVESTIGATION FIRST."
+    tags: [debugging, methodology, testing]
+    lastUpdated: "2026-02-04"
+    commitHash: "f4e5d6c"
+
+  - id: test-driven-development
+    source: obra
+    path: "@obra/test-driven-development"
+    name: Test-Driven Development
+    description: "RED-GREEN-REFACTOR cycle with testing anti-patterns reference. Write the test first, watch it fail, write minimal code to pass. NO PRODUCTION CODE WITHOUT A FAILING TEST FIRST."
+    tags: [testing, tdd, methodology, development]
+    lastUpdated: "2026-02-04"
+    commitHash: "f4e5d6c"
+
+  - id: using-git-worktrees
+    source: obra
+    path: "@obra/using-git-worktrees"
+    name: Using Git Worktrees
+    description: "Parallel development branches with git worktrees. Create isolated workspaces for different features without switching branches. Manage multiple worktrees efficiently."
+    tags: [git, workflow, branching]
+    lastUpdated: "2026-02-04"
+    commitHash: "f4e5d6c"
+
+  - id: using-superpowers
+    source: obra
+    path: "@obra/using-superpowers"
+    name: Using Superpowers
+    description: "Introduction to the Superpowers skills system. Establishes how to find and use skills, requiring skill invocation before ANY response. IF A SKILL APPLIES TO YOUR TASK, YOU MUST USE IT."
+    tags: [meta, workflow, skills]
+    lastUpdated: "2026-02-04"
+    commitHash: "f4e5d6c"
+
+  - id: verification-before-completion
+    source: obra
+    path: "@obra/verification-before-completion"
+    name: Verification Before Completion
+    description: "Ensure fixes are actually fixed before claiming success. Run verification tests, check for regressions, confirm expected behavior. Never mark complete without verification."
+    tags: [testing, verification, workflow]
+    lastUpdated: "2026-02-04"
+    commitHash: "f4e5d6c"
+
+  - id: writing-plans
+    source: obra
+    path: "@obra/writing-plans"
+    name: Writing Plans
+    description: "Create detailed implementation plans for multi-step tasks. Bite-sized granularity (2-5 min steps), exact file paths, complete code snippets, TDD integration. Plans saved to docs/plans/."
+    tags: [planning, documentation, workflow]
+    lastUpdated: "2026-02-04"
+    commitHash: "f4e5d6c"
+
+  - id: writing-skills
+    source: obra
+    path: "@obra/writing-skills"
+    name: Writing Skills
+    description: "Create new skills following best practices. Includes testing methodology with subagents, Anthropic best practices, persuasion principles, and graphviz conventions for flowcharts."
+    tags: [meta, skills, documentation]
+    lastUpdated: "2026-02-04"
+    commitHash: "f4e5d6c"
+
+  # NextLevelBuilder Skills
+  - id: ui-ux-pro-max
+    source: nextlevelbuilder
+    path: "@nextlevelbuilder/ui-ux-pro-max"
+    name: UI UX Pro Max
+    description: "AI-powered UI/UX design intelligence. 67 styles, 96 color palettes, 57 font pairings, 25 chart types, 13 tech stacks. Features intelligent design system generation with 100 industry reasoning rules, pre-delivery checklist, and comprehensive UX guidelines."
+    tags: [design, uiux, frontend, tailwind, react, nextjs, vue, svelte, flutter, accessibility]
+    compatibility: "requires=python3"
+    lastUpdated: "2026-02-04"
+    commitHash: "e58d618"
+
+
   # Anthropic Official Skills
   - id: pdf
     source: anthropic
