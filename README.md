@@ -108,17 +108,20 @@ skillwisp config reset           # 重置
 
 ## 支持的工具
 
-| 工具 | 目录/文件 |
-|------|------|
-| Claude Code | `.claude/skills` |
-| Cursor | `.cursor/rules` (`*.mdc`, workspace only) |
-| Gemini CLI | `.gemini/skills` |
-| Codex | `.codex/skills` (global: `~/.codex/skills`) |
-| GitHub Copilot (VS Code) | `.github/prompts` (`*.prompt.md`, workspace only) |
-| Windsurf | `.windsurf/skills` (global: `~/.codeium/windsurf/skills`) |
-| Trae | `.trae/skills` *(未找到官方文档确认)* |
-| Kiro | `.kiro/steering` (workspace only) |
-| Augment | `.augment/rules` (global: `~/.augment/rules`) |
+| 工具 | Skills 目录 | 备注 |
+|------|------------|------|
+| Claude Code | `.claude/skills/` | 全局: `~/.claude/skills/` |
+| Cursor | `.cursor/skills/` | 兼容 Claude/Codex 目录 |
+| Gemini CLI | `.gemini/skills/` | 全局: `~/.gemini/skills/` |
+| Codex | `.codex/skills/` | 全局: `~/.codex/skills/` |
+| Trae | `.trae/skills/` | 全局: `~/.trae/skills/` |
+| Windsurf | `.windsurf/skills/` | 全局: `~/.codeium/windsurf/skills/` |
+| GitHub Copilot | `.github/skills/` | 全局: `~/.copilot/skills/` |
+| Augment | `.augment/skills/` | 全局: `~/.augment/skills/` |
+| Antigravity | `.agent/skills/` ¹ | 全局: `~/.gemini/antigravity/skills/` |
+| Kiro | `.kiro/steering/` | 文件型，仅 workspace |
+
+> ¹ Antigravity 项目级目录与 `.agent` (PRIMARY_SOURCE) 重叠，建议使用 `.agent` 进行项目级安装
 
 ## 退出码
 

@@ -43,7 +43,7 @@ export const TARGET_APPS: AgentConfig[] = [
         name: 'Cursor',
         baseDir: '.cursor',
         globalBaseDir: '',
-        detectPaths: ['.cursor', '.cursorrules', '.cursor/rules'],
+        detectPaths: ['.cursor', '.cursorrules', '.cursor/rules', '.cursor/skills'],
         priority: 2,
     },
     {
@@ -51,7 +51,7 @@ export const TARGET_APPS: AgentConfig[] = [
         name: 'Gemini',
         baseDir: '.gemini',
         globalBaseDir: '.gemini',
-        detectPaths: ['.gemini'],
+        detectPaths: ['.gemini', '.gemini/skills'],
         priority: 3,
     },
     {
@@ -66,8 +66,8 @@ export const TARGET_APPS: AgentConfig[] = [
         id: 'copilot',
         name: 'GitHub Copilot',
         baseDir: '.github',
-        globalBaseDir: '',
-        detectPaths: ['.github', '.github/copilot-instructions.md', '.github/prompts'],
+        globalBaseDir: '.copilot',
+        detectPaths: ['.github', '.github/copilot-instructions.md', '.github/skills', '.github/prompts'],
         priority: 5,
     },
     {
@@ -99,8 +99,19 @@ export const TARGET_APPS: AgentConfig[] = [
         name: 'Augment',
         baseDir: '.augment',
         globalBaseDir: '.augment',
-        detectPaths: ['.augment', '.augment/rules', '.augment-guidelines'],
+        detectPaths: ['.augment', '.augment/skills', '.augment/rules', '.augment-guidelines'],
         priority: 9,
+    },
+    {
+        // Antigravity (Google Gemini Agent)
+        // 项目级目录 .agent 与 PRIMARY_SOURCE 重叠，不支持独立项目级安装
+        // 全局级使用专属目录 ~/.gemini/antigravity/skills/
+        id: 'antigravity',
+        name: 'Antigravity',
+        baseDir: '', // 空：项目级复用 PRIMARY_SOURCE (.agent)
+        globalBaseDir: '.gemini/antigravity',
+        detectPaths: ['.gemini/antigravity', '.agent/skills'],
+        priority: 10,
     },
 ];
 

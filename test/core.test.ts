@@ -157,7 +157,7 @@ describe('Version', () => {
 
         expect(CLI_VERSION).toBeDefined();
         expect(CLI_VERSION).toMatch(/^\d+\.\d+\.\d+/);
-        expect(CLI_VERSION).toBe('0.4.0');
+        expect(CLI_VERSION).toBe('0.5.0');
     });
 
     it('should compare versions correctly - lower', async () => {

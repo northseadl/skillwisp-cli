@@ -1,9 +1,9 @@
 /**
  * 安装路径规划（按不同工具的真实目录结构）
  *
- * 说明：
- * - 大多数工具：{baseDir}/{skills|rules|workflows}/{id}/(ENTRY.md)
- * - 少数工具：文件型（Cursor rules / VS Code Copilot prompt files / Kiro steering / Augment rules）
+ * 安装模式：
+ * - 目录型（大多数工具）：{baseDir}/skills/{id}/SKILL.md
+ * - 文件型（仅 Kiro）：{baseDir}/.kiro/steering/skillwisp-{id}.md
  */
 
 import { homedir } from 'node:os';
@@ -56,31 +56,23 @@ export function getInstallRoot(
         }
     }
 
-    // VS Code GitHub Copilot：Prompt files（workspace only）
-    if (app.id === 'copilot') {
-        if (scope === 'global') return null;
+    // 仅支持 skill 类型的工具：Copilot、Cursor、Augment
+    // Copilot: .github/skills (local), ~/.copilot/skills (global)
+    // Cursor:  .cursor/skills (local only)
+    // Augment: .augment/skills (local), ~/.augment/skills (global)
+    if (app.id === 'copilot' || app.id === 'cursor' || app.id === 'augment') {
         if (resourceType !== 'skill') return null;
+        if (scope === 'global' && !app.globalBaseDir) return null;
+        const config = RESOURCE_CONFIG[resourceType];
+        const root = scope === 'global' ? app.globalBaseDir : app.baseDir;
         return {
-            kind: 'file',
-            dir: join(baseDir, '.github', 'prompts'),
-            prefix: SKILLWISP_FILE_PREFIX,
-            ext: '.prompt.md',
+            kind: 'dir',
+            dir: join(baseDir, root, config.dirName),
+            entryFile: config.entryFile,
         };
     }
 
-    // Cursor：Project Rules（workspace only）
-    if (app.id === 'cursor') {
-        if (scope === 'global') return null;
-        if (resourceType !== 'skill') return null;
-        return {
-            kind: 'file',
-            dir: join(baseDir, '.cursor', 'rules'),
-            prefix: SKILLWISP_FILE_PREFIX,
-            ext: '.mdc',
-        };
-    }
-
-    // Kiro：Steering files（workspace only）
+    // Kiro：仅项目级，文件型 steering files
     if (app.id === 'kiro') {
         if (scope === 'global') return null;
         if (resourceType !== 'skill') return null;
@@ -92,14 +84,17 @@ export function getInstallRoot(
         };
     }
 
-    // Augment：rules directory（workspace + global）
-    if (app.id === 'augment') {
+    // Antigravity (Google Gemini Agent)：
+    // 项目级 .agent 与 PRIMARY_SOURCE 冲突，返回 null（用户应选择 .agent）
+    // 全局级使用专属目录 ~/.gemini/antigravity/skills/
+    if (app.id === 'antigravity') {
         if (resourceType !== 'skill') return null;
+        if (scope === 'local') return null; // 项目级复用 PRIMARY_SOURCE
+        const config = RESOURCE_CONFIG[resourceType];
         return {
-            kind: 'file',
-            dir: join(baseDir, '.augment', 'rules'),
-            prefix: SKILLWISP_FILE_PREFIX,
-            ext: '.md',
+            kind: 'dir',
+            dir: join(baseDir, app.globalBaseDir, config.dirName),
+            entryFile: config.entryFile,
         };
     }
 
