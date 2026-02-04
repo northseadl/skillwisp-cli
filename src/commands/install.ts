@@ -12,6 +12,7 @@ import * as p from '@clack/prompts';
 import { findResource, findResourceByFullName, searchResources, loadLocale, localizeResource } from '../core/registry.js';
 import { installResource, checkExists } from '../core/installer.js';
 import { detectApps, getAppsByIds, PRIMARY_SOURCE } from '../core/agents.js';
+import { getInstallRoot } from '../core/installPaths.js';
 import { getDefaultAgents, saveDefaultAgents, hasDefaultAgents } from '../core/preferences.js';
 import type { ResourceType } from '../core/types.js';
 import { colors, symbols, createSpinner } from '../ui/theme.js';
@@ -106,6 +107,18 @@ export async function install(resourceId: string, options: InstallOptions = {}):
             console.error(colors.muted(`  Run: skillwisp config to set default targets`));
         }
         process.exit(2);
+    }
+
+    // 全局安装：过滤/校验不支持 global 的目标（例如 Cursor/Copilot/Kiro）
+    if (scope === 'global') {
+        const unsupported = getAppsByIds(agents)
+            .filter((a) => getInstallRoot(a, resourceType, 'global') === null)
+            .map((a) => a.id);
+
+        if (unsupported.length > 0) {
+            printError(`Targets do not support global install: ${unsupported.join(', ')}`, options);
+            process.exit(2);
+        }
     }
 
     // 检查是否已存在

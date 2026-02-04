@@ -7,11 +7,11 @@
 
 import { existsSync, readdirSync, readFileSync, lstatSync } from 'node:fs';
 import { join } from 'node:path';
-import { homedir } from 'node:os';
 
-import { ALL_APPS, getAppResourceDir, getAppGlobalResourceDir } from '../core/agents.js';
+import { ALL_APPS } from '../core/agents.js';
 import type { ResourceType } from '../core/types.js';
 import { RESOURCE_CONFIG, RESOURCE_TYPES } from '../core/types.js';
+import { getInstallRoot, tryParseResourceIdFromFileName } from '../core/installPaths.js';
 import { colors, symbols, getResourceColor } from '../ui/theme.js';
 
 interface ListOptions {
@@ -160,32 +160,45 @@ function findInstalled(): InstalledResource[] {
 
     for (const agent of ALL_APPS) {
         for (const resourceType of RESOURCE_TYPES) {
-            // Local
-            const localDir = join(process.cwd(), getAppResourceDir(agent, resourceType));
-            installed.push(...scanDir(localDir, agent.id, resourceType, 'local'));
-
-            // Global
-            const globalDir = getAppGlobalResourceDir(agent, resourceType);
-            if (globalDir) {
-                const globalPath = join(homedir(), globalDir);
-                installed.push(...scanDir(globalPath, agent.id, resourceType, 'global'));
-            }
+            installed.push(...scanInstalledForAgent(agent.id, resourceType, 'local'));
+            installed.push(...scanInstalledForAgent(agent.id, resourceType, 'global'));
         }
     }
 
     return installed;
 }
 
-function scanDir(
-    dir: string,
+function scanInstalledForAgent(
     agentId: string,
     resourceType: ResourceType,
     scope: 'local' | 'global'
 ): InstalledResource[] {
+    const agent = ALL_APPS.find((a) => a.id === agentId);
+    if (!agent) return [];
+
+    const root = getInstallRoot(agent, resourceType, scope);
+    if (!root) return [];
+
+    if (root.kind === 'dir') {
+        return scanDir(root.dir, agentId, resourceType, scope, root.entryFile);
+    }
+
+    if (root.kind === 'file') {
+        return scanFileRoot(root, agentId, resourceType, scope);
+    }
+    return [];
+}
+
+function scanDir(
+    dir: string,
+    agentId: string,
+    resourceType: ResourceType,
+    scope: 'local' | 'global',
+    entryFile: string
+): InstalledResource[] {
     if (!existsSync(dir)) return [];
 
     const resources: InstalledResource[] = [];
-    const entryFile = RESOURCE_CONFIG[resourceType].entryFile;
 
     try {
         const entries = readdirSync(dir, { withFileTypes: true });
@@ -218,6 +231,51 @@ function scanDir(
         }
     } catch {
         // ignore permission errors
+    }
+
+    return resources;
+}
+
+function scanFileRoot(
+    root: { kind: 'file'; dir: string; prefix: string; ext: string },
+    agentId: string,
+    resourceType: ResourceType,
+    scope: 'local' | 'global'
+): InstalledResource[] {
+    if (!existsSync(root.dir)) return [];
+
+    const resources: InstalledResource[] = [];
+
+    try {
+        const entries = readdirSync(root.dir, { withFileTypes: true });
+        for (const entry of entries) {
+            if (!entry.isFile() && !entry.isSymbolicLink()) continue;
+
+            const id = tryParseResourceIdFromFileName(entry.name, root);
+            if (!id) continue;
+
+            const filePath = join(root.dir, entry.name);
+
+            let isLink = false;
+            try {
+                isLink = lstatSync(filePath).isSymbolicLink();
+            } catch {
+                // ignore
+            }
+
+            const name = extractName(filePath);
+            resources.push({
+                id,
+                type: resourceType,
+                name,
+                agent: agentId,
+                path: filePath,
+                isLink,
+                scope,
+            });
+        }
+    } catch {
+        // ignore
     }
 
     return resources;

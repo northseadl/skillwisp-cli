@@ -1,17 +1,30 @@
 /**
  * Registry 加载与搜索
+ *
+ * 加载策略（同步，无网络）：
+ * 1. 用户数据存在 (~/.skillwisp/registry) → 使用用户数据
+ * 2. 否则 → 使用内置数据
+ *
+ * 远程更新由 updater.ts 处理
  */
 
 import { readFileSync, existsSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { homedir } from 'node:os';
 import { parse as parseYaml } from 'yaml';
 
-import type { Resource, ResourceType, LocaleData, SourcesConfig } from './types.js';
+import type { Resource, ResourceType, LocaleData, SourcesConfig, IndexData } from './types.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-function findRegistryDir(): string {
+// ═══════════════════════════════════════════════════════════════════════════
+// 路径定义
+// ═══════════════════════════════════════════════════════════════════════════
+
+const USER_REGISTRY_DIR = join(homedir(), '.agent', '.skillwisp', 'cache');
+
+function findBuiltinRegistryDir(): string {
     // 开发环境: src/core/ -> registry/
     const devPath = join(__dirname, '../../registry');
     if (existsSync(devPath)) return devPath;
@@ -20,40 +33,61 @@ function findRegistryDir(): string {
     const distPath = join(__dirname, '../registry');
     if (existsSync(distPath)) return distPath;
 
-    throw new Error('Registry directory not found');
+    throw new Error('Built-in registry directory not found');
 }
 
-const REGISTRY_DIR = findRegistryDir();
+/**
+ * 获取有效的 Registry 目录
+ * 优先级: 用户数据 > 内置数据
+ */
+function getActiveRegistryDir(): string {
+    const userIndexPath = join(USER_REGISTRY_DIR, 'index.yaml');
+    if (existsSync(userIndexPath)) {
+        return USER_REGISTRY_DIR;
+    }
+    return findBuiltinRegistryDir();
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// 缓存
+// ═══════════════════════════════════════════════════════════════════════════
 
 let cachedResources: Resource[] | null = null;
+let cachedIndexData: IndexData | null = null;
 let cachedLocale: LocaleData | null = null;
 let cachedSources: SourcesConfig | null = null;
 
-interface RawIndex {
-    version: string;
-    updated: string;
-    resources?: Resource[];
-    skills?: Array<Omit<Resource, 'type'> & { type?: ResourceType }>;
-    rules?: Resource[];
-    workflows?: Resource[];
+/**
+ * 清除内存缓存（update 后调用）
+ */
+export function clearCache(): void {
+    cachedResources = null;
+    cachedIndexData = null;
+    cachedLocale = null;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// 数据加载
+// ═══════════════════════════════════════════════════════════════════════════
+
+export function loadIndexData(): IndexData {
+    if (cachedIndexData) return cachedIndexData;
+
+    const registryDir = getActiveRegistryDir();
+    const content = readFileSync(join(registryDir, 'index.yaml'), 'utf-8');
+    cachedIndexData = parseYaml(content) as IndexData;
+    return cachedIndexData;
 }
 
 export function loadResources(): Resource[] {
     if (cachedResources) return cachedResources;
 
-    const content = readFileSync(join(REGISTRY_DIR, 'index.yaml'), 'utf-8');
-    const raw = parseYaml(content) as RawIndex;
-
-    if (raw.resources) {
-        cachedResources = raw.resources;
-        return cachedResources;
-    }
-
-    // 兼容分离式格式 (skills/rules/workflows)
+    const raw = loadIndexData();
     const resources: Resource[] = [];
+
     if (raw.skills) {
         for (const s of raw.skills) {
-            resources.push({ ...s, type: s.type || 'skill' });
+            resources.push({ ...s, type: s.type || 'skill' } as Resource);
         }
     }
     if (raw.rules) resources.push(...raw.rules);
@@ -63,10 +97,16 @@ export function loadResources(): Resource[] {
     return cachedResources;
 }
 
+export function getIndexVersion(): string {
+    return loadIndexData().index_version || '0.0.0';
+}
+
 export function loadSources(): SourcesConfig {
     if (cachedSources) return cachedSources;
 
-    const content = readFileSync(join(REGISTRY_DIR, 'sources.yaml'), 'utf-8');
+    // sources.yaml 始终从内置读取（不随索引更新）
+    const builtinDir = findBuiltinRegistryDir();
+    const content = readFileSync(join(builtinDir, 'sources.yaml'), 'utf-8');
     cachedSources = parseYaml(content) as SourcesConfig;
     return cachedSources;
 }
@@ -82,10 +122,29 @@ interface RawLocale {
 export function loadLocale(locale: string = 'zh-CN'): LocaleData | null {
     if (cachedLocale?.locale === locale) return cachedLocale;
 
-    try {
-        const content = readFileSync(join(REGISTRY_DIR, 'i18n', `${locale}.yaml`), 'utf-8');
-        const raw = parseYaml(content) as RawLocale;
+    // 尝试用户数据
+    const userLocalePath = join(USER_REGISTRY_DIR, 'i18n', `${locale}.yaml`);
+    if (existsSync(userLocalePath)) {
+        try {
+            const content = readFileSync(userLocalePath, 'utf-8');
+            const raw = parseYaml(content) as RawLocale;
+            cachedLocale = {
+                locale: raw.locale,
+                name: raw.name,
+                resources: raw.resources || raw.skills || {},
+                ui: raw.ui,
+            };
+            return cachedLocale;
+        } catch {
+            // fallthrough to builtin
+        }
+    }
 
+    // 回退到内置
+    try {
+        const builtinDir = findBuiltinRegistryDir();
+        const content = readFileSync(join(builtinDir, 'i18n', `${locale}.yaml`), 'utf-8');
+        const raw = parseYaml(content) as RawLocale;
         cachedLocale = {
             locale: raw.locale,
             name: raw.name,
@@ -97,6 +156,10 @@ export function loadLocale(locale: string = 'zh-CN'): LocaleData | null {
         return null;
     }
 }
+
+// ═══════════════════════════════════════════════════════════════════════════
+// 搜索与查询
+// ═══════════════════════════════════════════════════════════════════════════
 
 export function findResource(query: string, type?: ResourceType): Resource | undefined {
     const resources = loadResources();
@@ -159,3 +222,9 @@ export function getResourceRepoUrl(resource: Resource): string {
     const source = loadSources().sources.find((s) => s.id === resource.source);
     return source?.repo || '';
 }
+
+// ═══════════════════════════════════════════════════════════════════════════
+// 导出路径常量（供 updater 使用）
+// ═══════════════════════════════════════════════════════════════════════════
+
+export { USER_REGISTRY_DIR, findBuiltinRegistryDir };

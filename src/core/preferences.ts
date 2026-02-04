@@ -12,7 +12,7 @@ import { homedir } from 'node:os';
 import type { UserPreferences } from './types.js';
 
 const PREFERENCES_VERSION = 1;
-const CONFIG_DIR = join(homedir(), '.skillwisp');
+const CONFIG_DIR = join(homedir(), '.agent', '.skillwisp');
 const PREFERENCES_FILE = join(CONFIG_DIR, 'preferences.json');
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -88,6 +88,60 @@ export function clearDefaultAgents(): void {
  */
 export function resetPreferences(): void {
     const prefs = createDefaultPreferences();
+    savePreferences(prefs);
+}
+
+/**
+ * 获取自动更新设置
+ */
+export function getAutoUpdate(): boolean {
+    const prefs = loadPreferences();
+    return prefs.autoUpdate !== false; // 默认开启
+}
+
+/**
+ * 设置自动更新
+ */
+export function setAutoUpdate(enabled: boolean): void {
+    const prefs = loadPreferences();
+    prefs.autoUpdate = enabled;
+    prefs.lastUpdated = new Date().toISOString();
+    savePreferences(prefs);
+}
+
+/**
+ * 获取检测间隔（小时）
+ */
+export function getCheckInterval(): number {
+    const prefs = loadPreferences();
+    return prefs.checkInterval || 24; // 默认 24 小时
+}
+
+/**
+ * 设置检测间隔（小时）
+ */
+export function setCheckInterval(hours: number): void {
+    const prefs = loadPreferences();
+    prefs.checkInterval = hours;
+    prefs.lastUpdated = new Date().toISOString();
+    savePreferences(prefs);
+}
+
+/**
+ * 获取首选镜像
+ */
+export function getPreferredMirror(): string | undefined {
+    const prefs = loadPreferences();
+    return prefs.preferredMirror;
+}
+
+/**
+ * 设置首选镜像
+ */
+export function setPreferredMirror(mirror: string | undefined): void {
+    const prefs = loadPreferences();
+    prefs.preferredMirror = mirror;
+    prefs.lastUpdated = new Date().toISOString();
     savePreferences(prefs);
 }
 

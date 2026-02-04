@@ -18,15 +18,16 @@ import { search, catalog } from './commands/search.js';
 import { list } from './commands/list.js';
 import { info } from './commands/info.js';
 import { config } from './commands/config.js';
-
-const VERSION = '0.2.0';
+import { update } from './commands/update.js';
+import { CLI_VERSION } from './core/version.js';
 
 const program = new Command();
 
 program
     .name('skillwisp')
     .description('Developer tool integrations installer')
-    .version(VERSION);
+    .version(CLI_VERSION)
+    .option('--offline', 'Skip all network operations');
 
 // ═══════════════════════════════════════════════════════════════════════════
 // 交互模式（默认入口）
@@ -90,6 +91,7 @@ program
     .option('--json', 'JSON output')
     .option('-q, --quiet', 'Quiet mode')
     .option('--dry-run', 'Show what would be installed without doing it')
+    .option('-y, --yes', 'Use defaults and skip prompts')
     .option('-f, --force', 'Overwrite if already exists')
     // 兼容快捷选项
     .option('-r, --rule', 'Install as rule (shorthand for --type rule)')
@@ -131,6 +133,16 @@ program
     .description('Manage configuration (interactive or get/set/reset)')
     .option('--json', 'JSON output')
     .action(config);
+
+// ═════════════════════════════════════════════════════════════════════════════
+// update：更新索引
+// ═════════════════════════════════════════════════════════════════════════════
+
+program
+    .command('update')
+    .alias('up')
+    .description('Update the skills index from remote')
+    .action(update);
 
 // ═══════════════════════════════════════════════════════════════════════════
 // 无参数时进入交互模式

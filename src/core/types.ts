@@ -67,4 +67,31 @@ export interface UserPreferences {
     defaultAgents?: string[];
     defaultResourceType?: ResourceType;
     lastUpdated?: string;
+    /** 是否启用自动更新 */
+    autoUpdate?: boolean;
+    /** 检测间隔（小时） */
+    checkInterval?: number;
+    /** 强制使用的镜像 */
+    preferredMirror?: string;
+}
+
+/**
+ * 索引数据结构
+ */
+export interface IndexData {
+    index_version: string;
+    min_cli_version?: string;
+    updated: string;
+    skills?: Array<Omit<Resource, 'type'> & { type?: ResourceType }>;
+    rules?: Resource[];
+    workflows?: Resource[];
+}
+
+/**
+ * 更新元信息
+ */
+export interface UpdateMeta {
+    lastCheck: number;
+    indexVersion: string;
+    bestMirror?: string;
 }

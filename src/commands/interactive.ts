@@ -15,22 +15,36 @@ import {
     loadLocale,
     localizeResource,
     searchResources,
+    getIndexVersion,
+    clearCache,
 } from '../core/registry.js';
 import { installResource, detectApps, getAppsByIds } from '../core/installer.js';
 import { hasDefaultAgents, getDefaultAgents, saveDefaultAgents } from '../core/preferences.js';
 import { PRIMARY_SOURCE } from '../core/agents.js';
+import { getInstallRoot } from '../core/installPaths.js';
 import type { Resource } from '../core/types.js';
 import { RESOURCE_CONFIG } from '../core/types.js';
 import { colors, symbols, createSpinner, truncate, getResourceColor } from '../ui/theme.js';
+import { backgroundUpdate, type UpdateResult } from '../core/updater.js';
+import { CLI_VERSION, checkCliUpdate, shouldPromptCliUpdate, type CliVersionInfo } from '../core/version.js';
 
 type Action = 'browse' | 'install' | 'installed' | 'integrations' | 'help' | 'exit';
 type InstallScope = 'local' | 'global';
 
+// 后台更新结果（用于退出时提示）
+let pendingUpdateResult: UpdateResult | null = null;
+let pendingCliInfo: CliVersionInfo | null = null;
+
 export async function main(): Promise<void> {
     console.log();
     console.log(colors.bold('SkillWisp CLI'));
-    console.log(colors.muted('Developer tool integrations installer'));
+    console.log(colors.muted(`v${CLI_VERSION} · Index ${getIndexVersion()}`));
     console.log();
+
+    // 首次进入时触发后台检测（不阻塞）
+    if (pendingUpdateResult === null && pendingCliInfo === null) {
+        startBackgroundChecks();
+    }
 
     const action = await p.select({
         message: 'What would you like to do?',
@@ -45,6 +59,7 @@ export async function main(): Promise<void> {
     });
 
     if (p.isCancel(action) || action === 'exit') {
+        showPendingNotifications();
         console.log(colors.muted('Goodbye.'));
         process.exit(0);
     }
@@ -65,6 +80,63 @@ export async function main(): Promise<void> {
         case 'help':
             await showHelp();
             break;
+    }
+}
+
+/**
+ * 启动后台检测（索引更新 + CLI 版本）
+ */
+function startBackgroundChecks(): void {
+    // 索引自动更新
+    backgroundUpdate()
+        .then((result) => {
+            if (result) {
+                pendingUpdateResult = result;
+                if (result.success) {
+                    // 自动更新成功，清除缓存
+                    clearCache();
+                }
+            }
+        })
+        .catch(() => {
+            // 静默失败
+        });
+
+    // CLI 版本检查
+    checkCliUpdate()
+        .then((info) => {
+            pendingCliInfo = info;
+        })
+        .catch(() => {
+            // 静默失败
+        });
+}
+
+/**
+ * 显示待处理的通知（退出时）
+ */
+function showPendingNotifications(): void {
+    // 索引更新通知
+    if (pendingUpdateResult) {
+        if (pendingUpdateResult.success && pendingUpdateResult.version) {
+            console.log();
+            console.log(colors.success(`${symbols.success} 索引已自动更新到 ${pendingUpdateResult.version}`));
+        } else if (pendingUpdateResult.requiresCliUpgrade) {
+            console.log();
+            console.log(colors.warning(
+                `${symbols.warning} 新索引需要 CLI >= ${pendingUpdateResult.minCliVersion}\n` +
+                `   运行 ${colors.info('npm install -g skillwisp')} 升级`
+            ));
+        }
+    }
+
+    // CLI 版本通知
+    if (pendingCliInfo && shouldPromptCliUpdate(pendingCliInfo)) {
+        console.log();
+        console.log(colors.info(
+            `📦 CLI 新版本 ${colors.bold(`v${pendingCliInfo.latest}`)} 可用\n` +
+            `   运行 ${colors.info('npm install -g skillwisp')} 更新`
+        ));
     }
 }
 
@@ -320,12 +392,15 @@ async function selectInstallScope(): Promise<InstallScope | null> {
 // ═══════════════════════════════════════════════════════════════════════════
 
 async function selectTargetApps(scope: InstallScope): Promise<string[] | null> {
-    const detectedApps = detectApps();
     const isGlobal = scope === 'global';
+    const detectedApps = detectApps();
+    const availableApps = isGlobal
+        ? detectedApps.filter((a) => getInstallRoot(a, 'skill', 'global') !== null)
+        : detectedApps;
 
     // 全局安装：.agent 是强制源，不显示为可选目标
     // 本地安装：.agent 可作为可选目标
-    if (detectedApps.length === 0) {
+    if (availableApps.length === 0) {
         if (isGlobal) {
             console.log(colors.muted(`Installing to ~/.agent (primary source)`));
         } else {
@@ -338,9 +413,16 @@ async function selectTargetApps(scope: InstallScope): Promise<string[] | null> {
     if (hasDefaultAgents()) {
         const defaultApps = getDefaultAgents()!;
         // 全局安装时，过滤掉 agent，但确保安装器会使用它作为源
-        const effectiveApps = isGlobal
+        let effectiveApps = isGlobal
             ? defaultApps.filter((id) => id !== PRIMARY_SOURCE.id)
             : defaultApps;
+
+        if (isGlobal) {
+            // 过滤掉不支持 global 的目标（例如 Cursor/Copilot/Kiro）
+            effectiveApps = getAppsByIds(effectiveApps)
+                .filter((a) => getInstallRoot(a, 'skill', 'global') !== null)
+                .map((a) => a.id);
+        }
 
         if (effectiveApps.length === 0 && isGlobal) {
             // 全局安装但默认只有 .agent，需要重新选择
@@ -359,14 +441,14 @@ async function selectTargetApps(scope: InstallScope): Promise<string[] | null> {
 
     // 根据 scope 构建选项
     const options = isGlobal
-        ? detectedApps.map((a) => ({
+        ? availableApps.map((a) => ({
             value: a.id,
             label: a.name,
             hint: `~/${a.globalBaseDir}`,
         }))
         : [
             { value: PRIMARY_SOURCE.id, label: PRIMARY_SOURCE.name, hint: 'Primary source (.agent)' },
-            ...detectedApps.map((a) => ({
+            ...availableApps.map((a) => ({
                 value: a.id,
                 label: a.name,
                 hint: a.baseDir,
@@ -377,7 +459,7 @@ async function selectTargetApps(scope: InstallScope): Promise<string[] | null> {
         message: 'Select target apps',
         options,
         required: true,
-        initialValues: detectedApps.map((a) => a.id),
+        initialValues: availableApps.map((a) => a.id),
     });
 
     if (p.isCancel(selected)) {
