@@ -11,6 +11,7 @@ ui:
   menu_install: "Quick install by ID"
   menu_installed: "View installed resources"
   menu_integrations: "Manage integrations (default targets)"
+  menu_language: "Change language"
   menu_help: "Help"
   menu_exit: "Exit"
 
@@ -42,6 +43,8 @@ ui:
 
   # Installation
   installing: "Installing"
+  installing_to: "Installing to"
+  targets: "Targets"
   install_success: "Installed"
   install_failed: "Failed"
 
@@ -72,3 +75,14 @@ ui:
   # First time
   first_time_setup: "First time setup"
   first_time_hint: "Select where to install resources. This will be saved."
+
+  # Notifications
+  index_updated: "Index updated to"
+  index_update_requires_cli: "New index requires CLI >="
+  cli_update_available: "CLI update available"
+  run_to_upgrade: "Run to upgrade"
+
+  # Errors
+  resource_not_found: "Resource not found"
+  try_search: "Try: skillwisp search"
+  unknown_error: "Unknown error"

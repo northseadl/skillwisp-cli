@@ -253,6 +253,7 @@ ui:
   menu_install: "快速安装（输入 ID）"
   menu_installed: "查看已安装资源"
   menu_integrations: "管理集成（默认目标）"
+  menu_language: "切换语言"
   menu_help: "帮助"
   menu_exit: "退出"
 
@@ -284,6 +285,8 @@ ui:
 
   # 安装
   installing: "安装中"
+  installing_to: "安装到"
+  targets: "目标"
   install_success: "已安装"
   install_failed: "安装失败"
 
@@ -314,3 +317,14 @@ ui:
   # 首次使用
   first_time_setup: "首次设置"
   first_time_hint: "选择安装位置，此选择将被保存。"
+
+  # 通知
+  index_updated: "索引已更新到"
+  index_update_requires_cli: "新索引需要 CLI >="
+  cli_update_available: "CLI 新版本可用"
+  run_to_upgrade: "运行以升级"
+
+  # 错误
+  resource_not_found: "未找到资源"
+  try_search: "尝试: skillwisp search"
+  unknown_error: "未知错误"
