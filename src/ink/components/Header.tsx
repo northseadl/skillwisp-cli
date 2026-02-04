@@ -1,13 +1,13 @@
 /**
  * SkillWisp CLI - 品牌 Header
  * 
- * 显示品牌标识、版本号和索引版本
- * 支持脉冲动画效果
+ * ASCII Art Logo + 版本信息
+ * 支持渐变色和脉冲动画效果
  */
 
 import { Box, Text } from 'ink';
 import type { ReactNode } from 'react';
-import { colors, symbols, brand } from '../theme.js';
+import { colors } from '../theme.js';
 import { usePulse } from '../hooks/index.js';
 
 interface HeaderProps {
@@ -16,37 +16,83 @@ interface HeaderProps {
     animated?: boolean;
 }
 
+// ASCII Art Logo - SkillWisp (手工对齐优化版)
+const BANNER_LOGO = [
+    '',
+    '  ███████╗██╗  ██╗██╗██╗     ██╗    ██╗    ██╗██╗███████╗██████╗ ',
+    '  ██╔════╝██║ ██╔╝██║██║     ██║    ██║    ██║██║██╔════╝██╔══██╗',
+    '  ███████╗█████╔╝ ██║██║     ██║    ██║ █╗ ██║██║███████╗██████╔╝',
+    '  ╚════██║██╔═██╗ ██║██║     ██║    ██║███╗██║██║╚════██║██╔═══╝ ',
+    '  ███████║██║  ██╗██║███████╗███████╗╚███╔███╔╝██║███████║██║    ',
+    '  ╚══════╝╚═╝  ╚═╝╚═╝╚══════╝╚══════╝ ╚══╝╚══╝ ╚═╝╚══════╝╚═╝    ',
+    '',
+];
+
+// 渐变色组（从青色到紫色）
+const GRADIENT_COLORS = [
+    '#5eead4', // teal-300
+    '#2dd4bf', // teal-400 
+    '#14b8a6', // teal-500
+    '#0d9488', // teal-600
+    '#0891b2', // cyan-600
+    '#0284c7', // sky-600
+    '#6366f1', // indigo-500
+    '#8b5cf6', // violet-500
+];
+
 export function Header({
     version,
     indexVersion,
     animated = true,
 }: HeaderProps): ReactNode {
-    // 钻石脉冲效果
-    const pulse = usePulse(1000);
-    const diamondColor = animated && pulse ? colors.primaryBright : colors.primary;
+    // 脉冲效果
+    const pulse = usePulse(800);
+
+    // 渐变色渲染每一行
+    const renderGradientLine = (line: string, lineIndex: number): ReactNode => {
+        // 跳过空行
+        if (!line.trim()) {
+            return <Text key={lineIndex}>{line}</Text>;
+        }
+
+        // 根据行索引选择渐变色
+        const colorIndex = (lineIndex - 1) % GRADIENT_COLORS.length;
+        const primaryColor = GRADIENT_COLORS[colorIndex];
+        const secondaryColor = GRADIENT_COLORS[(colorIndex + 3) % GRADIENT_COLORS.length];
+
+        // 脉冲时交替颜色
+        const finalColor = (animated && pulse) ? secondaryColor : primaryColor;
+
+        return (
+            <Text key={lineIndex} color={finalColor}>
+                {line}
+            </Text>
+        );
+    };
 
     return (
         <Box flexDirection="column" marginBottom={1}>
-            {/* 品牌 Logo */}
-            <Box>
-                <Text color={diamondColor} bold>
-                    {symbols.wisp}
-                </Text>
-                <Text color={colors.primary} bold>
-                    {' '}{brand.name}
-                </Text>
+            {/* ASCII Art Logo */}
+            <Box flexDirection="column">
+                {BANNER_LOGO.map((line, i) => renderGradientLine(line, i))}
             </Box>
 
-            {/* 版本信息 */}
-            <Box>
+            {/* 版本信息条 */}
+            <Box marginTop={0}>
                 <Text color={colors.textMuted}>
-                    {'  '}v{version}
+                    {'  '}◆ v{version}
                 </Text>
                 <Text color={colors.textSubtle}>
                     {' '}·{' '}
                 </Text>
                 <Text color={colors.textMuted}>
                     Index {indexVersion}
+                </Text>
+                <Text color={colors.textSubtle}>
+                    {' '}·{' '}
+                </Text>
+                <Text color={colors.accent}>
+                    AI Agent Skills
                 </Text>
             </Box>
         </Box>

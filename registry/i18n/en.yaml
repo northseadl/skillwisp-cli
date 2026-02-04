@@ -113,3 +113,21 @@ ui:
   # Scroll indicators
   scroll_more_above: "more above"
   scroll_more_below: "more below"
+
+  # InstallFlow
+  primary_source: "Primary source"
+  select_at_least_one: "Please select at least one target"
+  selected_targets: "Selected"
+
+  # ConfigFlow
+  current_settings: "Current settings"
+  what_to_configure: "What would you like to configure?"
+  reset_prefs: "Reset all preferences"
+  auto_detect: "auto-detect"
+  select_default_targets: "Select default installation targets"
+  default_saved: "Default targets saved"
+  confirm_reset: "Reset all preferences?"
+  prefs_reset: "Preferences reset"
+  yes: "Yes"
+  no: "No"
+  exit: "Exit"

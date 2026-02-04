@@ -24,6 +24,10 @@ describe('commands/config', () => {
     });
 
     it('prints human-readable config when not in TTY and without --json', async () => {
+        // Mock non-TTY environment
+        const originalIsTTY = process.stdout.isTTY;
+        Object.defineProperty(process.stdout, 'isTTY', { value: false, writable: true });
+
         const { config } = await import('../src/commands/config.js');
         const c = captureConsole();
 
@@ -34,6 +38,7 @@ describe('commands/config', () => {
             expect(output).toContain('Detected apps:');
         } finally {
             c.restore();
+            Object.defineProperty(process.stdout, 'isTTY', { value: originalIsTTY, writable: true });
         }
     });
 

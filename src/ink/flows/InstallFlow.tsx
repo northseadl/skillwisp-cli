@@ -1,64 +1,77 @@
 /**
  * Install 流程 - Ink 交互式目标选择
  * 
- * 当用户运行 `skillwisp install <resource>` 时，
- * 在 TTY 环境下启动此组件进行目标选择
+ * 设计原则：
+ * - **完全统一**：使用与主 App 完全相同的 Header/Footer 布局
+ * - **始终交互**：不跳过任何交互步骤
+ * - **明确选择**：用户必须明确选择安装目标
+ * - **.agents 始终可选**：作为主源始终可见
  */
 
-import { render, Box, Text } from 'ink';
-import { useState, useEffect, type ReactNode } from 'react';
+import { render, Box, useApp, useInput } from 'ink';
+import { useState, useEffect, useCallback, type ReactNode } from 'react';
+import { Header } from '../components/Header.js';
+import { Footer } from '../components/Footer.js';
 import { SelectMenu } from '../components/SelectMenu.js';
 import { MultiSelectMenu } from '../components/MultiSelectMenu.js';
 import { colors, symbols } from '../theme.js';
 import { detectApps, getAppsByIds, PRIMARY_SOURCE, type AgentConfig } from '../../core/agents.js';
 import { getDefaultAgents, saveDefaultAgents, hasDefaultAgents } from '../../core/preferences.js';
-import { t } from '../../core/i18n.js';
+import { t, initI18n } from '../../core/i18n.js';
+import { CLI_VERSION } from '../../core/version.js';
+import { getIndexVersion } from '../../core/registry.js';
 
-type FlowPhase = 'check-default' | 'select-targets' | 'confirm-save' | 'done';
+type FlowPhase = 'select-targets' | 'confirm-save' | 'done';
 
 interface InstallFlowProps {
+    resourceName: string;
     onComplete: (targets: string[] | null) => void;
 }
 
 interface FlowState {
     phase: FlowPhase;
     selectedTargets: string[];
-    detectedApps: AgentConfig[];
-    savedAgents: string[] | null;
+    availableApps: AgentConfig[];
+    hint: string;
 }
 
-function InstallFlow({ onComplete }: InstallFlowProps): ReactNode {
+function InstallFlowApp({ resourceName, onComplete }: InstallFlowProps): ReactNode {
+    const { exit } = useApp();
+
     const [state, setState] = useState<FlowState>(() => {
+        // 检测可用的应用
         const detectedApps = detectApps();
+
+        // 构建选项列表：PRIMARY_SOURCE + 检测到的应用
+        const availableApps: AgentConfig[] = [PRIMARY_SOURCE, ...detectedApps];
+
+        // 获取已保存的默认值（如果有）
         const savedAgents = hasDefaultAgents() ? getDefaultAgents() : null;
 
-        // 没有检测到应用，直接完成
-        if (detectedApps.length === 0) {
-            return {
-                phase: 'done' as FlowPhase,
-                selectedTargets: [PRIMARY_SOURCE.id],
-                detectedApps: [],
-                savedAgents: null,
-            };
-        }
-
-        // 有保存的偏好，询问是否使用
+        // 计算初始选中状态
+        let initialSelected: string[];
         if (savedAgents && savedAgents.length > 0) {
-            return {
-                phase: 'check-default' as FlowPhase,
-                selectedTargets: [],
-                detectedApps,
-                savedAgents,
-            };
+            initialSelected = savedAgents;
+        } else if (detectedApps.length > 0) {
+            initialSelected = [PRIMARY_SOURCE.id, ...detectedApps.map(a => a.id)];
+        } else {
+            initialSelected = [PRIMARY_SOURCE.id];
         }
 
-        // 没有保存的偏好，直接进入选择
         return {
             phase: 'select-targets' as FlowPhase,
-            selectedTargets: [],
-            detectedApps,
-            savedAgents: null,
+            selectedTargets: initialSelected,
+            availableApps,
+            hint: t('hint_navigation'),
         };
+    });
+
+    // 全局退出处理
+    useInput((input, key) => {
+        if (key.ctrl && input === 'c') {
+            onComplete(null);
+            exit();
+        }
     });
 
     // 完成时回调
@@ -68,128 +81,117 @@ function InstallFlow({ onComplete }: InstallFlowProps): ReactNode {
         }
     }, [state.phase, state.selectedTargets, onComplete]);
 
-    // 阶段 1: 询问是否使用上次的目标
-    if (state.phase === 'check-default') {
-        const userApps = state.savedAgents!.filter(id => id !== PRIMARY_SOURCE.id);
-        const names = getAppsByIds(userApps).map(a => a.name).join(', ') || 'all detected apps';
+    // 渲染内容区域
+    const renderContent = useCallback((): ReactNode => {
+        // 阶段 1: 选择目标应用
+        if (state.phase === 'select-targets') {
+            const items = state.availableApps.map(app => ({
+                label: app.id === PRIMARY_SOURCE.id
+                    ? `${app.name} (${t('primary_source')})`
+                    : app.name,
+                value: app.id,
+                hint: app.baseDir,
+            }));
 
-        return (
-            <Box flexDirection="column">
-                <SelectMenu
-                    message={t('use_saved_targets', 'Install to previous targets?')}
-                    items={[
-                        { value: 'yes', label: `${t('yes', 'Yes')} → ${names}` },
-                        { value: 'no', label: t('select_manually', 'No, select targets manually') },
-                    ]}
-                    onSelect={(value) => {
-                        if (value === 'yes') {
+            const initialValues = state.selectedTargets.filter(id =>
+                state.availableApps.some(app => app.id === id)
+            );
+
+            return (
+                <Box flexDirection="column" paddingX={2}>
+                    <MultiSelectMenu
+                        message={`${t('installing')}: ${resourceName}`}
+                        items={items}
+                        initialValues={initialValues}
+                        onSubmit={(selected: string[]) => {
+                            if (selected.length === 0) {
+                                setState(prev => ({ ...prev, hint: t('select_at_least_one') }));
+                                return;
+                            }
+                            setState(prev => ({
+                                ...prev,
+                                phase: 'confirm-save',
+                                selectedTargets: selected,
+                                hint: t('hint_navigation'),
+                            }));
+                        }}
+                        onCancel={() => onComplete(null)}
+                    />
+                </Box>
+            );
+        }
+
+        // 阶段 2: 确认是否保存为默认
+        if (state.phase === 'confirm-save') {
+            const targetNames = getAppsByIds(state.selectedTargets).map(a => a.name).join(', ');
+
+            return (
+                <Box flexDirection="column" paddingX={2}>
+                    <SelectMenu
+                        message={`${t('save_as_default')} (${targetNames})`}
+                        items={[
+                            { value: 'yes', label: t('yes') },
+                            { value: 'no', label: t('no') },
+                        ]}
+                        onSelect={(value) => {
+                            if (value === 'yes') {
+                                saveDefaultAgents(state.selectedTargets);
+                            }
                             setState(prev => ({
                                 ...prev,
                                 phase: 'done',
-                                selectedTargets: [PRIMARY_SOURCE.id, ...userApps],
                             }));
-                        } else {
+                        }}
+                        onCancel={() => {
                             setState(prev => ({
                                 ...prev,
-                                phase: 'select-targets',
+                                phase: 'done',
                             }));
-                        }
-                    }}
-                    onCancel={() => onComplete(null)}
-                    showNumbers={false}
-                />
+                        }}
+                        showNumbers={false}
+                    />
+                </Box>
+            );
+        }
+
+        return null;
+    }, [state, resourceName, onComplete]);
+
+    // 完整布局：Header + Content + Footer（与主 App 完全一致）
+    return (
+        <Box flexDirection="column" minHeight={15}>
+            {/* 固定顶部 Header（带 ASCII Logo） */}
+            <Header version={CLI_VERSION} indexVersion={getIndexVersion()} />
+
+            {/* 中间内容区域 */}
+            <Box flexGrow={1} flexDirection="column">
+                {renderContent()}
             </Box>
-        );
-    }
 
-    // 阶段 2: 选择目标应用
-    if (state.phase === 'select-targets') {
-        const items = state.detectedApps.map(app => ({
-            label: app.name,
-            value: app.id,
-            hint: app.baseDir,
-        }));
-        const initialValues = state.detectedApps.map(a => a.id);
-
-        return (
-            <Box flexDirection="column">
-                <MultiSelectMenu
-                    message={t('select_targets', 'Select target apps')}
-                    items={items}
-                    initialValues={initialValues}
-                    onSubmit={(selected: string[]) => {
-                        setState(prev => ({
-                            ...prev,
-                            phase: 'confirm-save',
-                            selectedTargets: selected,
-                        }));
-                    }}
-                    onCancel={() => onComplete(null)}
-                />
-            </Box>
-        );
-    }
-
-    // 阶段 3: 确认是否保存为默认
-    if (state.phase === 'confirm-save') {
-        return (
-            <Box flexDirection="column">
-                <SelectMenu
-                    message={t('save_as_default', 'Save as default for future installs?')}
-                    items={[
-                        { value: 'yes', label: t('yes', 'Yes') },
-                        { value: 'no', label: t('no', 'No') },
-                    ]}
-                    onSelect={(value) => {
-                        if (value === 'yes') {
-                            saveDefaultAgents(state.selectedTargets);
-                            const names = getAppsByIds(state.selectedTargets).map(a => a.name).join(', ');
-                            console.log(`\n${colors.success}${symbols.success} ${t('default_saved', 'Default saved')}: ${names}`);
-                        }
-                        setState(prev => ({
-                            ...prev,
-                            phase: 'done',
-                            selectedTargets: [PRIMARY_SOURCE.id, ...prev.selectedTargets],
-                        }));
-                    }}
-                    onCancel={() => {
-                        setState(prev => ({
-                            ...prev,
-                            phase: 'done',
-                            selectedTargets: [PRIMARY_SOURCE.id, ...prev.selectedTargets],
-                        }));
-                    }}
-                    showNumbers={false}
-                />
-            </Box>
-        );
-    }
-
-    // 阶段 done: 显示完成消息（仅当没有检测到应用时）
-    if (state.phase === 'done' && state.detectedApps.length === 0) {
-        return (
-            <Box>
-                <Text color={colors.textMuted}>
-                    {t('no_apps_detected', 'No AI apps detected, installing to primary source (.agents)')}
-                </Text>
-            </Box>
-        );
-    }
-
-    return null;
+            {/* 固定底部 Footer */}
+            <Footer hint={state.hint} />
+        </Box>
+    );
 }
 
 /**
  * 启动 Ink 交互式目标选择流程
+ * @param resourceName - 资源名称，用于显示
  * @returns Promise<string[] | null> - 选中的目标列表，取消时返回 null
  */
-export function runInstallFlow(): Promise<string[] | null> {
+export function runInstallFlow(resourceName: string = ''): Promise<string[] | null> {
+    // 确保 i18n 已初始化
+    initI18n();
+
     return new Promise((resolve) => {
         const { unmount, waitUntilExit } = render(
-            <InstallFlow onComplete={(targets) => {
-                unmount();
-                resolve(targets);
-            }} />
+            <InstallFlowApp
+                resourceName={resourceName}
+                onComplete={(targets) => {
+                    unmount();
+                    resolve(targets);
+                }}
+            />
         );
 
         waitUntilExit().then(() => {

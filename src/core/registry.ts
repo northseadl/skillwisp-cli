@@ -25,13 +25,13 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const USER_REGISTRY_DIR = join(homedir(), '.agents', '.skillwisp', 'cache');
 
 function findBuiltinRegistryDir(): string {
-    // 开发环境: src/core/ -> registry/
-    const devPath = join(__dirname, '../../registry');
-    if (existsSync(devPath)) return devPath;
-
-    // 打包环境: dist/ -> registry/
+    // 打包环境: dist/../registry = skillwisp-cli/registry
     const distPath = join(__dirname, '../registry');
     if (existsSync(distPath)) return distPath;
+
+    // 开发环境 (unbundled): src/core/../../registry
+    const devPath = join(__dirname, '../../registry');
+    if (existsSync(devPath)) return devPath;
 
     throw new Error('Built-in registry directory not found');
 }

@@ -355,3 +355,21 @@ ui:
   # 滚动指示器
   scroll_more_above: "项在上方"
   scroll_more_below: "项在下方"
+
+  # InstallFlow
+  primary_source: "主源"
+  select_at_least_one: "请至少选择一个目标"
+  selected_targets: "已选择"
+
+  # ConfigFlow
+  current_settings: "当前设置"
+  what_to_configure: "你想配置什么？"
+  reset_prefs: "重置所有偏好"
+  auto_detect: "自动检测"
+  select_default_targets: "选择默认安装目标"
+  default_saved: "默认目标已保存"
+  confirm_reset: "确认重置所有偏好？"
+  prefs_reset: "偏好已重置"
+  yes: "是"
+  no: "否"
+  exit: "退出"

@@ -90,7 +90,7 @@ export async function install(resourceId: string, options: InstallOptions = {}):
         agents = resolveTargetsNonInteractive();
     } else {
         // 交互模式：使用 Ink 流程
-        const resolved = await runInstallFlow();
+        const resolved = await runInstallFlow(fullName);
         if (!resolved) {
             process.exit(0);
         }
