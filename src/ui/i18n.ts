@@ -10,8 +10,8 @@ import type { LocaleData } from '../core/types.js';
 
 // 支持的语言列表
 export const SUPPORTED_LOCALES = [
-    { code: 'en', name: 'English' },
-    { code: 'zh-CN', name: '简体中文' },
+    { code: 'en', name: 'English', label: 'English' },
+    { code: 'zh-CN', name: '简体中文', label: '简体中文' },
 ] as const;
 
 export type LocaleCode = typeof SUPPORTED_LOCALES[number]['code'];

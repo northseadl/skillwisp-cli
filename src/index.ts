@@ -13,6 +13,7 @@
 import { Command } from 'commander';
 
 import { main } from './commands/interactive.js';
+import { main as mainInk } from './ink/interactive.js';
 import { install } from './commands/install.js';
 import { search, catalog } from './commands/search.js';
 import { list } from './commands/list.js';
@@ -149,7 +150,7 @@ program
 // ═══════════════════════════════════════════════════════════════════════════
 
 if (process.argv.length === 2) {
-    main();
+    mainInk();
 } else {
     program.parse();
 }

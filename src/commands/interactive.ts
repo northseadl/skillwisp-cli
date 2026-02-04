@@ -24,7 +24,7 @@ import { PRIMARY_SOURCE, TARGET_APPS } from '../core/agents.js';
 
 import type { Resource } from '../core/types.js';
 import { RESOURCE_CONFIG } from '../core/types.js';
-import { colors, symbols, createSpinner, truncate, getResourceColor } from '../ui/theme.js';
+import { colors, symbols, createSpinner, truncate, getResourceColor, brandLogo, resultSummary } from '../ui/theme.js';
 import { backgroundUpdate, type UpdateResult } from '../core/updater.js';
 import { CLI_VERSION, checkCliUpdate, shouldPromptCliUpdate, type CliVersionInfo } from '../core/version.js';
 import {
@@ -38,7 +38,21 @@ import {
 } from '../ui/i18n.js';
 
 type Action = 'browse' | 'install' | 'installed' | 'language' | 'help' | 'exit';
+type PostAction = 'home' | 'exit';
 type InstallScope = 'local' | 'global';
+
+// ═══════════════════════════════════════════════════════════════════════════
+// 交互提示工具
+// ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * 生成带底部操作提示的 message
+ * 确保操作提示始终显示在交互区域内
+ */
+function withHint(message: string): string {
+    const hint = colors.muted(`  ${t('hint_navigation')}`);
+    return `${message}\n${hint}`;
+}
 
 // 后台更新结果（用于退出时提示）
 let pendingUpdateResult: UpdateResult | null = null;
@@ -63,9 +77,9 @@ export async function main(): Promise<void> {
         }
     }
 
-    console.log();
-    console.log(colors.bold(t('welcome')));
-    console.log(colors.muted(`v${CLI_VERSION} · Index ${getIndexVersion()}`));
+    // 品牌 Logo
+    brandLogo();
+    console.log(colors.muted(`  v${CLI_VERSION} · Index ${getIndexVersion()}`));
     console.log();
 
     // 首次进入时触发后台检测（不阻塞）
@@ -74,7 +88,7 @@ export async function main(): Promise<void> {
     }
 
     const action = await p.select({
-        message: t('what_would_you_like'),
+        message: withHint(t('what_would_you_like')),
         options: [
             { value: 'browse' as const, label: t('menu_browse') },
             { value: 'install' as const, label: t('menu_install') },
@@ -176,7 +190,7 @@ async function browseResources(): Promise<void> {
 
     // 合并搜索和类型选择为一步
     const query = await p.text({
-        message: t('search_prompt'),
+        message: withHint(t('search_prompt')),
         placeholder: t('search_placeholder'),
     });
 
@@ -203,7 +217,7 @@ async function browseResources(): Promise<void> {
 
     // 选择资源（显示来源）
     const selected = await p.multiselect({
-        message: `${t('select_resources')} (${resources.length} ${t('available_count')})`,
+        message: withHint(`${t('select_resources')} (${resources.length} ${t('available_count')})`),
         options: resources.map((r) => ({
             value: r.id,
             label: formatResourceLabel(r),
@@ -229,9 +243,10 @@ async function browseResources(): Promise<void> {
     }
 
     // 安装
-    await installResources(selected as string[], resources, targetApps, scope);
+    const installResult = await installResources(selected as string[], resources, targetApps, scope);
 
-    await main();
+    // 操作完成后的导航
+    await postOperationNavigation(installResult);
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -242,7 +257,7 @@ async function quickInstall(): Promise<void> {
     const locale = getLocaleData();
 
     const resourceId = await p.text({
-        message: t('enter_resource_id'),
+        message: withHint(t('enter_resource_id')),
         placeholder: t('resource_id_placeholder'),
         validate: (value) => {
             if (!value) return t('resource_id_required');
@@ -270,7 +285,7 @@ async function quickInstall(): Promise<void> {
         console.log(colors.muted(`${t('matched')}: ${resource.id} @${resource.source}`));
     } else {
         const choice = await p.select({
-            message: t('found_matches'),
+            message: withHint(t('found_matches')),
             options: matches.slice(0, 5).map((r) => ({
                 value: r.id,
                 label: formatResourceLabel(r),
@@ -297,8 +312,10 @@ async function quickInstall(): Promise<void> {
         return main();
     }
 
-    await installResources([resource.id], [localizeResource(resource, locale)], targetApps, scope);
-    await main();
+    const installResult = await installResources([resource.id], [localizeResource(resource, locale)], targetApps, scope);
+
+    // 操作完成后的导航
+    await postOperationNavigation(installResult);
 }
 
 async function viewInstalled(): Promise<void> {
@@ -373,7 +390,7 @@ async function selectInstallScope(): Promise<InstallScope | null> {
     const home = homedir();
 
     const scope = await p.select({
-        message: t('installation_scope'),
+        message: withHint(t('installation_scope')),
         options: [
             { value: 'local' as const, label: t('scope_local'), hint: cwd },
             { value: 'global' as const, label: t('scope_global'), hint: home },
@@ -424,7 +441,7 @@ async function selectTargetApps(scope: InstallScope): Promise<string[] | null> {
         : [];
 
     const selected = await p.multiselect({
-        message: t('select_targets'),
+        message: withHint(t('select_targets')),
         options,
         required: true,
         initialValues,
@@ -449,13 +466,29 @@ function formatResourceLabel(r: Resource): string {
     return `[${typeConfig.label}] ${r.name} ${colors.muted(`@${r.source}`)}`;
 }
 
+// ═══════════════════════════════════════════════════════════════════════════
+// 安装结果类型
+// ═══════════════════════════════════════════════════════════════════════════
+
+interface InstallResult {
+    successCount: number;
+    failCount: number;
+    installedNames: string[];
+    targetApps: string[];
+}
+
 async function installResources(
     ids: string[],
     resources: Resource[],
     apps: string[],
     scope: InstallScope
-): Promise<void> {
+): Promise<InstallResult> {
     console.log();
+
+    let successCount = 0;
+    let failCount = 0;
+    const installedNames: string[] = [];
+    const targetApps = [...apps];
 
     for (const id of ids) {
         const resource = resources.find((r) => r.id === id);
@@ -475,10 +508,60 @@ async function installResources(
                 `${typeColor(`[${typeLabel}]`)} ${resource.name} ${colors.muted(`-> ${appList}`)}`,
                 'success'
             );
+            successCount++;
+            installedNames.push(resource.name);
         } else {
             spinner.stop(`${resource.name}: ${result.error || t('unknown_error')}`, 'error');
+            failCount++;
         }
     }
 
-    console.log();
+    return { successCount, failCount, installedNames, targetApps };
 }
+
+// ═══════════════════════════════════════════════════════════════════════════
+// 操作完成后的导航
+// ═══════════════════════════════════════════════════════════════════════════
+
+async function postOperationNavigation(installResult: InstallResult): Promise<void> {
+    // 显示安装结果摘要
+    resultSummary({
+        title: t('install_summary'),
+        items: [
+            {
+                label: t('resources_installed'),
+                value: installResult.installedNames.length > 0
+                    ? installResult.installedNames.join(', ')
+                    : '-',
+                status: installResult.successCount > 0 ? 'success' : 'info',
+            },
+            {
+                label: t('target_apps'),
+                value: installResult.targetApps.join(', '),
+                status: 'info',
+            },
+        ],
+        footer: installResult.failCount > 0
+            ? `${installResult.failCount} ${t('install_failed')}`
+            : undefined,
+    });
+
+    // 提供下一步选项
+    const nextAction = await p.select({
+        message: withHint(t('what_next')),
+        options: [
+            { value: 'home' as PostAction, label: t('go_home') },
+            { value: 'exit' as PostAction, label: t('exit_now') },
+        ],
+    });
+
+    if (p.isCancel(nextAction) || nextAction === 'exit') {
+        showPendingNotifications();
+        console.log(colors.muted(t('goodbye')));
+        process.exit(0);
+    }
+
+    // 返回主菜单
+    await main();
+}
+

@@ -271,3 +271,82 @@ export function truncate(text: string, maxLen: number): string {
     if (maxLen === 1) return '…';
     return text.slice(0, maxLen - 1) + '…';
 }
+
+// ═══════════════════════════════════════════════════════════════════════════
+// 品牌 Logo (ASCII Art)
+// ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * 渲染 SkillWisp 品牌 Logo
+ * 简约现代风格，类似 Next.js/Vite CLI
+ */
+export function brandLogo(): void {
+    // 简洁的品牌标识 + 渐变效果
+    console.log();
+    console.log(`  ${colors.primary('◆')} ${colors.bold(colors.primary('Skill'))}${colors.bold('Wisp')}`);
+}
+
+/**
+ * 渲染简化版品牌标识（单行）
+ */
+export function brandMark(): string {
+    return `${colors.primary('◆')} ${colors.bold('SkillWisp')}`;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// 操作结果摘要
+// ═══════════════════════════════════════════════════════════════════════════
+
+export interface ResultSummaryOptions {
+    title: string;
+    items: Array<{
+        label: string;
+        value: string;
+        status?: 'success' | 'error' | 'info';
+    }>;
+    footer?: string;
+}
+
+/**
+ * 渲染操作结果摘要（高亮 Box）
+ */
+export function resultSummary(options: ResultSummaryOptions): void {
+    const { title, items, footer } = options;
+
+    console.log();
+    console.log(colors.bold(colors.primary(`┌─ ${title} ─`)));
+    console.log(colors.primary('│'));
+
+    for (const item of items) {
+        const statusIcon = item.status === 'success'
+            ? colors.success(symbols.success)
+            : item.status === 'error'
+                ? colors.error(symbols.error)
+                : colors.info(symbols.info);
+
+        console.log(colors.primary('│  ') + `${statusIcon} ${colors.bold(item.label)}: ${item.value}`);
+    }
+
+    console.log(colors.primary('│'));
+
+    if (footer) {
+        console.log(colors.primary('└─ ') + colors.muted(footer));
+    } else {
+        console.log(colors.primary('└─────'));
+    }
+    console.log();
+}
+
+/**
+ * 渲染操作成功提示
+ */
+export function operationSuccess(message: string, details?: string[]): void {
+    console.log();
+    console.log(colors.success(`${symbols.success} ${colors.bold(message)}`));
+    if (details && details.length > 0) {
+        for (const detail of details) {
+            console.log(colors.muted(`   ${symbols.arrow} ${detail}`));
+        }
+    }
+    console.log();
+}

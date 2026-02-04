@@ -328,3 +328,20 @@ ui:
   resource_not_found: "未找到资源"
   try_search: "尝试: skillwisp search"
   unknown_error: "未知错误"
+
+  # 操作完成
+  operation_complete: "操作完成"
+  what_next: "接下来你想做什么？"
+  go_home: "返回主菜单"
+  exit_now: "退出"
+  install_summary: "安装结果"
+  resources_installed: "已安装资源"
+  target_apps: "目标应用"
+  hint_navigation: "使用方向键导航，回车确认"
+
+  # 附加 UI
+  menu_browse_hint: "搜索和发现可用资源"
+  menu_install_hint: "按名称安装特定资源"
+  menu_installed_hint: "查看已安装的内容"
+  please_wait: "请稍候..."
+  press_any_key_back: "按 Enter 或 Esc 返回"

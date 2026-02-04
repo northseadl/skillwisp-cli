@@ -86,3 +86,20 @@ ui:
   resource_not_found: "Resource not found"
   try_search: "Try: skillwisp search"
   unknown_error: "Unknown error"
+
+  # Operation completion
+  operation_complete: "Operation Complete"
+  what_next: "What would you like to do next?"
+  go_home: "Back to main menu"
+  exit_now: "Exit"
+  install_summary: "Installation Summary"
+  resources_installed: "Resources installed"
+  target_apps: "Target apps"
+  hint_navigation: "Use arrow keys to navigate, Enter to select"
+
+  # Additional UI
+  menu_browse_hint: "Search and discover available resources"
+  menu_install_hint: "Install a specific resource by name"
+  menu_installed_hint: "See what you've installed"
+  please_wait: "Please wait..."
+  press_any_key_back: "Press Enter or Esc to go back"
