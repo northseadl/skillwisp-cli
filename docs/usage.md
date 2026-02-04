@@ -97,23 +97,23 @@ skillwisp config reset           # 重置
 
 ## 支持的 App
 
-| ID | 名称 | 目录 |
+| ID | 名称 | 目录/文件 |
 |----|------|------|
-| claude | Claude Code | `.claude` |
-| cursor | Cursor | `.cursor` |
-| gemini | Gemini | `.gemini` |
-| codex | Codex | `.codex` |
-| copilot | GitHub Copilot | `.github` |
-| trae | Trae | `.trae` |
-| windsurf | Windsurf | `.windsurf` |
-| kiro | Kiro | `.kiro` |
-| augment | Augment | `.augment` |
+| claude | Claude Code | `.claude/skills` |
+| cursor | Cursor | `.cursor/rules` (`*.mdc`, workspace only) |
+| gemini | Gemini CLI | `.gemini/skills` |
+| codex | Codex | `.codex/skills` (global: `~/.codex/skills`) |
+| copilot | GitHub Copilot (VS Code) | `.github/prompts` (`*.prompt.md`, workspace only) |
+| trae | Trae | `.trae/skills` *(未找到官方文档确认)* |
+| windsurf | Windsurf | `.windsurf/skills` (global: `~/.codeium/windsurf/skills`) |
+| kiro | Kiro | `.kiro/steering` (workspace only) |
+| augment | Augment | `.augment/rules` (global: `~/.augment/rules`) |
 
 ## 安装策略
 
-- 主源 `.agent` 存储实际文件
-- 其他 App 通过符号链接指向主源
-- Windows 或 `--no-symlink` 时复制文件
+- 主源 `.agent` 始终保存原始资源目录（便于复用与升级）
+- 目录型工具默认用符号链接指向主源；Windows 或 `--no-symlink` 时复制目录
+- 文件型工具会生成工具可识别的文件（Cursor Rules / Copilot Prompt Files / Kiro Steering / Augment Rules）
 
 ## 退出码
 

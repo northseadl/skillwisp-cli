@@ -1,10 +1,10 @@
 /**
  * 交互式主界面
  *
- * v2.3 优化:
- * - 多语言支持 (i18n)，首次运行询问语言偏好
- * - Opt-in 模式：展示全部 10 个工具
- * - 初始选中从偏好读取，静默保存
+ * v2.1 优化：
+ * - Scope 优先：先选择安装范围（本地/全局），再选择目标 App
+ * - 术语统一：用户界面使用 App/Target，不使用 Agent
+ * - 全局安装：.agent 作为源，不作为可选目标
  */
 
 import * as p from '@clack/prompts';
@@ -12,49 +12,55 @@ import { homedir } from 'node:os';
 
 import {
     loadResources,
+    loadLocale,
     localizeResource,
     searchResources,
+    getIndexVersion,
+    clearCache,
 } from '../core/registry.js';
 import { installResource, detectApps, getAppsByIds } from '../core/installer.js';
-import { getDefaultAgents, saveDefaultAgents } from '../core/preferences.js';
-import { PRIMARY_SOURCE, TARGET_APPS } from '../core/agents.js';
+import { hasDefaultAgents, getDefaultAgents, saveDefaultAgents } from '../core/preferences.js';
+import { PRIMARY_SOURCE } from '../core/agents.js';
+import { getInstallRoot } from '../core/installPaths.js';
 import type { Resource } from '../core/types.js';
 import { RESOURCE_CONFIG } from '../core/types.js';
 import { colors, symbols, createSpinner, truncate, getResourceColor } from '../ui/theme.js';
-import { initI18n, t, setLocale, needsLanguageSetup, SUPPORTED_LOCALES, getLocaleData, type LocaleCode } from '../ui/i18n.js';
+import { backgroundUpdate, type UpdateResult } from '../core/updater.js';
+import { CLI_VERSION, checkCliUpdate, shouldPromptCliUpdate, type CliVersionInfo } from '../core/version.js';
 
-type Action = 'browse' | 'install' | 'installed' | 'integrations' | 'language' | 'help' | 'exit';
+type Action = 'browse' | 'install' | 'installed' | 'integrations' | 'help' | 'exit';
 type InstallScope = 'local' | 'global';
 
-export async function main(): Promise<void> {
-    // 初始化 i18n
-    initI18n();
+// 后台更新结果（用于退出时提示）
+let pendingUpdateResult: UpdateResult | null = null;
+let pendingCliInfo: CliVersionInfo | null = null;
 
-    // 首次运行：询问语言偏好
-    if (needsLanguageSetup()) {
-        await selectLanguage();
+export async function main(): Promise<void> {
+    console.log();
+    console.log(colors.bold('SkillWisp CLI'));
+    console.log(colors.muted(`v${CLI_VERSION} · Index ${getIndexVersion()}`));
+    console.log();
+
+    // 首次进入时触发后台检测（不阻塞）
+    if (pendingUpdateResult === null && pendingCliInfo === null) {
+        startBackgroundChecks();
     }
 
-    console.log();
-    console.log(colors.bold(t('welcome')));
-    console.log(colors.muted(t('welcome_subtitle')));
-    console.log();
-
     const action = await p.select({
-        message: t('what_would_you_like'),
+        message: 'What would you like to do?',
         options: [
-            { value: 'browse' as const, label: t('menu_browse') },
-            { value: 'install' as const, label: t('menu_install') },
-            { value: 'installed' as const, label: t('menu_installed') },
-            { value: 'integrations' as const, label: t('menu_integrations') },
-            { value: 'language' as const, label: '🌐 Language / 语言' },
-            { value: 'help' as const, label: t('menu_help') },
-            { value: 'exit' as const, label: t('menu_exit') },
+            { value: 'browse' as const, label: 'Browse and install resources' },
+            { value: 'install' as const, label: 'Quick install by ID' },
+            { value: 'installed' as const, label: 'View installed resources' },
+            { value: 'integrations' as const, label: 'Manage integrations (default targets)' },
+            { value: 'help' as const, label: 'Help' },
+            { value: 'exit' as const, label: 'Exit' },
         ],
     });
 
     if (p.isCancel(action) || action === 'exit') {
-        console.log(colors.muted(t('goodbye')));
+        showPendingNotifications();
+        console.log(colors.muted('Goodbye.'));
         process.exit(0);
     }
 
@@ -71,37 +77,67 @@ export async function main(): Promise<void> {
         case 'integrations':
             await manageIntegrations();
             break;
-        case 'language':
-            await selectLanguage();
-            await main();
-            break;
         case 'help':
             await showHelp();
             break;
     }
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// 语言选择
-// ═══════════════════════════════════════════════════════════════════════════
+/**
+ * 启动后台检测（索引更新 + CLI 版本）
+ */
+function startBackgroundChecks(): void {
+    // 索引自动更新
+    backgroundUpdate()
+        .then((result) => {
+            if (result) {
+                pendingUpdateResult = result;
+                if (result.success) {
+                    // 自动更新成功，清除缓存
+                    clearCache();
+                }
+            }
+        })
+        .catch(() => {
+            // 静默失败
+        });
 
-async function selectLanguage(): Promise<void> {
-    console.log();
+    // CLI 版本检查
+    checkCliUpdate()
+        .then((info) => {
+            pendingCliInfo = info;
+        })
+        .catch(() => {
+            // 静默失败
+        });
+}
 
-    const locale = await p.select({
-        message: 'Select your language / 选择你的语言',
-        options: SUPPORTED_LOCALES.map((l) => ({
-            value: l.code as LocaleCode,
-            label: l.name,
-        })),
-    });
-
-    if (p.isCancel(locale)) {
-        return;
+/**
+ * 显示待处理的通知（退出时）
+ */
+function showPendingNotifications(): void {
+    // 索引更新通知
+    if (pendingUpdateResult) {
+        if (pendingUpdateResult.success && pendingUpdateResult.version) {
+            console.log();
+            console.log(colors.success(`${symbols.success} 索引已自动更新到 ${pendingUpdateResult.version}`));
+        } else if (pendingUpdateResult.requiresCliUpgrade) {
+            console.log();
+            console.log(colors.warning(
+                `${symbols.warning} 新索引需要 CLI >= ${pendingUpdateResult.minCliVersion}\n` +
+                `   运行 ${colors.info('npm install -g skillwisp')} 升级`
+            ));
+        }
     }
 
-    setLocale(locale);
-    console.log(colors.success(`${symbols.success} ${t('language_saved')}`));
+    // CLI 版本通知
+    if (pendingCliInfo && shouldPromptCliUpdate(pendingCliInfo)) {
+        console.log();
+        console.log(colors.info(
+            `📦 CLI 新版本 ${colors.bold(`v${pendingCliInfo.latest}`)} 可用\n` +
+            `   运行 ${colors.info('npm install -g skillwisp')} 更新`
+        ));
+    }
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -109,12 +145,12 @@ async function selectLanguage(): Promise<void> {
 // ═══════════════════════════════════════════════════════════════════════════
 
 async function browseResources(): Promise<void> {
-    const locale = getLocaleData();
+    const locale = loadLocale('zh-CN');
 
     // 合并搜索和类型选择为一步
     const query = await p.text({
-        message: t('search_prompt'),
-        placeholder: t('search_placeholder'),
+        message: 'Search resources (leave empty to show all)',
+        placeholder: 'e.g. pdf, docx, git',
     });
 
     if (p.isCancel(query)) {
@@ -134,14 +170,13 @@ async function browseResources(): Promise<void> {
 
     if (resources.length === 0) {
         console.log();
-        console.log(colors.warning(`${symbols.warning} ${t('no_results')}`));
+        console.log(colors.warning(`${symbols.warning} No resources found`));
         return main();
     }
 
     // 选择资源（显示来源）
-    console.log(colors.muted(`  ${t('select_resources_hint')}`));
     const selected = await p.multiselect({
-        message: `${t('select_resources')} (${resources.length} ${t('available_count')})`,
+        message: `Select resources to install (${resources.length} available)`,
         options: resources.map((r) => ({
             value: r.id,
             label: formatResourceLabel(r),
@@ -177,13 +212,13 @@ async function browseResources(): Promise<void> {
 // ═══════════════════════════════════════════════════════════════════════════
 
 async function quickInstall(): Promise<void> {
-    const locale = getLocaleData();
+    const locale = loadLocale('zh-CN');
 
     const resourceId = await p.text({
-        message: t('enter_resource_id'),
-        placeholder: t('resource_id_placeholder'),
+        message: 'Enter resource ID',
+        placeholder: 'e.g. pdf, docx, mcp-builder',
         validate: (value) => {
-            if (!value) return t('resource_id_required');
+            if (!value) return 'Resource ID is required';
             return undefined;
         },
     });
@@ -196,7 +231,7 @@ async function quickInstall(): Promise<void> {
 
     if (matches.length === 0) {
         console.log();
-        console.log(colors.error(`${symbols.error} ${t('no_results')}: ${resourceId}`));
+        console.log(colors.error(`${symbols.error} Resource not found: ${resourceId}`));
         console.log(colors.muted(`  Try: skillwisp search ${resourceId}`));
         return main();
     }
@@ -205,10 +240,10 @@ async function quickInstall(): Promise<void> {
 
     if (matches.length === 1) {
         resource = matches[0];
-        console.log(colors.muted(`${t('matched')}: ${resource.id} @${resource.source}`));
+        console.log(colors.muted(`Matched: ${resource.id} @${resource.source}`));
     } else {
         const choice = await p.select({
-            message: t('found_matches'),
+            message: `Found ${matches.length} matching resources`,
             options: matches.slice(0, 5).map((r) => ({
                 value: r.id,
                 label: formatResourceLabel(r),
@@ -246,21 +281,21 @@ async function viewInstalled(): Promise<void> {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// Help
+// Help & Integrations
 // ═══════════════════════════════════════════════════════════════════════════
 
 async function showHelp(): Promise<void> {
     console.log();
-    console.log(colors.bold(t('help_title')));
-    console.log(colors.muted(t('help_subtitle')));
+    console.log(colors.bold('Help'));
+    console.log(colors.muted('Start here, learn commands gradually.'));
     console.log();
 
-    console.log(colors.bold(t('help_interactive')));
+    console.log(colors.bold('Interactive'));
     console.log('  skillwisp');
     console.log(colors.muted('  Browse → Select → Install'));
     console.log();
 
-    console.log(colors.bold(t('help_commands')));
+    console.log(colors.bold('Commands'));
     console.log('  skillwisp search <keyword>    ' + colors.muted('# search registry'));
     console.log('  skillwisp catalog             ' + colors.muted('# list all'));
     console.log('  skillwisp install <id>        ' + colors.muted('# install (add is alias)'));
@@ -270,15 +305,15 @@ async function showHelp(): Promise<void> {
     console.log('  skillwisp config              ' + colors.muted('# manage preferences'));
     console.log();
 
-    console.log(colors.bold(t('help_flags')));
+    console.log(colors.bold('Flags'));
     console.log('  --json      ' + colors.muted('# JSON output'));
     console.log('  --verbose   ' + colors.muted('# detailed output'));
     console.log('  --dry-run   ' + colors.muted('# preview install'));
     console.log();
 
     await p.select({
-        message: t('back'),
-        options: [{ value: 'back' as const, label: t('back_to_menu') }],
+        message: 'Back',
+        options: [{ value: 'back' as const, label: 'Back to menu' }],
     });
 
     await main();
@@ -286,40 +321,32 @@ async function showHelp(): Promise<void> {
 
 async function manageIntegrations(): Promise<void> {
     console.log();
-    console.log(colors.bold(t('integrations_title')));
-    console.log(colors.muted(t('integrations_subtitle')));
+    console.log(colors.bold('Integrations'));
+    console.log(colors.muted('Set default installation targets.'));
     console.log();
 
-    const detectedSet = new Set(detectApps().map((a) => a.id));
-    const savedDefaults = getDefaultAgents();
+    const detectedApps = detectApps();
 
-    // 构建完整选项列表（全部 10 个工具）
-    const options = [
-        {
-            value: PRIMARY_SOURCE.id,
-            label: PRIMARY_SOURCE.name,
-            hint: '.agent (primary source)',
-        },
-        ...TARGET_APPS.map((a) => {
-            const detected = detectedSet.has(a.id) ? ' ✓' : '';
-            return {
-                value: a.id,
-                label: `${a.name}${detected}`,
-                hint: a.baseDir,
-            };
-        }),
-    ];
+    if (detectedApps.length === 0) {
+        console.log(colors.warning(`${symbols.warning} No apps detected`));
+        console.log(colors.muted('  Tip: open a project with .claude/.cursor/.gemini/.codex'));
+        console.log();
+        await p.select({
+            message: 'Back',
+            options: [{ value: 'back' as const, label: 'Back to menu' }],
+        });
+        return main();
+    }
 
-    // initialValues: 从上次保存的偏好读取，无偏好则为空
-    const initialValues = savedDefaults && savedDefaults.length > 0
-        ? savedDefaults
-        : [];
+    const existingDefault = getDefaultAgents();
+    const initialValues = existingDefault?.length ? existingDefault : detectedApps.map((a) => a.id);
 
-    // 显示操作提示
-    console.log(colors.muted(`  ${t('default_targets_hint')}`));
     const selected = await p.multiselect({
-        message: t('default_targets'),
-        options,
+        message: 'Default installation targets',
+        options: [
+            { value: PRIMARY_SOURCE.id, label: PRIMARY_SOURCE.name, hint: 'Primary source (.agent)' },
+            ...detectedApps.map((a) => ({ value: a.id, label: a.name, hint: a.baseDir })),
+        ],
         required: true,
         initialValues,
     });
@@ -328,11 +355,10 @@ async function manageIntegrations(): Promise<void> {
         return main();
     }
 
-    // 静默保存
     saveDefaultAgents(selected as string[]);
     const names = getAppsByIds(selected as string[]).map((a) => a.name).join(', ');
     console.log();
-    console.log(colors.success(`${symbols.success} ${t('saved')}: ${names}`));
+    console.log(colors.success(`${symbols.success} Default targets saved: ${names}`));
     console.log();
 
     await main();
@@ -347,10 +373,10 @@ async function selectInstallScope(): Promise<InstallScope | null> {
     const home = homedir();
 
     const scope = await p.select({
-        message: t('installation_scope'),
+        message: 'Installation scope',
         options: [
-            { value: 'local' as const, label: t('scope_local'), hint: cwd },
-            { value: 'global' as const, label: t('scope_global'), hint: home },
+            { value: 'local' as const, label: 'Current workspace', hint: cwd },
+            { value: 'global' as const, label: 'Global (user-wide)', hint: home },
         ],
     });
 
@@ -362,56 +388,88 @@ async function selectInstallScope(): Promise<InstallScope | null> {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// Target App 选择 (Opt-in 模式)
+// Target App 选择
 // ═══════════════════════════════════════════════════════════════════════════
 
 async function selectTargetApps(scope: InstallScope): Promise<string[] | null> {
     const isGlobal = scope === 'global';
-    const detectedSet = new Set(detectApps().map((a) => a.id));
-    const savedDefaults = getDefaultAgents();
+    const detectedApps = detectApps();
+    const availableApps = isGlobal
+        ? detectedApps.filter((a) => getInstallRoot(a, 'skill', 'global') !== null)
+        : detectedApps;
 
-    // 构建完整选项列表（全部 10 个工具）
-    const options = [
-        // Primary Source (.agent) 始终第一个，并说明 symlink 机制
-        {
-            value: PRIMARY_SOURCE.id,
-            label: PRIMARY_SOURCE.name,
-            hint: isGlobal
-                ? `~/.agent (${t('primary_source')}) - ${t('primary_source_hint')}`
-                : `.agent (${t('primary_source')}) - ${t('primary_source_hint')}`,
-        },
-        // 其他 9 个工具
-        ...TARGET_APPS.map((a) => {
-            const dir = isGlobal ? `~/${a.globalBaseDir || a.baseDir}` : a.baseDir;
-            const detected = detectedSet.has(a.id) ? t('detected_mark') : '';
-            return {
+    // 全局安装：.agent 是强制源，不显示为可选目标
+    // 本地安装：.agent 可作为可选目标
+    if (availableApps.length === 0) {
+        if (isGlobal) {
+            console.log(colors.muted(`Installing to ~/.agent (primary source)`));
+        } else {
+            console.log(colors.muted(`Installing to .agent (primary source)`));
+        }
+        return [PRIMARY_SOURCE.id];
+    }
+
+    // 已有默认 → 直接使用，不再询问
+    if (hasDefaultAgents()) {
+        const defaultApps = getDefaultAgents()!;
+        // 全局安装时，过滤掉 agent，但确保安装器会使用它作为源
+        let effectiveApps = isGlobal
+            ? defaultApps.filter((id) => id !== PRIMARY_SOURCE.id)
+            : defaultApps;
+
+        if (isGlobal) {
+            // 过滤掉不支持 global 的目标（例如 Cursor/Copilot/Kiro）
+            effectiveApps = getAppsByIds(effectiveApps)
+                .filter((a) => getInstallRoot(a, 'skill', 'global') !== null)
+                .map((a) => a.id);
+        }
+
+        if (effectiveApps.length === 0 && isGlobal) {
+            // 全局安装但默认只有 .agent，需要重新选择
+        } else {
+            const names = getAppsByIds(effectiveApps).map((a) => a.name).join(', ');
+            console.log(colors.muted(`Targets: ${names}`));
+            return effectiveApps.length > 0 ? effectiveApps : [PRIMARY_SOURCE.id];
+        }
+    }
+
+    // 首次使用 → 选择并自动保存
+    console.log();
+    console.log(colors.bold('First time setup'));
+    console.log(colors.muted('Select where to install resources. This will be saved.'));
+    console.log();
+
+    // 根据 scope 构建选项
+    const options = isGlobal
+        ? availableApps.map((a) => ({
+            value: a.id,
+            label: a.name,
+            hint: `~/${a.globalBaseDir}`,
+        }))
+        : [
+            { value: PRIMARY_SOURCE.id, label: PRIMARY_SOURCE.name, hint: 'Primary source (.agent)' },
+            ...availableApps.map((a) => ({
                 value: a.id,
-                label: `${a.name}${detected}`,
-                hint: dir,
-            };
-        }),
-    ];
+                label: a.name,
+                hint: a.baseDir,
+            })),
+        ];
 
-    // initialValues: 从上次保存的偏好读取，无偏好则为空
-    const initialValues = savedDefaults && savedDefaults.length > 0
-        ? savedDefaults
-        : [];
-
-    // 显示操作提示
-    console.log(colors.muted(`  ${t('select_targets_hint')}`));
     const selected = await p.multiselect({
-        message: t('select_targets'),
+        message: 'Select target apps',
         options,
         required: true,
-        initialValues,
+        initialValues: availableApps.map((a) => a.id),
     });
 
     if (p.isCancel(selected)) {
         return null;
     }
 
-    // 静默保存，无确认
+    // 自动保存为默认
     saveDefaultAgents(selected as string[]);
+    const names = getAppsByIds(selected as string[]).map((a) => a.name).join(', ');
+    console.log(colors.success(`${symbols.success} Default targets saved: ${names}`));
 
     return selected as string[];
 }

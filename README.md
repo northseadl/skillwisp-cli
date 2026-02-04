@@ -108,17 +108,17 @@ skillwisp config reset           # 重置
 
 ## 支持的工具
 
-| 工具 | 目录 |
+| 工具 | 目录/文件 |
 |------|------|
-| Claude Code | `.claude` |
-| Cursor | `.cursor` |
-| Gemini | `.gemini` |
-| Codex | `.codex` |
-| GitHub Copilot | `.github` |
-| Windsurf | `.windsurf` |
-| Trae | `.trae` |
-| Kiro | `.kiro` |
-| Augment | `.augment` |
+| Claude Code | `.claude/skills` |
+| Cursor | `.cursor/rules` (`*.mdc`, workspace only) |
+| Gemini CLI | `.gemini/skills` |
+| Codex | `.codex/skills` (global: `~/.codex/skills`) |
+| GitHub Copilot (VS Code) | `.github/prompts` (`*.prompt.md`, workspace only) |
+| Windsurf | `.windsurf/skills` (global: `~/.codeium/windsurf/skills`) |
+| Trae | `.trae/skills` *(未找到官方文档确认)* |
+| Kiro | `.kiro/steering` (workspace only) |
+| Augment | `.augment/rules` (global: `~/.augment/rules`) |
 
 ## 退出码
 
