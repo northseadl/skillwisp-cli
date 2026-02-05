@@ -1,8 +1,8 @@
 # 资源索引
 # 由 sync 命令自动生成，也可手动维护
-index_version: "2026.02.04.10"
+index_version: "2026.02.05.1"
 min_cli_version: "0.6.0"
-updated: "2026-02-04T23:45:00+08:00"
+updated: "2026-02-05T14:30:00+08:00"
 
 skills:
   # Muratcankoylan - Agent Skills for Context Engineering
