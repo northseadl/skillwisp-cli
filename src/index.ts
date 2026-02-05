@@ -20,8 +20,12 @@ import { info } from './commands/info.js';
 import { config } from './commands/config.js';
 import { update } from './commands/update.js';
 import { CLI_VERSION } from './core/version.js';
+import { initI18n } from './core/i18n.js';
 
 const program = new Command();
+
+// 初始化 i18n（让非交互命令也尊重用户语言偏好）
+initI18n();
 
 program
     .name('skillwisp')

@@ -2,9 +2,10 @@
  * search 命令
  */
 
-import { loadResources, loadLocale, localizeResource, getResourceRepoUrl } from '../core/registry.js';
+import { loadResources, localizeResource, getResourceRepoUrl } from '../core/registry.js';
 import type { Resource, ResourceType } from '../core/types.js';
 import { RESOURCE_CONFIG } from '../core/types.js';
+import { getLocaleData } from '../core/i18n.js';
 import { colors, symbols, truncate, getResourceColor } from '../ink/utils/index.js';
 
 const DEFAULT_PAGE_SIZE = 20;
@@ -40,7 +41,7 @@ export function getFullName(resource: Resource): string {
 }
 
 export async function search(query: string, options: SearchOptions = {}): Promise<void> {
-    const locale = loadLocale('zh-CN');
+    const locale = getLocaleData();
     const allResources = loadResources();
     const q = query.toLowerCase();
 
@@ -126,7 +127,7 @@ export async function search(query: string, options: SearchOptions = {}): Promis
 }
 
 export async function catalog(options: SearchOptions = {}): Promise<void> {
-    const locale = loadLocale('zh-CN');
+    const locale = getLocaleData();
     let resources = loadResources();
 
     if (options.type) {

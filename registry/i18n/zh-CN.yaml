@@ -1,9 +1,9 @@
 # 简体中文翻译
-# 描述与索引及 SKILL.md 1:1 对应
+# 描述与索引（resource.id）及 SKILL.md 1:1 对应
 locale: zh-CN
 name: 简体中文
 
-skills:
+resources:
   # Muratcankoylan - AI 代理上下文工程技能
   muratcankoylan:
     context-fundamentals:
@@ -151,64 +151,64 @@ skills:
 
   # AWS Skills (itsmostafa)
   itsmostafa:
-    api-gateway:
+    aws-api-gateway:
       name: AWS API Gateway
       description: AWS API Gateway 用于 REST 和 HTTP API 管理。当创建 API、配置集成、设置授权、管理阶段时使用。
-    bedrock:
+    aws-bedrock:
       name: AWS Bedrock
       description: AWS Bedrock 基础模型用于生成式 AI。当调用基础模型、构建 AI 应用、创建嵌入时使用。
-    cloudformation:
+    aws-cloudformation:
       name: AWS CloudFormation
       description: AWS CloudFormation 基础设施即代码用于堆栈管理。当编写模板、部署堆栈、管理漂移时使用。
-    cloudwatch:
+    aws-cloudwatch:
       name: AWS CloudWatch
       description: AWS CloudWatch 监控日志、指标、告警和仪表板。当设置监控、创建告警、构建仪表板时使用。
-    cognito:
+    aws-cognito:
       name: AWS Cognito
       description: AWS Cognito 用户认证和授权服务。当设置用户池、配置身份池、实现 OAuth 流程时使用。
-    dynamodb:
+    aws-dynamodb:
       name: AWS DynamoDB
       description: AWS DynamoDB NoSQL 数据库用于可扩展数据存储。当设计表结构、编写查询、配置索引时使用。
-    ec2:
+    aws-ec2:
       name: AWS EC2
       description: AWS EC2 虚拟机管理。当启动实例、配置安全组、管理密钥对时使用。
-    ecs:
+    aws-ecs:
       name: AWS ECS
       description: AWS ECS 容器编排用于运行 Docker 容器。当部署容器化应用、配置任务定义时使用。
-    eks:
+    aws-eks:
       name: AWS EKS
       description: AWS EKS Kubernetes 管理。当创建集群、配置 IRSA、管理节点组时使用。
-    eventbridge:
+    aws-eventbridge:
       name: AWS EventBridge
       description: AWS EventBridge 无服务器事件总线。当创建规则、配置事件模式、设置计划事件时使用。
-    iam:
+    aws-iam:
       name: AWS IAM
       description: AWS 身份和访问管理用于用户、角色、策略和权限。当创建策略、配置跨账户访问时使用。
-    lambda:
+    aws-lambda:
       name: AWS Lambda
       description: AWS Lambda 无服务器函数用于事件驱动计算。当创建函数、配置触发器时使用。
-    rds:
+    aws-rds:
       name: AWS RDS
       description: AWS RDS 关系数据库服务用于托管数据库。当配置数据库、管理备份时使用。
-    s3:
+    aws-s3:
       name: AWS S3
       description: AWS S3 对象存储用于存储桶管理。当创建存储桶、上传文件、配置生命周期策略时使用。
-    secrets-manager:
+    aws-secrets-manager:
       name: AWS Secrets Manager
       description: AWS Secrets Manager 用于安全的密钥存储和轮换。当存储凭证、配置自动轮换时使用。
-    sns:
+    aws-sns:
       name: AWS SNS
       description: AWS SNS 通知服务用于发布/订阅消息。当创建主题、管理订阅时使用。
-    sqs:
+    aws-sqs:
       name: AWS SQS
       description: AWS SQS 消息队列服务用于解耦架构。当创建队列、配置死信队列时使用。
-    step-functions:
+    aws-step-functions:
       name: AWS Step Functions
       description: AWS Step Functions 工作流编排与状态机。当设计工作流、实现错误处理时使用。
 
   # Playwright (lackeyjb)
   lackeyjb:
-    playwright-skill:
+    playwright:
       name: Playwright 自动化
       description: 使用 Playwright 的完整浏览器自动化。自动检测开发服务器，支持测试页面、填写表单、截图、检查响应式设计。
 
@@ -238,9 +238,9 @@ skills:
     web-design-guidelines:
       name: Web 设计规范
       description: 审查 UI 代码是否符合 Web 界面指南。当被要求审查 UI、检查可访问性、审计设计时使用。
-    vercel-deploy:
-      name: Vercel 部署
-      description: 部署应用和网站到 Vercel。当用户请求部署操作时使用。无需认证。
+    claude-ai:
+      name: Claude.ai 集成
+      description: Vercel 的 Claude.ai 集成技能。用于构建与 Claude AI 集成的应用时使用。
 
   # OpenAI Skills
   openai:
@@ -253,7 +253,7 @@ skills:
     develop-web-game:
       name: Web 游戏开发
       description: 开发和测试网页游戏。
-    doc:
+    openai-doc:
       name: 文档处理
       description: 创建、编辑和处理文档。
     figma:
@@ -295,10 +295,10 @@ skills:
     openai-docs:
       name: OpenAI 文档
       description: 查询 OpenAI 官方文档。
-    pdf:
+    openai-pdf:
       name: PDF 处理
       description: 读取、创建和处理 PDF 文件。
-    playwright:
+    openai-playwright:
       name: Playwright 自动化
       description: 使用 Playwright 自动化浏览器。
     render-deploy:

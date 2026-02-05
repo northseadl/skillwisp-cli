@@ -204,7 +204,10 @@ export function getResourcesByType(type: ResourceType): Resource[] {
 }
 
 export function localizeResource(resource: Resource, locale: LocaleData | null): Resource {
-    const localized = locale?.resources[resource.source]?.[resource.id];
+    const pathId = tryGetIdFromPath(resource.path, resource.source);
+    const localized =
+        locale?.resources[resource.source]?.[resource.id] ||
+        (pathId ? locale?.resources[resource.source]?.[pathId] : undefined);
     if (!localized) return resource;
 
     return {
@@ -212,6 +215,19 @@ export function localizeResource(resource: Resource, locale: LocaleData | null):
         name: localized.name || resource.name,
         description: localized.description || resource.description,
     };
+}
+
+function tryGetIdFromPath(resourcePath: string, source: string): string | null {
+    // Expected: "@source/<id>" (id may contain '.' or '-')
+    const raw = resourcePath.startsWith('@') ? resourcePath.slice(1) : resourcePath;
+    const slashIndex = raw.indexOf('/');
+    if (slashIndex <= 0) return null;
+
+    const pathSource = raw.slice(0, slashIndex);
+    if (pathSource.toLowerCase() !== source.toLowerCase()) return null;
+
+    const id = raw.slice(slashIndex + 1).trim();
+    return id || null;
 }
 
 export function getDistributionUrl(): string {

@@ -4,12 +4,13 @@
  * PRIMARY_SOURCE (.agents) 自动作为隐式主源，用户选择的应用创建符号链接
  */
 
-import { findResource, findResourceByFullName, searchResources, loadLocale, localizeResource } from '../core/registry.js';
+import { findResource, findResourceByFullName, searchResources, localizeResource } from '../core/registry.js';
 import { installResource, checkExists } from '../core/installer.js';
 import { detectApps, getAppsByIds, PRIMARY_SOURCE } from '../core/agents.js';
 import { getInstallRoot } from '../core/installPaths.js';
 import { getDefaultAgents, hasDefaultAgents } from '../core/preferences.js';
 import type { ResourceType } from '../core/types.js';
+import { getLocaleData } from '../core/i18n.js';
 import { colors, symbols, createSpinner } from '../ink/utils/index.js';
 import { runInstallFlow } from '../ink/flows/index.js';
 import { getFullName } from './search.js';
@@ -31,7 +32,7 @@ interface InstallOptions {
 
 export async function install(resourceId: string, options: InstallOptions = {}): Promise<void> {
     const isTTY = Boolean(process.stdout.isTTY);
-    const locale = loadLocale('zh-CN');
+    const locale = getLocaleData();
 
     // 解析资源类型
     let resourceType: ResourceType = 'skill';

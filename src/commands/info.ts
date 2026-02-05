@@ -2,11 +2,12 @@
  * info 命令
  */
 
-import { findResource, searchResources, loadLocale, localizeResource, getResourceRepoUrl } from '../core/registry.js';
+import { findResource, searchResources, localizeResource, getResourceRepoUrl } from '../core/registry.js';
 import { checkExists } from '../core/installer.js';
 import { detectApps } from '../core/agents.js';
 import type { ResourceType } from '../core/types.js';
 import { RESOURCE_CONFIG } from '../core/types.js';
+import { getLocaleData } from '../core/i18n.js';
 import { colors, symbols, getResourceColor } from '../ink/utils/index.js';
 
 interface InfoOptions {
@@ -16,7 +17,7 @@ interface InfoOptions {
 }
 
 export async function info(resourceId: string, options: InfoOptions = {}): Promise<void> {
-    const locale = loadLocale('zh-CN');
+    const locale = getLocaleData();
 
     let resourceType: ResourceType | undefined;
     if (options.type && ['skill', 'rule', 'workflow'].includes(options.type)) {

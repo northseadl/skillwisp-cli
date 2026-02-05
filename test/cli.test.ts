@@ -35,8 +35,8 @@ describe('Registry Validation', () => {
         expect(Array.isArray(indexData.skills)).toBe(true)
     })
 
-    it('should have 74 skills', () => {
-        expect(indexData.skills.length).toBe(74)
+    it('should have 102 skills', () => {
+        expect(indexData.skills.length).toBe(102)
     })
 
     it('should have all required fields for each skill', () => {
@@ -56,7 +56,7 @@ describe('Registry Validation', () => {
         const zhData = parse(content)
 
         expect(zhData).toBeDefined()
-        expect(zhData.skills).toBeDefined()
+        expect(zhData.resources || zhData.skills).toBeDefined()
     })
 
     it('should have valid sources.yaml', () => {
