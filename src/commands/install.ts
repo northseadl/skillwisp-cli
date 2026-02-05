@@ -5,13 +5,13 @@
  */
 
 import { findResource, findResourceByFullName, searchResources, localizeResource } from '../core/registry.js';
-import { installResource, checkExists } from '../core/installer.js';
+import { installResource, checkExists, resolveInstallTargets, type InstallCompatNotice } from '../core/installer.js';
 import { detectApps, getAppsByIds, PRIMARY_SOURCE } from '../core/agents.js';
 import { getInstallRoot } from '../core/installPaths.js';
 import { getDefaultAgents, hasDefaultAgents } from '../core/preferences.js';
 import type { ResourceType } from '../core/types.js';
 import { getLocaleData } from '../core/i18n.js';
-import { colors, symbols, createSpinner } from '../ink/utils/index.js';
+import { colors, symbols, createSpinner } from '../core/terminal.js';
 import { runInstallFlow } from '../ink/flows/index.js';
 import { getFullName } from './search.js';
 
@@ -106,9 +106,24 @@ export async function install(resourceId: string, options: InstallOptions = {}):
         process.exit(2);
     }
 
-    // 全局安装：过滤/校验不支持 global 的目标（例如 Cursor/Copilot/Kiro）
+    const selectedAgents = [...agents];
+
+    // 兼容处理：部分 App 与主源目录复用（不创建独立目录）
+    const resolved = resolveInstallTargets(selectedAgents, resourceType, scope);
+    const compatNotices = resolved.compat;
+    const installAgents = resolved.agentIds;
+
+    if (installAgents.length === 0) {
+        printError('No installation targets found', options);
+        process.exit(2);
+    }
+
+    // 显示兼容提示
+    printCompatNotices(compatNotices, options);
+
+    // 全局安装：过滤/校验不支持 global 的目标（例如缺少 globalBaseDir 的工具）
     if (scope === 'global') {
-        const unsupported = getAppsByIds(agents)
+        const unsupported = getAppsByIds(installAgents)
             .filter((a) => getInstallRoot(a, resourceType, 'global') === null)
             .map((a) => a.id);
 
@@ -120,7 +135,7 @@ export async function install(resourceId: string, options: InstallOptions = {}):
 
     // 检查是否已存在
     if (!options.force) {
-        const existing = checkExists(resource.id, resourceType, agents, scope);
+        const existing = checkExists(resource.id, resourceType, installAgents, scope);
         if (existing.length > 0) {
             printError(`Resource already exists: ${fullName}`, options);
             if (!options.json) {
@@ -133,7 +148,7 @@ export async function install(resourceId: string, options: InstallOptions = {}):
 
     // --dry-run
     if (options.dryRun) {
-        const targetNames = getAppsByIds(agents).map((a) => a.name);
+        const targetNames = getAppsByIds(selectedAgents).map((a) => a.name);
 
         if (options.json) {
             console.log(JSON.stringify({
@@ -141,6 +156,7 @@ export async function install(resourceId: string, options: InstallOptions = {}):
                 resource: { fullName, id: resource.id, type: resourceType },
                 targets: targetNames,
                 scope,
+                ...(compatNotices.length > 0 ? { compat: compatNotices } : {}),
             }, null, 2));
         } else {
             console.log();
@@ -161,7 +177,7 @@ export async function install(resourceId: string, options: InstallOptions = {}):
 
     try {
         const result = installResource(resource, {
-            agents,
+            agents: installAgents,
             useSymlinks: options.symlink !== false,
             scope,
             resourceType,
@@ -190,6 +206,7 @@ export async function install(resourceId: string, options: InstallOptions = {}):
                     path: t.path,
                     type: t.type,
                 })),
+                ...(result.compat && result.compat.length > 0 ? { compat: result.compat } : {}),
             };
             console.log(JSON.stringify(output, null, 2));
             return;
@@ -202,7 +219,7 @@ export async function install(resourceId: string, options: InstallOptions = {}):
         }
 
         // 默认输出
-        const targetNames = getAppsByIds(agents).map((a) => a.name);
+        const targetNames = getAppsByIds(selectedAgents).map((a) => a.name);
         const summary = `${fullName} → ${targetNames.join(', ')}`;
         spinner.stop(summary, 'success');
 
@@ -258,4 +275,20 @@ function printError(message: string, options: InstallOptions): void {
         console.error();
         console.error(colors.error(`${symbols.error} ${message}`));
     }
+}
+
+function formatCompatNotice(notice: InstallCompatNotice): string {
+    const note = notice.note ? ` ${notice.note}` : '';
+    return `${notice.name} 兼容${note}（已使用主源目录，无需单独安装）`;
+}
+
+function printCompatNotices(notices: InstallCompatNotice[], options: InstallOptions): void {
+    if (notices.length === 0) return;
+    if (options.json || options.quiet) return;
+
+    console.error();
+    for (const notice of notices) {
+        console.error(colors.warning(`${symbols.warning} ${formatCompatNotice(notice)}`));
+    }
+    console.error();
 }

@@ -71,7 +71,7 @@ describe('core/installer', () => {
 
         const { installResource } = await import('../src/core/installer.js');
 
-        const result = installResource(testResource as any, { agents: ['claude'], scope: 'local' });
+        const result = installResource(testResource as any, { agents: ['claude-code'], scope: 'local' });
         expect(result.success).toBe(true);
 
         const primaryPath = join(process.cwd(), '.agents', 'skills', testResource.id, 'SKILL.md');
@@ -82,7 +82,7 @@ describe('core/installer', () => {
         expect(lstatSync(claudePath).isSymbolicLink()).toBe(true);
     });
 
-    it('installResource writes file-based steering files for Kiro', async () => {
+    it('installResource installs to Krio skill directory', async () => {
         vi.doMock('node:child_process', () => {
             return {
                 execFileSync: (cmd: string, args: string[], options?: { cwd?: string }) => {
@@ -121,15 +121,13 @@ describe('core/installer', () => {
 
         const { installResource } = await import('../src/core/installer.js');
 
-        const result = installResource(testResource as any, { agents: ['kiro'], scope: 'local' });
+        const result = installResource(testResource as any, { agents: ['krio'], scope: 'local' });
         expect(result.success).toBe(true);
 
-        const steeringFile = join(process.cwd(), '.kiro', 'steering', `skillwisp-${testResource.id}.md`);
-        expect(existsSync(steeringFile)).toBe(true);
+        const kiroPath = join(process.cwd(), '.kiro', 'skills', testResource.id, 'SKILL.md');
+        expect(existsSync(kiroPath)).toBe(true);
 
-        const content = readFileSync(steeringFile, 'utf-8');
-        expect(content).toContain(`# ${testResource.name}`);
-        expect(content).toContain(`Source: @${testResource.source}/${testResource.id}`);
+        const content = readFileSync(kiroPath, 'utf-8');
         expect(content).toContain('Hello from installer test.');
     });
 
@@ -160,7 +158,7 @@ describe('core/installer', () => {
         const claudeDir = join(process.cwd(), '.claude', 'skills', 'exists');
         mkdirSync(claudeDir, { recursive: true });
 
-        const existing = checkExists('exists', 'skill', ['claude'], 'local');
+        const existing = checkExists('exists', 'skill', ['claude-code'], 'local');
         expect(existing).toContain('.agents');
         expect(existing).toContain('Claude Code');
     });

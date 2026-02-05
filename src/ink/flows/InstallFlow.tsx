@@ -15,13 +15,13 @@ import { Footer } from '../components/Footer.js';
 import { SelectMenu } from '../components/SelectMenu.js';
 import { MultiSelectMenu } from '../components/MultiSelectMenu.js';
 import { colors, symbols } from '../theme.js';
-import { detectApps, getAppsByIds, PRIMARY_SOURCE, type AgentConfig } from '../../core/agents.js';
+import { detectApps, getAppsByIds, PRIMARY_SOURCE, sortTargetApps, type AgentConfig, type TargetSort } from '../../core/agents.js';
 import { getDefaultAgents, saveDefaultAgents, hasDefaultAgents } from '../../core/preferences.js';
 import { t, initI18n } from '../../core/i18n.js';
 import { CLI_VERSION } from '../../core/version.js';
 import { getIndexVersion } from '../../core/registry.js';
 
-type FlowPhase = 'select-targets' | 'confirm-save' | 'done';
+type FlowPhase = 'select-sort' | 'select-targets' | 'confirm-save' | 'done';
 
 interface InstallFlowProps {
     resourceName: string;
@@ -32,6 +32,7 @@ interface FlowState {
     phase: FlowPhase;
     selectedTargets: string[];
     availableApps: AgentConfig[];
+    targetSort: TargetSort;
     hint: string;
 }
 
@@ -59,9 +60,10 @@ function InstallFlowApp({ resourceName, onComplete }: InstallFlowProps): ReactNo
         }
 
         return {
-            phase: 'select-targets' as FlowPhase,
+            phase: 'select-sort' as FlowPhase,
             selectedTargets: initialSelected,
             availableApps,
+            targetSort: 'default',
             hint: t('hint_navigation'),
         };
     });
@@ -84,8 +86,39 @@ function InstallFlowApp({ resourceName, onComplete }: InstallFlowProps): ReactNo
     // 渲染内容区域
     const renderContent = useCallback((): ReactNode => {
         // 阶段 1: 选择目标应用
+        if (state.phase === 'select-sort') {
+            return (
+                <Box flexDirection="column" paddingX={2}>
+                    <SelectMenu
+                        message={t('target_sort')}
+                        items={[
+                            { value: 'default', label: t('target_sort_default'), hint: t('target_sort_default_hint') },
+                            { value: 'az', label: t('target_sort_az'), hint: t('target_sort_az_hint') },
+                        ]}
+                        onSelect={(value) => {
+                            setState(prev => ({
+                                ...prev,
+                                phase: 'select-targets',
+                                targetSort: value as TargetSort,
+                                hint: t('hint_navigation'),
+                            }));
+                        }}
+                        onCancel={() => onComplete(null)}
+                        showNumbers={false}
+                    />
+                </Box>
+            );
+        }
+
+        // 阶段 2: 选择目标应用
         if (state.phase === 'select-targets') {
-            const items = state.availableApps.map(app => ({
+            const primary = state.availableApps.find(app => app.id === PRIMARY_SOURCE.id);
+            const rest = state.availableApps.filter(app => app.id !== PRIMARY_SOURCE.id);
+            const orderedApps = primary
+                ? [primary, ...sortTargetApps(rest, state.targetSort)]
+                : sortTargetApps(rest, state.targetSort);
+
+            const items = orderedApps.map(app => ({
                 label: app.id === PRIMARY_SOURCE.id
                     ? `${app.name} (${t('primary_source')})`
                     : app.name,
@@ -121,7 +154,7 @@ function InstallFlowApp({ resourceName, onComplete }: InstallFlowProps): ReactNo
             );
         }
 
-        // 阶段 2: 确认是否保存为默认
+        // 阶段 3: 确认是否保存为默认
         if (state.phase === 'confirm-save') {
             const targetNames = getAppsByIds(state.selectedTargets).map(a => a.name).join(', ');
 

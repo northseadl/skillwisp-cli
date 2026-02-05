@@ -108,20 +108,57 @@ skillwisp config reset           # 重置
 
 ## 支持的工具
 
-| 工具 | Skills 目录 | 备注 |
-|------|------------|------|
-| Claude Code | `.claude/skills/` | 全局: `~/.claude/skills/` |
-| Cursor | `.cursor/skills/` | 兼容 Claude/Codex 目录 |
-| Gemini CLI | `.gemini/skills/` | 全局: `~/.gemini/skills/` |
-| Codex | `.codex/skills/` | 全局: `~/.codex/skills/` |
-| Trae | `.trae/skills/` | 全局: `~/.trae/skills/` |
-| Windsurf | `.windsurf/skills/` | 全局: `~/.codeium/windsurf/skills/` |
-| GitHub Copilot | `.github/skills/` | 全局: `~/.copilot/skills/` |
-| Augment | `.augment/skills/` | 全局: `~/.augment/skills/` |
-| Antigravity | `.agent/skills/` ¹ | 全局: `~/.gemini/antigravity/skills/` |
-| Kiro | `.kiro/steering/` | 文件型，仅 workspace |
+以下目录以 skills CLI 官方表为基础，并结合各工具官方文档（例如 Augment）。
 
-> ¹ Antigravity 项目级目录与 `.agent` (PRIMARY_SOURCE) 重叠，建议使用 `.agent` 进行项目级安装
+| 工具 | Project 目录 | Global 目录 |
+|---|---|---|
+| AdaL | `.adal/skills/` | `~/.adal/skills/` |
+| Amp | `.agents/skills/` | `~/.config/agents/skills/` |
+| Antigravity | `.agent/skills/` | `~/.gemini/antigravity/skills/` |
+| Augment | `.augment/skills/` | `~/.augment/skills/` |
+| Claude Code | `.claude/skills/` | `~/.claude/skills/` |
+| Cline | `.cline/skills/` | `~/.cline/skills/` |
+| CodeBuddy | `.codebuddy/skills/` | `~/.codebuddy/skills/` |
+| Codex | `.agents/skills/` | `~/.codex/skills/` |
+| Command Code | `.commandcode/skills/` | `~/.commandcode/skills/` |
+| Continue | `.continue/skills/` | `~/.continue/skills/` |
+| Crush | `.crush/skills/` | `~/.config/crush/skills/` |
+| Cursor | `.cursor/skills/` | `~/.cursor/skills/` |
+| Droid | `.factory/skills/` | `~/.factory/skills/` |
+| Gemini CLI | `.agents/skills/` | `~/.gemini/skills/` |
+| GitHub Copilot | `.agents/skills/` | `~/.copilot/skills/` |
+| Goose | `.goose/skills/` | `~/.config/goose/skills/` |
+| iFlow CLI | `.iflow/skills/` | `~/.iflow/skills/` |
+| Junie | `.junie/skills/` | `~/.junie/skills/` |
+| Kilo Code | `.kilocode/skills/` | `~/.kilocode/skills/` |
+| Kimi Code | `.agents/skills/` | `~/.config/agents/skills/` |
+| Kode | `.kode/skills/` | `~/.kode/skills/` |
+| Krio | `.kiro/skills/` | `~/.kiro/skills/` |
+| MCPJam | `.mcpjam/skills/` | `~/.mcpjam/skills/` |
+| Mistral Vibe | `.vibe/skills/` | `~/.vibe/skills/` |
+| Mux | `.mux/skills/` | `~/.mux/skills/` |
+| Neovate | `.neovate/skills/` | `~/.neovate/skills/` |
+| OpenClaw | `skills/` | `~/.moltbot/skills/` |
+| OpenCode | `.agents/skills/` | `~/.config/opencode/skills/` |
+| OpenHands | `.openhands/skills/` | `~/.openhands/skills/` |
+| Pi | `.pi/skills/` | `~/.pi/agent/skills/` |
+| Pochi | `.pochi/skills/` | `~/.pochi/skills/` |
+| Qoder | `.qoder/skills/` | `~/.qoder/skills/` |
+| Qwen Code | `.qwen/skills/` | `~/.qwen/skills/` |
+| Replit | `.agents/skills/` | `-` |
+| Roo Code | `.roo/skills/` | `~/.roo/skills/` |
+| Trae | `.trae/skills/` | `~/.trae/skills/` |
+| Trae CN | `.trae-cn/skills/` | `~/.trae-cn/skills/` |
+| Windsurf | `.windsurf/skills/` | `~/.codeium/windsurf/skills/` |
+| Zencoder | `.zencoder/skills/` | `~/.zencoder/skills/` |
+
+说明：
+
+- `.agents` 不是官方目录表的一部分，为 SkillWisp 内部主源策略。
+- 安装时会先写入 `.agents/skills/`，再为其他工具目录创建符号链接（或复制）。
+- 对于官方 Project 目录就是 `.agents/skills/` 的工具，会直接复用主源目录并提示兼容，无需单独安装。
+- Augment 官方文档将技能目录设为 `.augment/skills/`，并兼容读取 `.claude/skills/`。
+- Krio 安装后需手动将 `skill://.kiro/skills/**/SKILL.md` 添加到 `.kiro/agents/<agent>.json` 的 resources。
 
 ## 退出码
 

@@ -89,7 +89,7 @@ program
     .description('Install a resource')
     .option('-t, --type <type>', 'Resource type (skill/rule/workflow)', 'skill')
     .option('-g, --global', 'Install to global directory')
-    .option('--target <target>', 'Target integration (claude/cursor/gemini/codex/copilot/trae/windsurf/kiro/augment)')
+    .option('--target <target>', 'Target integration (use supported app IDs)')
     .option('--no-symlink', 'Disable symlinks (force copy)')
     .option('-v, --verbose', 'Show installation paths')
     .option('--json', 'JSON output')

@@ -38,11 +38,11 @@ describe('commands/list', () => {
             'utf-8'
         );
 
-        // File-based: Kiro steering file
-        const kiroDir = join(process.cwd(), '.kiro', 'steering');
+        // Dir-based: Krio skill
+        const kiroDir = join(process.cwd(), '.kiro', 'skills', 'bar');
         mkdirSync(kiroDir, { recursive: true });
         writeFileSync(
-            join(kiroDir, 'skillwisp-bar.md'),
+            join(kiroDir, 'SKILL.md'),
             `---\ndescription: Bar Skill\n---\n# Bar\n`,
             'utf-8'
         );
@@ -60,7 +60,7 @@ describe('commands/list', () => {
             const data = JSON.parse(c.logs[0]) as Array<any>;
 
             expect(data.some((r) => r.id === 'foo' && r.agent === 'agents' && r.type === 'skill')).toBe(true);
-            expect(data.some((r) => r.id === 'bar' && r.agent === 'kiro' && r.type === 'skill')).toBe(true);
+            expect(data.some((r) => r.id === 'bar' && r.agent === 'krio' && r.type === 'skill')).toBe(true);
             expect(data.some((r) => r.id === 'r1' && r.agent === 'agents' && r.type === 'rule' && r.scope === 'global')).toBe(true);
         } finally {
             c.restore();
@@ -130,4 +130,3 @@ describe('commands/list', () => {
         }
     });
 });
-

@@ -8,7 +8,7 @@ import { detectApps } from '../core/agents.js';
 import type { ResourceType } from '../core/types.js';
 import { RESOURCE_CONFIG } from '../core/types.js';
 import { getLocaleData } from '../core/i18n.js';
-import { colors, symbols, getResourceColor } from '../ink/utils/index.js';
+import { colors, symbols, getResourceColor } from '../core/terminal.js';
 
 interface InfoOptions {
     type?: string;

@@ -12,14 +12,14 @@ import { Footer } from '../components/Footer.js';
 import { SelectMenu } from '../components/SelectMenu.js';
 import { MultiSelectMenu } from '../components/MultiSelectMenu.js';
 import { colors, symbols } from '../theme.js';
-import { detectApps, getAppsByIds, PRIMARY_SOURCE, type AgentConfig } from '../../core/agents.js';
+import { detectApps, getAppsByIds, PRIMARY_SOURCE, sortTargetApps, type AgentConfig, type TargetSort } from '../../core/agents.js';
 import { getDefaultAgents, saveDefaultAgents, resetPreferences, loadPreferences } from '../../core/preferences.js';
 import { t, initI18n } from '../../core/i18n.js';
 import { CLI_VERSION } from '../../core/version.js';
 import { getIndexVersion } from '../../core/registry.js';
 
 type ConfigAction = 'targets' | 'reset' | 'exit';
-type FlowPhase = 'menu' | 'targets' | 'reset-confirm' | 'done';
+type FlowPhase = 'menu' | 'targets-sort' | 'targets' | 'reset-confirm' | 'done';
 
 interface ConfigFlowProps {
     onComplete: () => void;
@@ -28,6 +28,7 @@ interface ConfigFlowProps {
 interface FlowState {
     phase: FlowPhase;
     message: string | null;
+    targetSort: TargetSort;
     hint: string;
 }
 
@@ -37,6 +38,7 @@ function ConfigFlowApp({ onComplete }: ConfigFlowProps): ReactNode {
     const [state, setState] = useState<FlowState>({
         phase: 'menu',
         message: null,
+        targetSort: 'default',
         hint: t('hint_navigation'),
     });
 
@@ -99,10 +101,34 @@ function ConfigFlowApp({ onComplete }: ConfigFlowProps): ReactNode {
                             } else if (action === 'reset') {
                                 setState(prev => ({ ...prev, phase: 'reset-confirm' }));
                             } else if (action === 'targets') {
-                                setState(prev => ({ ...prev, phase: 'targets' }));
+                                setState(prev => ({ ...prev, phase: 'targets-sort' }));
                             }
                         }}
                         onCancel={onComplete}
+                        showNumbers={false}
+                    />
+                </Box>
+            );
+        }
+
+        if (state.phase === 'targets-sort') {
+            return (
+                <Box flexDirection="column" paddingX={2}>
+                    <SelectMenu<TargetSort>
+                        message={t('target_sort')}
+                        items={[
+                            { value: 'default', label: t('target_sort_default'), hint: t('target_sort_default_hint') },
+                            { value: 'az', label: t('target_sort_az'), hint: t('target_sort_az_hint') },
+                        ]}
+                        onSelect={(value) => {
+                            setState(prev => ({
+                                ...prev,
+                                phase: 'targets',
+                                targetSort: value,
+                                hint: t('hint_navigation'),
+                            }));
+                        }}
+                        onCancel={() => setState(prev => ({ ...prev, phase: 'menu', hint: t('hint_navigation') }))}
                         showNumbers={false}
                     />
                 </Box>
@@ -116,7 +142,13 @@ function ConfigFlowApp({ onComplete }: ConfigFlowProps): ReactNode {
                 ? existingDefault
                 : availableApps.map(a => a.id);
 
-            const items = availableApps.map(app => ({
+            const primary = availableApps.find(app => app.id === PRIMARY_SOURCE.id);
+            const rest = availableApps.filter(app => app.id !== PRIMARY_SOURCE.id);
+            const orderedApps = primary
+                ? [primary, ...sortTargetApps(rest, state.targetSort)]
+                : sortTargetApps(rest, state.targetSort);
+
+            const items = orderedApps.map(app => ({
                 label: app.id === PRIMARY_SOURCE.id
                     ? `${app.name} (${t('primary_source')})`
                     : app.name,
@@ -137,11 +169,12 @@ function ConfigFlowApp({ onComplete }: ConfigFlowProps): ReactNode {
                             }
                             saveDefaultAgents(selected);
                             const names = getAppsByIds(selected).map(a => a.name).join(', ');
-                            setState({
+                            setState(prev => ({
+                                ...prev,
                                 phase: 'done',
                                 message: `${t('default_saved')}: ${names}`,
                                 hint: '',
-                            });
+                            }));
                         }}
                         onCancel={() => setState(prev => ({ ...prev, phase: 'menu', hint: t('hint_navigation') }))}
                     />
@@ -162,11 +195,12 @@ function ConfigFlowApp({ onComplete }: ConfigFlowProps): ReactNode {
                         onSelect={(value) => {
                             if (value === 'yes') {
                                 resetPreferences();
-                                setState({
+                                setState(prev => ({
+                                    ...prev,
                                     phase: 'done',
                                     message: t('prefs_reset'),
                                     hint: '',
-                                });
+                                }));
                             } else {
                                 setState(prev => ({ ...prev, phase: 'menu', hint: t('hint_navigation') }));
                             }

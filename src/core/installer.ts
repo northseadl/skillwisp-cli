@@ -21,7 +21,7 @@ import {
 } from './agents.js';
 import { getDistributionUrl } from './registry.js';
 import { getInstallRoot, getInstallPathForResource } from './installPaths.js';
-import type { InstallRoot } from './installPaths.js';
+import type { InstallRoot, InstallScope } from './installPaths.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // 安装选项与结果
@@ -44,11 +44,18 @@ export interface InstallTarget {
     type: 'copy' | 'link';
 }
 
+export interface InstallCompatNotice {
+    agent: string;
+    name: string;
+    note: string;
+}
+
 export interface InstallResult {
     success: boolean;
     error?: string;
     targets: InstallTarget[];
     primaryPath?: string;
+    compat?: InstallCompatNotice[];
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -80,7 +87,8 @@ export function installResource(resource: Resource, options: InstallOptions = {}
             return { success: false, error: 'No installation targets found', targets: [] };
         }
 
-        const targetApps = ensurePrimaryTarget(requestedApps);
+        const normalized = normalizeTargetApps(requestedApps, resourceType, scope);
+        const targetApps = normalized.targets;
 
         // 验证所有目标是否支持该 scope/type
         for (const app of targetApps) {
@@ -94,7 +102,11 @@ export function installResource(resource: Resource, options: InstallOptions = {}
             }
         }
 
-        const result: InstallResult = { success: true, targets: [] };
+        const result: InstallResult = {
+            success: true,
+            targets: [],
+            ...(normalized.compat.length > 0 ? { compat: normalized.compat } : {}),
+        };
 
         // 1) 安装到主源（始终安装）
         const primaryRoot = getInstallRoot(PRIMARY_SOURCE, resourceType, scope);
@@ -159,6 +171,55 @@ function resolveTargetApps(options: InstallOptions): AgentConfig[] {
 
     // fallback
     return [PRIMARY_SOURCE];
+}
+
+function isPrimaryCompat(app: AgentConfig, resourceType: ResourceType, scope: InstallScope): boolean {
+    return scope === 'local' && resourceType === 'skill' && app.compat?.localSkillUsesPrimary === true;
+}
+
+function buildCompatNotice(app: AgentConfig): InstallCompatNotice {
+    const note = app.compat?.note || `${PRIMARY_SOURCE.name}/skills`;
+    return { agent: app.id, name: app.name, note };
+}
+
+function normalizeTargetApps(
+    apps: AgentConfig[],
+    resourceType: ResourceType,
+    scope: InstallScope
+): { targets: AgentConfig[]; compat: InstallCompatNotice[] } {
+    const compat: InstallCompatNotice[] = [];
+    const filtered: AgentConfig[] = [];
+
+    for (const app of apps) {
+        if (isPrimaryCompat(app, resourceType, scope)) {
+            compat.push(buildCompatNotice(app));
+            continue;
+        }
+        filtered.push(app);
+    }
+
+    return {
+        targets: ensurePrimaryTarget(filtered),
+        compat,
+    };
+}
+
+export function resolveInstallTargets(
+    agentIds: string[],
+    resourceType: ResourceType,
+    scope: InstallScope
+): { agentIds: string[]; compat: InstallCompatNotice[] } {
+    if (!agentIds || agentIds.length === 0) {
+        return { agentIds: [], compat: [] };
+    }
+
+    const apps = getAppsByIds(agentIds);
+    if (apps.length === 0) {
+        return { agentIds: [], compat: [] };
+    }
+
+    const normalized = normalizeTargetApps(apps, resourceType, scope);
+    return { agentIds: normalized.targets.map((a) => a.id), compat: normalized.compat };
 }
 
 function cleanGit(dir: string): void {
@@ -386,7 +447,7 @@ function renderSkillFile(targetId: string, resource: Resource, body: string): st
         ].join('\n');
     }
 
-    if (targetId === 'copilot') {
+    if (targetId === 'github-copilot') {
         return [
             `# ${resource.name}`,
             '',
@@ -397,7 +458,7 @@ function renderSkillFile(targetId: string, resource: Resource, body: string): st
         ].join('\n');
     }
 
-    if (targetId === 'kiro') {
+    if (targetId === 'krio') {
         return [
             `# ${resource.name}`,
             '',

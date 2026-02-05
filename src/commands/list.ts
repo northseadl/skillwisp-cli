@@ -5,14 +5,11 @@
  * 默认扁平、可扫读；--verbose 才展开路径/分组
  */
 
-import { existsSync, readdirSync, readFileSync, lstatSync } from 'node:fs';
-import { join } from 'node:path';
-
 import { ALL_APPS } from '../core/agents.js';
-import type { ResourceType } from '../core/types.js';
-import { RESOURCE_CONFIG, RESOURCE_TYPES } from '../core/types.js';
-import { getInstallRoot, tryParseResourceIdFromFileName } from '../core/installPaths.js';
-import { colors, symbols, getResourceColor } from '../ink/utils/index.js';
+import type { InstalledResource } from '../core/types.js';
+import { RESOURCE_CONFIG } from '../core/types.js';
+import { scanInstalledResources } from '../core/scanner.js';
+import { colors, symbols, getResourceColor } from '../core/terminal.js';
 
 interface ListOptions {
     verbose?: boolean;
@@ -20,18 +17,8 @@ interface ListOptions {
     quiet?: boolean;
 }
 
-interface InstalledResource {
-    id: string;
-    type: ResourceType;
-    name?: string;
-    agent: string;
-    path: string;
-    isLink: boolean;
-    scope: 'local' | 'global';
-}
-
 export async function list(options: ListOptions = {}): Promise<void> {
-    const installed = findInstalled();
+    const installed = scanInstalledResources();
 
     // --json
     if (options.json) {
@@ -82,7 +69,7 @@ export async function list(options: ListOptions = {}): Promise<void> {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// 内部函数
+// 内部格式化函数
 // ═══════════════════════════════════════════════════════════════════════════
 
 function printFlatList(resources: InstalledResource[]): void {
@@ -113,8 +100,9 @@ function printVerboseList(installed: InstalledResource[]): void {
     // 按 agent 分组
     const grouped = installed.reduce(
         (acc, r) => {
-            if (!acc[r.agent]) acc[r.agent] = [];
-            acc[r.agent].push(r);
+            const agentKey = r.agent || 'unknown';
+            if (!acc[agentKey]) acc[agentKey] = [];
+            acc[agentKey].push(r);
             return acc;
         },
         {} as Record<string, InstalledResource[]>
@@ -134,7 +122,7 @@ function printVerboseList(installed: InstalledResource[]): void {
             const scopeHint = r.scope === 'global' ? ' [global]' : '';
 
             console.log(`  ${typeTag} ${colors.bold(r.id)}${linkHint}${scopeHint}`);
-            console.log(`      ${colors.muted(r.path)}`);
+            console.log(`      ${colors.muted(r.path || '')}`);
         }
 
         console.log();
@@ -153,145 +141,4 @@ function deduplicateByResource(installed: InstalledResource[]): InstalledResourc
 
     // 按 id 排序
     return [...seen.values()].sort((a, b) => a.id.localeCompare(b.id));
-}
-
-function findInstalled(): InstalledResource[] {
-    const installed: InstalledResource[] = [];
-
-    for (const agent of ALL_APPS) {
-        for (const resourceType of RESOURCE_TYPES) {
-            installed.push(...scanInstalledForAgent(agent.id, resourceType, 'local'));
-            installed.push(...scanInstalledForAgent(agent.id, resourceType, 'global'));
-        }
-    }
-
-    return installed;
-}
-
-function scanInstalledForAgent(
-    agentId: string,
-    resourceType: ResourceType,
-    scope: 'local' | 'global'
-): InstalledResource[] {
-    const agent = ALL_APPS.find((a) => a.id === agentId);
-    if (!agent) return [];
-
-    const root = getInstallRoot(agent, resourceType, scope);
-    if (!root) return [];
-
-    if (root.kind === 'dir') {
-        return scanDir(root.dir, agentId, resourceType, scope, root.entryFile);
-    }
-
-    if (root.kind === 'file') {
-        return scanFileRoot(root, agentId, resourceType, scope);
-    }
-    return [];
-}
-
-function scanDir(
-    dir: string,
-    agentId: string,
-    resourceType: ResourceType,
-    scope: 'local' | 'global',
-    entryFile: string
-): InstalledResource[] {
-    if (!existsSync(dir)) return [];
-
-    const resources: InstalledResource[] = [];
-
-    try {
-        const entries = readdirSync(dir, { withFileTypes: true });
-
-        for (const entry of entries) {
-            if (!entry.isDirectory() && !entry.isSymbolicLink()) continue;
-
-            const resourceDir = join(dir, entry.name);
-            const resourceFile = join(resourceDir, entryFile);
-
-            let isLink = false;
-            try {
-                isLink = lstatSync(resourceDir).isSymbolicLink();
-            } catch {
-                // ignore
-            }
-
-            if (existsSync(resourceFile)) {
-                const name = extractName(resourceFile);
-                resources.push({
-                    id: entry.name,
-                    type: resourceType,
-                    name,
-                    agent: agentId,
-                    path: resourceDir,
-                    isLink,
-                    scope,
-                });
-            }
-        }
-    } catch {
-        // ignore permission errors
-    }
-
-    return resources;
-}
-
-function scanFileRoot(
-    root: { kind: 'file'; dir: string; prefix: string; ext: string },
-    agentId: string,
-    resourceType: ResourceType,
-    scope: 'local' | 'global'
-): InstalledResource[] {
-    if (!existsSync(root.dir)) return [];
-
-    const resources: InstalledResource[] = [];
-
-    try {
-        const entries = readdirSync(root.dir, { withFileTypes: true });
-        for (const entry of entries) {
-            if (!entry.isFile() && !entry.isSymbolicLink()) continue;
-
-            const id = tryParseResourceIdFromFileName(entry.name, root);
-            if (!id) continue;
-
-            const filePath = join(root.dir, entry.name);
-
-            let isLink = false;
-            try {
-                isLink = lstatSync(filePath).isSymbolicLink();
-            } catch {
-                // ignore
-            }
-
-            const name = extractName(filePath);
-            resources.push({
-                id,
-                type: resourceType,
-                name,
-                agent: agentId,
-                path: filePath,
-                isLink,
-                scope,
-            });
-        }
-    } catch {
-        // ignore
-    }
-
-    return resources;
-}
-
-function extractName(filePath: string): string | undefined {
-    try {
-        const content = readFileSync(filePath, 'utf-8');
-        // 尝试从 frontmatter 提取 description 作为 name
-        const match = content.match(/^---\s*\n[\s\S]*?description:\s*(.+)\n[\s\S]*?---/m);
-        if (match) {
-            const desc = match[1].trim();
-            return desc.length > 30 ? desc.slice(0, 30) + '…' : desc;
-        }
-        return undefined;
-    } catch {
-        return undefined;
-    }
 }

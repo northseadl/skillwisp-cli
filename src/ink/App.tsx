@@ -39,7 +39,7 @@ import {
 import { installResource, detectApps } from '../core/installer.js';
 import { getInstallRoot } from '../core/installPaths.js';
 import { getDefaultAgents } from '../core/preferences.js';
-import { PRIMARY_SOURCE, TARGET_APPS } from '../core/agents.js';
+import { PRIMARY_SOURCE, TARGET_APPS, sortTargetApps, type TargetSort } from '../core/agents.js';
 import type { Resource, ResourceType } from '../core/types.js';
 import { RESOURCE_CONFIG, RESOURCE_TYPES } from '../core/types.js';
 import { CLI_VERSION } from '../core/version.js';
@@ -55,6 +55,7 @@ type Screen =
     | 'browse-search'
     | 'browse-select'
     | 'install-scope'
+    | 'install-targets-sort'
     | 'install-targets'
     | 'installing'
     | 'install-complete'
@@ -76,6 +77,7 @@ interface InstallResult {
     failCount: number;
     installedNames: string[];
     targetApps: string[];
+    compatNotes?: string[];
 }
 
 interface AppState {
@@ -84,6 +86,7 @@ interface AppState {
     searchResults: Resource[];
     selectedResources: string[];
     installScope: InstallScope;
+    targetSort: TargetSort;
     selectedTargets: string[];
     installResult: InstallResult | null;
     installedItems: InstalledItem[];
@@ -170,6 +173,7 @@ export function App(): ReactNode {
         searchResults: [],
         selectedResources: [],
         installScope: 'local',
+        targetSort: 'default',
         selectedTargets: [],
         installResult: null,
         installedItems: [],
@@ -306,7 +310,10 @@ export function App(): ReactNode {
     // ═══════════════════════════════════════════════════════════════════════
 
     const handleScopeSelect = useCallback((scope: string) => {
-        navigate('install-targets', { installScope: scope as InstallScope });
+        navigate('install-targets-sort', {
+            installScope: scope as InstallScope,
+            targetSort: 'default',
+        });
     }, [navigate]);
 
     // ═══════════════════════════════════════════════════════════════════════
@@ -334,6 +341,7 @@ export function App(): ReactNode {
             let successCount = 0;
             let failCount = 0;
             const installedNames = new Set<string>();
+            const compatNotes = new Set<string>();
 
             for (const resource of resources) {
                 const result = installResource(resource, {
@@ -344,6 +352,12 @@ export function App(): ReactNode {
                 if (result.success) {
                     successCount++;
                     installedNames.add(resource.name);
+                    if (result.compat && result.compat.length > 0) {
+                        for (const notice of result.compat) {
+                            const note = notice.note ? `${notice.name} → ${notice.note}` : notice.name;
+                            compatNotes.add(note);
+                        }
+                    }
                 } else {
                     failCount++;
                 }
@@ -353,6 +367,7 @@ export function App(): ReactNode {
                 successCount,
                 failCount,
                 installedNames: Array.from(installedNames),
+                compatNotes: Array.from(compatNotes),
                 // 对用户只显示他们选择的目标应用，隐藏 PRIMARY_SOURCE
                 targetApps: targets,
             };
@@ -462,12 +477,27 @@ export function App(): ReactNode {
                     />
                 );
 
+            case 'install-targets-sort':
+                return (
+                    <SelectMenu
+                        message={t('target_sort')}
+                        items={[
+                            { label: t('target_sort_default'), value: 'default', hint: t('target_sort_default_hint') },
+                            { label: t('target_sort_az'), value: 'az', hint: t('target_sort_az_hint') },
+                        ]}
+                        onSelect={(value) => navigate('install-targets', { targetSort: value as TargetSort })}
+                        onCancel={() => navigate('install-scope')}
+                        showNumbers={false}
+                    />
+                );
+
             case 'install-targets': {
                 const isGlobal = state.installScope === 'global';
                 const detectedSet = new Set(detectApps().map((a) => a.id));
                 // PRIMARY_SOURCE (.agents) 作为隐式主源，不在选项中显示
                 // 用户只需选择实际的 AI 应用，系统自动管理主副本
-                const options = TARGET_APPS.map((app) => ({
+                const sortedApps = sortTargetApps(TARGET_APPS, state.targetSort);
+                const options = sortedApps.map((app) => ({
                     label: `${app.name}${detectedSet.has(app.id) ? ' ✓' : ''}`,
                     value: app.id,
                     hint: isGlobal ? `~/${app.globalBaseDir || app.baseDir}` : app.baseDir,
@@ -505,27 +535,39 @@ export function App(): ReactNode {
             case 'install-complete':
                 return (
                     <Box flexDirection="column">
-                        {state.installResult && (
-                            <InstallSummary
-                                title={t('install_summary')}
-                                items={[
-                                    {
-                                        label: t('resources_installed'),
-                                        value: state.installResult.installedNames.join(', ') || '-',
-                                        status: state.installResult.successCount > 0 ? 'success' : 'info',
-                                    },
-                                    {
-                                        label: t('target_apps'),
-                                        value: state.installResult.targetApps.join(', '),
-                                        status: 'info',
-                                    },
-                                ]}
-                                footer={state.installResult.failCount > 0
-                                    ? `${state.installResult.failCount} ${t('install_failed')}`
-                                    : undefined
-                                }
-                            />
-                        )}
+                        {state.installResult && (() => {
+                            const items = [
+                                {
+                                    label: t('resources_installed'),
+                                    value: state.installResult.installedNames.join(', ') || '-',
+                                    status: state.installResult.successCount > 0 ? 'success' : 'info',
+                                },
+                                {
+                                    label: t('target_apps'),
+                                    value: state.installResult.targetApps.join(', '),
+                                    status: 'info',
+                                },
+                            ];
+
+                            if (state.installResult.compatNotes && state.installResult.compatNotes.length > 0) {
+                                items.push({
+                                    label: t('compat_notice'),
+                                    value: state.installResult.compatNotes.join(', '),
+                                    status: 'info',
+                                });
+                            }
+
+                            return (
+                                <InstallSummary
+                                    title={t('install_summary')}
+                                    items={items}
+                                    footer={state.installResult.failCount > 0
+                                        ? `${state.installResult.failCount} ${t('install_failed')}`
+                                        : undefined
+                                    }
+                                />
+                            );
+                        })()}
                         <SelectMenu
                             message={t('what_next')}
                             items={[

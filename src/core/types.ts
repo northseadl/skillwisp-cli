@@ -96,3 +96,36 @@ export interface UpdateMeta {
     indexVersion: string;
     bestMirror?: string;
 }
+
+// ═══════════════════════════════════════════════════════════════════════════
+// 安装相关类型 (统一定义)
+// ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * 安装范围
+ */
+export type InstallScope = 'local' | 'global';
+
+/**
+ * 已安装资源信息
+ */
+export interface InstalledResource {
+    id: string;
+    type: ResourceType;
+    name?: string;
+    scope: InstallScope;
+    agent?: string;
+    path?: string;
+    isLink?: boolean;
+}
+
+/**
+ * 安装结果摘要
+ */
+export interface InstallSummary {
+    successCount: number;
+    failCount: number;
+    installedNames: string[];
+    targetApps: string[];
+}
+

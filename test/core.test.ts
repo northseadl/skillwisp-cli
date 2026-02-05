@@ -484,11 +484,11 @@ describe('Preferences', () => {
         expect(hasDefaultAgents()).toBe(false);
 
         // 保存
-        saveDefaultAgents(['claude', 'cursor']);
+        saveDefaultAgents(['claude-code', 'cursor']);
 
         // 读取
         expect(hasDefaultAgents()).toBe(true);
-        expect(getDefaultAgents()).toEqual(['claude', 'cursor']);
+        expect(getDefaultAgents()).toEqual(['claude-code', 'cursor']);
 
         // 验证文件存在
         const prefsFile = join(TEST_DATA_DIR, 'preferences.json');
@@ -532,7 +532,7 @@ describe('Preferences', () => {
             hasDefaultAgents,
         } = await import('../src/core/preferences.js');
 
-        saveDefaultAgents(['claude']);
+        saveDefaultAgents(['claude-code']);
         expect(hasDefaultAgents()).toBe(true);
 
         clearDefaultAgents();
@@ -546,7 +546,7 @@ describe('Preferences', () => {
             loadPreferences,
         } = await import('../src/core/preferences.js');
 
-        saveDefaultAgents(['claude', 'cursor']);
+        saveDefaultAgents(['claude-code', 'cursor']);
         resetPreferences();
 
         const prefs = loadPreferences();

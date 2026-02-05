@@ -16,7 +16,7 @@ describe('commands/update', () => {
             update: vi.fn(),
             stop: vi.fn(),
         };
-        vi.doMock('../src/ink/utils/index.js', () => ({
+        vi.doMock('../src/core/terminal.js', () => ({
             colors: {
                 primary: (s: unknown) => String(s),
                 info: (s: unknown) => String(s),
@@ -76,7 +76,7 @@ describe('commands/update', () => {
             update: vi.fn(),
             stop: vi.fn(),
         };
-        vi.doMock('../src/ink/utils/index.js', () => ({
+        vi.doMock('../src/core/terminal.js', () => ({
             colors: {
                 primary: (s: unknown) => String(s),
                 info: (s: unknown) => String(s),
@@ -136,7 +136,7 @@ describe('commands/update', () => {
             update: vi.fn(),
             stop: vi.fn(),
         };
-        vi.doMock('../src/ink/utils/index.js', () => ({
+        vi.doMock('../src/core/terminal.js', () => ({
             colors: {
                 primary: (s: unknown) => String(s),
                 info: (s: unknown) => String(s),

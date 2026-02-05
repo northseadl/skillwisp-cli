@@ -47,7 +47,7 @@ describe('commands/config', () => {
 
         const set = captureConsole();
         try {
-            await config('set targets agents,claude', { json: true });
+            await config('set targets agents,claude-code', { json: true });
         } finally {
             set.restore();
         }
@@ -55,7 +55,7 @@ describe('commands/config', () => {
         const get = captureConsole();
         try {
             await config('get targets', {});
-            expect(get.logs[0]).toBe('agents,claude');
+            expect(get.logs[0]).toBe('agents,claude-code');
         } finally {
             get.restore();
         }
@@ -83,10 +83,10 @@ describe('commands/config', () => {
 
         const c1 = captureConsole();
         try {
-            await config('set targets agents,claude', { json: true });
+            await config('set targets agents,claude-code', { json: true });
             const data = JSON.parse(c1.logs[0]);
             expect(data.success).toBe(true);
-            expect(data.defaultTargets).toEqual(['agents', 'claude']);
+            expect(data.defaultTargets).toEqual(['agents', 'claude-code']);
         } finally {
             c1.restore();
         }
@@ -95,7 +95,7 @@ describe('commands/config', () => {
         try {
             await config('get targets', { json: true });
             const data = JSON.parse(c2.logs[0]);
-            expect(data.defaultTargets).toEqual(['agents', 'claude']);
+            expect(data.defaultTargets).toEqual(['agents', 'claude-code']);
         } finally {
             c2.restore();
         }
@@ -137,4 +137,3 @@ describe('commands/config', () => {
         }
     });
 });
-

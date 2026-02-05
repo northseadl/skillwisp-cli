@@ -89,7 +89,7 @@ describe('commands/install', () => {
         const c = captureConsole();
 
         try {
-            await expect(install('@anthropic/pdf', { json: true, yes: true, global: true, target: 'cursor' }))
+            await expect(install('@anthropic/pdf', { json: true, yes: true, global: true, target: 'replit' }))
                 .rejects
                 .toThrow('process.exit:2');
 
@@ -125,7 +125,7 @@ describe('commands/install', () => {
 
     it('uses saved default targets in non-interactive mode', async () => {
         const { saveDefaultAgents } = await import('../src/core/preferences.js');
-        saveDefaultAgents(['claude']);
+        saveDefaultAgents(['claude-code']);
 
         const { install } = await import('../src/commands/install.js');
         const c = captureConsole();

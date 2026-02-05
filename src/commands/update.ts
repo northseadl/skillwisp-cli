@@ -7,7 +7,7 @@
 import { getIndexVersion, clearCache } from '../core/registry.js';
 import { updateIndex, checkIndexUpdate } from '../core/updater.js';
 import { CLI_VERSION, checkCliUpdate, shouldPromptCliUpdate } from '../core/version.js';
-import { colors, symbols, createSpinner } from '../ink/utils/index.js';
+import { colors, symbols, createSpinner } from '../core/terminal.js';
 
 export async function update(): Promise<void> {
     const spinner = createSpinner();

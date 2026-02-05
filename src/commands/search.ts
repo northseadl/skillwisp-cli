@@ -6,7 +6,7 @@ import { loadResources, localizeResource, getResourceRepoUrl } from '../core/reg
 import type { Resource, ResourceType } from '../core/types.js';
 import { RESOURCE_CONFIG } from '../core/types.js';
 import { getLocaleData } from '../core/i18n.js';
-import { colors, symbols, truncate, getResourceColor } from '../ink/utils/index.js';
+import { colors, symbols, truncate, getResourceColor } from '../core/terminal.js';
 
 const DEFAULT_PAGE_SIZE = 20;
 

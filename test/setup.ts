@@ -12,6 +12,7 @@ const TEST_CWD = join(TEST_HOME, 'workspace');
 // Ensure a clean workspace + user data for each test file
 rmSync(TEST_CWD, { recursive: true, force: true });
 rmSync(join(TEST_HOME, '.agent'), { recursive: true, force: true });
+rmSync(join(TEST_HOME, '.agents'), { recursive: true, force: true });
 mkdirSync(TEST_CWD, { recursive: true });
 
 const cwdSpy = vi.spyOn(process, 'cwd').mockReturnValue(TEST_CWD);

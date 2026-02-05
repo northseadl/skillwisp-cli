@@ -41,7 +41,7 @@ describe('commands/install (target resolution)', () => {
 
     it('uses saved default targets with --yes flag', async () => {
         const { saveDefaultAgents } = await import('../src/core/preferences.js');
-        saveDefaultAgents(['claude']);
+        saveDefaultAgents(['claude-code']);
 
         mkdirSync(join(process.cwd(), '.claude'), { recursive: true });
 
@@ -80,7 +80,7 @@ describe('commands/install (target resolution)', () => {
         const c = captureConsole();
 
         try {
-            await install('@anthropic/pdf', { dryRun: true, json: true, target: 'claude' });
+            await install('@anthropic/pdf', { dryRun: true, json: true, target: 'claude-code' });
             const data = JSON.parse(c.logs[c.logs.length - 1]);
             expect(data.targets).toEqual(['Claude Code']);
         } finally {

@@ -8,7 +8,7 @@
 
 import { detectApps, getAppsByIds, ALL_APPS } from '../core/agents.js';
 import { getDefaultAgents, saveDefaultAgents, resetPreferences, loadPreferences } from '../core/preferences.js';
-import { colors, symbols } from '../ink/utils/index.js';
+import { colors, symbols } from '../core/terminal.js';
 import { runConfigFlow } from '../ink/flows/index.js';
 
 interface ConfigOptions {

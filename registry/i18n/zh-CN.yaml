@@ -360,6 +360,11 @@ ui:
   select_targets: "选择要安装到的应用"
   select_targets_hint: "←→ 移动 · 空格 选中 · 回车 确认"
   detected_mark: " ✓"
+  target_sort: "目标排序"
+  target_sort_default: "默认（按热度）"
+  target_sort_default_hint: "参考使用度/下载量/知名度等综合信号"
+  target_sort_az: "A-Z（字母序）"
+  target_sort_az_hint: "按名称字母排序"
 
   # 浏览
   search_prompt: "搜索资源（留空则显示全部）"
@@ -429,6 +434,7 @@ ui:
   install_summary: "安装结果"
   resources_installed: "已安装资源"
   target_apps: "目标应用"
+  compat_notice: "兼容提示"
   hint_navigation: "使用方向键导航，回车确认"
 
   # 附加 UI
