@@ -3,12 +3,13 @@ import { getAppById, sortTargetApps } from '../src/core/agents.js';
 
 describe('sortTargetApps', () => {
     it('sorts by default popularity order', () => {
-        const copilot = getAppById('github-copilot')!;
+        const claude = getAppById('claude-code')!;
+        const codex = getAppById('codex')!;
         const cursor = getAppById('cursor')!;
-        const amp = getAppById('amp')!;
+        const windsurf = getAppById('windsurf')!;
 
-        const sorted = sortTargetApps([amp, cursor, copilot], 'default').map((a) => a.id);
-        expect(sorted).toEqual(['github-copilot', 'cursor', 'amp']);
+        const sorted = sortTargetApps([cursor, windsurf, codex, claude], 'default').map((a) => a.id);
+        expect(sorted).toEqual(['claude-code', 'codex', 'cursor', 'windsurf']);
     });
 
     it('sorts by A-Z name order', () => {

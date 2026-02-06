@@ -102,7 +102,7 @@ skillwisp config reset           # 重置
 | `adal` | AdaL | `.adal/skills/` | `~/.adal/skills/` |
 | `amp` | Amp | `.agents/skills/` | `~/.config/agents/skills/` |
 | `antigravity` | Antigravity | `.agent/skills/` | `~/.gemini/antigravity/skills/` |
-| `augment` | Augment | `.augment/skills/` | `~/.augment/skills/` |
+| `augment` | Augment Code | `.augment/skills/` | `~/.augment/skills/` |
 | `claude-code` | Claude Code | `.claude/skills/` | `~/.claude/skills/` |
 | `cline` | Cline | `.cline/skills/` | `~/.cline/skills/` |
 | `codebuddy` | CodeBuddy | `.codebuddy/skills/` | `~/.codebuddy/skills/` |
@@ -145,7 +145,7 @@ skillwisp config reset           # 重置
 
 - 主源 `.agents` 始终保存原始资源目录（内部策略，官方目录表不包含）
 - 目录型工具默认用符号链接指向主源；Windows 或 `--no-symlink` 时复制目录
-- Augment 使用 `.augment/skills/` 作为 skills 目录，并兼容读取 `.claude/skills/`
+- Augment Code 使用 `.augment/skills/` 作为 skills 目录，并兼容读取 `.claude/skills/`
 - 官方 Project 目录为 `.agents/skills/` 的工具会直接复用主源目录并提示兼容
 - Krio 安装后需手动将 `skill://.kiro/skills/**/SKILL.md` 添加到 `.kiro/agents/<agent>.json` 的 resources
 

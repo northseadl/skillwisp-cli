@@ -74,7 +74,7 @@ export const TARGET_APPS: AgentConfig[] = [
     },
     {
         id: 'augment',
-        name: 'Augment',
+        name: 'Augment Code',
         baseDir: '.augment',
         globalBaseDir: '.augment',
         detectPaths: ['.augment', '.augment/skills'],
@@ -403,19 +403,13 @@ export type TargetSort = 'default' | 'az';
 // 默认排序：优先展示最常见/最常见被提及的工具，剩余按名称字母序
 // 该顺序为启发式（基于公开的使用度/下载量/知名度信号），非实时统计。
 const DEFAULT_TARGET_PRIORITY: string[] = [
-    'github-copilot',
     'claude-code',
-    'cursor',
-    'gemini-cli',
     'codex',
-    'continue',
-    'cline',
+    'cursor',
+    'antigravity',
     'windsurf',
     'opencode',
-    'openhands',
-    'replit',
-    'augment',
-    'amp',
+    'trae',
 ];
 
 const DEFAULT_TARGET_RANK = new Map(DEFAULT_TARGET_PRIORITY.map((id, index) => [id, index]));
