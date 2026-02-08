@@ -5,7 +5,7 @@
  * 存储位置: ~/.skillwisp/preferences.json
  */
 
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync, renameSync } from 'node:fs';
 import { join } from 'node:path';
 import { homedir } from 'node:os';
 
@@ -161,11 +161,20 @@ export function savePreferences(prefs: UserPreferences): void {
         mkdirSync(CONFIG_DIR, { recursive: true });
     }
 
-    writeFileSync(PREFERENCES_FILE, JSON.stringify(prefs, null, 2), 'utf-8');
+    // 原子写入：先写临时文件，再 rename 防止中途崩溃导致损坏
+    const tmpFile = `${PREFERENCES_FILE}.tmp`;
+    writeFileSync(tmpFile, JSON.stringify(prefs, null, 2), 'utf-8');
+    renameSync(tmpFile, PREFERENCES_FILE);
 }
 
 function migratePreferences(oldPrefs: UserPreferences): UserPreferences {
-    // 未来版本迁移逻辑
-    // 当前仅重置为默认值
-    return createDefaultPreferences();
+    // 字段级合并迁移：保留用户已有配置，仅补充新字段默认值
+    const defaults = createDefaultPreferences();
+    const merged: UserPreferences = {
+        ...defaults,
+        ...oldPrefs,
+        version: PREFERENCES_VERSION,
+    };
+    savePreferences(merged);
+    return merged;
 }

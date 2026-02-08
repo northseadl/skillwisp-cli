@@ -536,7 +536,7 @@ export function App(): ReactNode {
                 return (
                     <Box flexDirection="column">
                         {state.installResult && (() => {
-                            const items = [
+                            const items: Array<{ label: string; value: string; status: 'success' | 'error' | 'info' }> = [
                                 {
                                     label: t('resources_installed'),
                                     value: state.installResult.installedNames.join(', ') || '-',

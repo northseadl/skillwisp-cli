@@ -495,7 +495,7 @@ describe('Special cases', () => {
         const result = getInstallRoot(codex, 'skill', 'global');
         expect(result).not.toBeNull();
         expect(result?.kind).toBe('dir');
-        expect(result?.dir).toBe('/custom/codex/skills');
+        expect(result?.dir).toBe(join('/custom/codex', 'skills'));
     });
 
     it('should return null for non-skill types on skill-only apps', () => {

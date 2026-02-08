@@ -124,7 +124,7 @@ describe('commands/list', () => {
             expect(out).toContain('installation');
             expect(out).toContain('.agents');
             expect(out).toContain('foo');
-            expect(out).toContain('.agents/skills/foo');
+            expect(out).toMatch(/\.agents[/\\\\]skills[/\\\\]foo/);
         } finally {
             verbose.restore();
         }

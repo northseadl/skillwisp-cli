@@ -133,7 +133,7 @@ program
 // ═══════════════════════════════════════════════════════════════════════════
 
 program
-    .command('config [subcommand]')
+    .command('config [sub] [args...]')
     .description('Manage configuration (interactive or get/set/reset)')
     .option('--json', 'JSON output')
     .action(config);

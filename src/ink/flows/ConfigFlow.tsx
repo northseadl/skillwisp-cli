@@ -11,7 +11,8 @@ import { Header } from '../components/Header.js';
 import { Footer } from '../components/Footer.js';
 import { SelectMenu } from '../components/SelectMenu.js';
 import { MultiSelectMenu } from '../components/MultiSelectMenu.js';
-import { colors, symbols } from '../theme.js';
+import { colors as themeColors, symbols } from '../theme.js';
+import { colors as consoleColors } from '../../core/terminal.js';
 import { detectApps, getAppsByIds, PRIMARY_SOURCE, sortTargetApps, type AgentConfig, type TargetSort } from '../../core/agents.js';
 import { getDefaultAgents, saveDefaultAgents, resetPreferences, loadPreferences } from '../../core/preferences.js';
 import { t, initI18n } from '../../core/i18n.js';
@@ -60,7 +61,7 @@ function ConfigFlowApp({ onComplete }: ConfigFlowProps): ReactNode {
     useEffect(() => {
         if (state.phase === 'done') {
             if (state.message) {
-                console.log(`\n${colors.success}${symbols.success} ${state.message}\n`);
+                console.log(`\n${consoleColors.success(symbols.success)} ${state.message}\n`);
             }
             onComplete();
         }
@@ -74,7 +75,7 @@ function ConfigFlowApp({ onComplete }: ConfigFlowProps): ReactNode {
                 <Box flexDirection="column" paddingX={2}>
                     {/* 当前设置 */}
                     <Box flexDirection="column" marginBottom={1}>
-                        <Text color={colors.textMuted}>
+                        <Text color={themeColors.textMuted}>
                             {t('current_settings')}:
                         </Text>
                         <Box marginLeft={2}>
@@ -82,7 +83,7 @@ function ConfigFlowApp({ onComplete }: ConfigFlowProps): ReactNode {
                                 {t('default_targets')}: {
                                     prefs.defaultAgents?.length
                                         ? getAppsByIds(prefs.defaultAgents).map(a => a.name).join(', ')
-                                        : <Text color={colors.textMuted}>{t('auto_detect')}</Text>
+                                        : <Text color={themeColors.textMuted}>{t('auto_detect')}</Text>
                                 }
                             </Text>
                         </Box>

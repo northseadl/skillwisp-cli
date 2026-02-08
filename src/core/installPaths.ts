@@ -12,6 +12,7 @@ import { join } from 'node:path';
 import type { AgentConfig } from './agents.js';
 import type { ResourceType } from './types.js';
 import { RESOURCE_CONFIG } from './types.js';
+import { sanitizeResourceId } from './sanitize.js';
 
 export type InstallScope = 'local' | 'global';
 
@@ -90,6 +91,7 @@ export function getInstallPathForResource(
     scope: InstallScope,
     resourceId: string
 ): { kind: InstallRoot['kind']; path: string } | null {
+    sanitizeResourceId(resourceId);
     const root = getInstallRoot(app, resourceType, scope);
     if (!root) return null;
 

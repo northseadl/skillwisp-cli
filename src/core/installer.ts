@@ -7,7 +7,7 @@
  */
 
 import { execFileSync } from 'node:child_process';
-import { existsSync, mkdirSync, cpSync, rmSync, symlinkSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, cpSync, rmSync, symlinkSync, readFileSync, writeFileSync, renameSync } from 'node:fs';
 import { join, relative, dirname } from 'node:path';
 import { tmpdir } from 'node:os';
 
@@ -22,6 +22,7 @@ import {
 import { getDistributionUrl } from './registry.js';
 import { getInstallRoot, getInstallPathForResource } from './installPaths.js';
 import type { InstallRoot, InstallScope } from './installPaths.js';
+import { sanitizeResourceId, validateResourcePath } from './sanitize.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // 安装选项与结果
@@ -66,12 +67,19 @@ export interface InstallResult {
  * 安装资源
  */
 export function installResource(resource: Resource, options: InstallOptions = {}): InstallResult {
+    // P0-1: 入口校验 — 拒绝非法资源 ID
+    sanitizeResourceId(resource.id);
+    validateResourcePath(resource.path);
+
     const resourceType = options.resourceType || resource.type;
     const typeConfig = RESOURCE_CONFIG[resourceType];
     const distributionUrl = getDistributionUrl();
     const tempDir = join(tmpdir(), `skillwisp-${Date.now()}-${Math.random().toString(16).slice(2)}`);
     const useSymlinks = options.useSymlinks !== false;
     const scope = options.scope || 'local';
+
+    // P0-2: 事务回滚 — 跟踪已安装路径，失败时全部清理
+    const installedPaths: string[] = [];
 
     try {
         const { sourceDir } = materializeSource(
@@ -108,19 +116,25 @@ export function installResource(resource: Resource, options: InstallOptions = {}
             ...(normalized.compat.length > 0 ? { compat: normalized.compat } : {}),
         };
 
-        // 1) 安装到主源（始终安装）
+        // 1) 安装到主源：暂存 → 原子替换
         const primaryRoot = getInstallRoot(PRIMARY_SOURCE, resourceType, scope);
         if (!primaryRoot || primaryRoot.kind !== 'dir') {
             return { success: false, error: 'Primary source install root not available', targets: [] };
         }
 
         const primaryDir = join(primaryRoot.dir, resource.id);
-        safeRemove(primaryDir);
+        const stagingDir = `${primaryDir}.staging`;
+        safeRemove(stagingDir);
         mkdirSync(primaryRoot.dir, { recursive: true });
-        cpSync(sourceDir, primaryDir, { recursive: true });
-        cleanGit(primaryDir);
-        const primaryEntryPath = join(primaryDir, typeConfig.entryFile);
+        cpSync(sourceDir, stagingDir, { recursive: true });
+        cleanGit(stagingDir);
 
+        // 原子替换：暂存 → 正式位置
+        safeRemove(primaryDir);
+        renameSync(stagingDir, primaryDir);
+        installedPaths.push(primaryDir);
+
+        const primaryEntryPath = join(primaryDir, typeConfig.entryFile);
         result.primaryPath = primaryDir;
         result.targets.push({ agent: PRIMARY_SOURCE.id, path: primaryDir, type: 'copy' });
 
@@ -133,14 +147,25 @@ export function installResource(resource: Resource, options: InstallOptions = {}
 
             const installed = installToTarget(app, root, resource, resourceType, primaryDir, primaryEntryPath, useSymlinks);
             if (!installed.success) {
+                // 事务回滚：清理所有已安装的路径
+                for (const p of installedPaths) {
+                    safeRemove(p);
+                }
                 return { success: false, error: installed.error, targets: [] };
             }
 
+            for (const t of installed.targets) {
+                installedPaths.push(t.path);
+            }
             result.targets.push(...installed.targets);
         }
 
         return result;
     } catch (error) {
+        // 事务回滚：异常时清理所有已安装的路径
+        for (const p of installedPaths) {
+            safeRemove(p);
+        }
         return {
             success: false,
             error: error instanceof Error ? error.message : String(error),
@@ -417,6 +442,9 @@ function installToTarget(
         out.push({ agent: app.id, path: filePath, type: 'copy' });
         return { success: true, targets: out };
     }
+
+    // 兜底：未知的 root.kind
+    return { success: false, error: `Unsupported install root kind for ${app.name}`, targets: [] };
 }
 
 function stripFrontmatter(markdown: string): string {
