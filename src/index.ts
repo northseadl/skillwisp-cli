@@ -19,6 +19,9 @@ import { list } from './commands/list.js';
 import { info } from './commands/info.js';
 import { config } from './commands/config.js';
 import { update } from './commands/update.js';
+import { uninstall } from './commands/uninstall.js';
+import { manage } from './commands/manage.js';
+import { sourceAdd, sourceList, sourceSync, sourceRemove } from './commands/source.js';
 import { CLI_VERSION } from './core/version.js';
 import { initI18n } from './core/i18n.js';
 
@@ -138,6 +141,36 @@ program
     .option('--json', 'JSON output')
     .action(config);
 
+// ═══════════════════════════════════════════════════════════════════════════
+// uninstall：卸载资源
+// ═══════════════════════════════════════════════════════════════════════════
+
+program
+    .command('uninstall <resource>')
+    .alias('rm')
+    .alias('remove')
+    .description('Uninstall a resource')
+    .option('-t, --type <type>', 'Resource type (skill/rule/workflow)', 'skill')
+    .option('-g, --global', 'Uninstall from global directory only')
+    .option('-l, --local', 'Uninstall from local directory only')
+    .option('--json', 'JSON output')
+    .option('-q, --quiet', 'Quiet mode')
+    .option('-f, --force', 'Skip confirmation')
+    .action(uninstall);
+
+// ═══════════════════════════════════════════════════════════════════════════
+// manage：管理已安装资源
+// ═══════════════════════════════════════════════════════════════════════════
+
+program
+    .command('manage')
+    .alias('mg')
+    .description('Manage installed resources')
+    .option('-t, --type <type>', 'Filter by type (skill/rule/workflow)')
+    .option('-s, --scope <scope>', 'Filter by scope (local/global)')
+    .option('--json', 'JSON output')
+    .action(manage);
+
 // ═════════════════════════════════════════════════════════════════════════════
 // update：更新索引
 // ═════════════════════════════════════════════════════════════════════════════
@@ -147,6 +180,41 @@ program
     .alias('up')
     .description('Update the skills index from remote')
     .action(update);
+
+// ═══════════════════════════════════════════════════════════════════════════
+// source：管理 GitHub 资源源
+// ═══════════════════════════════════════════════════════════════════════════
+
+const sourceCmd = program
+    .command('source')
+    .alias('src')
+    .description('Manage GitHub resource sources');
+
+sourceCmd
+    .command('add <repo-url>')
+    .description('Add a GitHub repository as resource source')
+    .option('--json', 'JSON output')
+    .action(sourceAdd);
+
+sourceCmd
+    .command('list')
+    .alias('ls')
+    .description('List all custom sources')
+    .option('--json', 'JSON output')
+    .action(sourceList);
+
+sourceCmd
+    .command('sync [source-id]')
+    .description('Sync resource index from source repositories')
+    .option('--json', 'JSON output')
+    .action(sourceSync);
+
+sourceCmd
+    .command('remove <source-id>')
+    .alias('rm')
+    .description('Remove a custom source')
+    .option('--json', 'JSON output')
+    .action(sourceRemove);
 
 // ═══════════════════════════════════════════════════════════════════════════
 // 无参数时进入交互模式

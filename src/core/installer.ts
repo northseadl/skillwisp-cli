@@ -6,7 +6,6 @@
  * - 其他 App 通过符号链接指向主源
  */
 
-import { execFileSync } from 'node:child_process';
 import { existsSync, mkdirSync, cpSync, rmSync, symlinkSync, readFileSync, writeFileSync, renameSync } from 'node:fs';
 import { join, relative, dirname } from 'node:path';
 import { tmpdir } from 'node:os';
@@ -23,6 +22,7 @@ import { getDistributionUrl } from './registry.js';
 import { getInstallRoot, getInstallPathForResource } from './installPaths.js';
 import type { InstallRoot, InstallScope } from './installPaths.js';
 import { sanitizeResourceId, validateResourcePath } from './sanitize.js';
+import { runGit } from './git.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // 安装选项与结果
@@ -340,45 +340,7 @@ function materializeSource(
     return { sourceDir };
 }
 
-function runGit(
-    args: string[],
-    options: { cwd?: string } = {}
-): void {
-    try {
-        execFileSync('git', args, {
-            cwd: options.cwd,
-            stdio: 'pipe',
-            env: {
-                ...process.env,
-                GIT_TERMINAL_PROMPT: '0',
-            },
-        });
-    } catch (error) {
-        throw new Error(formatGitError(args, error));
-    }
-}
 
-function formatGitError(args: string[], error: unknown): string {
-    const e = error as NodeJS.ErrnoException & { stdout?: unknown; stderr?: unknown; status?: number };
-    if (e.code === 'ENOENT') {
-        return 'git is required but was not found in PATH';
-    }
-
-    const stdout = toText(e.stdout).trim();
-    const stderr = toText(e.stderr).trim();
-    const details = stderr || stdout;
-
-    const cmd = `git ${args.join(' ')}`;
-    return details ? `${cmd}: ${details}` : `${cmd} failed`;
-}
-
-function toText(value: unknown): string {
-    if (!value) return '';
-    if (value instanceof Uint8Array) {
-        return new TextDecoder().decode(value);
-    }
-    return String(value);
-}
 
 function installToTarget(
     app: AgentConfig,

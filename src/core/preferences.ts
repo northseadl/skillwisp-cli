@@ -6,14 +6,11 @@
  */
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync, renameSync } from 'node:fs';
-import { join } from 'node:path';
-import { homedir } from 'node:os';
 
 import type { UserPreferences } from './types.js';
+import { USER_DATA_DIR, PREFERENCES_FILE } from './paths.js';
 
 const PREFERENCES_VERSION = 1;
-const CONFIG_DIR = join(homedir(), '.agents', '.skillwisp');
-const PREFERENCES_FILE = join(CONFIG_DIR, 'preferences.json');
 
 // ═══════════════════════════════════════════════════════════════════════════
 // 偏好读取
@@ -157,8 +154,8 @@ function createDefaultPreferences(): UserPreferences {
 
 export function savePreferences(prefs: UserPreferences): void {
     // 确保配置目录存在
-    if (!existsSync(CONFIG_DIR)) {
-        mkdirSync(CONFIG_DIR, { recursive: true });
+    if (!existsSync(USER_DATA_DIR)) {
+        mkdirSync(USER_DATA_DIR, { recursive: true });
     }
 
     // 原子写入：先写临时文件，再 rename 防止中途崩溃导致损坏

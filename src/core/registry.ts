@@ -9,32 +9,12 @@
  */
 
 import { readFileSync, existsSync } from 'node:fs';
-import { join, dirname } from 'node:path';
-import { fileURLToPath } from 'node:url';
-import { homedir } from 'node:os';
+import { join } from 'node:path';
 import { parse as parseYaml } from 'yaml';
 
 import type { Resource, ResourceType, LocaleData, SourcesConfig, IndexData } from './types.js';
-
-const __dirname = dirname(fileURLToPath(import.meta.url));
-
-// ═══════════════════════════════════════════════════════════════════════════
-// 路径定义
-// ═══════════════════════════════════════════════════════════════════════════
-
-const USER_REGISTRY_DIR = join(homedir(), '.agents', '.skillwisp', 'cache');
-
-function findBuiltinRegistryDir(): string {
-    // 打包环境: dist/../registry = skillwisp-cli/registry
-    const distPath = join(__dirname, '../registry');
-    if (existsSync(distPath)) return distPath;
-
-    // 开发环境 (unbundled): src/core/../../registry
-    const devPath = join(__dirname, '../../registry');
-    if (existsSync(devPath)) return devPath;
-
-    throw new Error('Built-in registry directory not found');
-}
+import { USER_REGISTRY_DIR, findBuiltinRegistryDir } from './paths.js';
+import { loadUserSourceResources } from './sourceManager.js';
 
 /**
  * 获取有效的 Registry 目录
@@ -92,6 +72,14 @@ export function loadResources(): Resource[] {
     }
     if (raw.rules) resources.push(...raw.rules);
     if (raw.workflows) resources.push(...raw.workflows);
+
+    // 合并用户自定义源的资源
+    try {
+        const userResources = loadUserSourceResources();
+        resources.push(...userResources);
+    } catch {
+        // 用户源加载失败不影响内置资源
+    }
 
     cachedResources = resources;
     return cachedResources;
@@ -239,8 +227,3 @@ export function getResourceRepoUrl(resource: Resource): string {
     return source?.repo || '';
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// 导出路径常量（供 updater 使用）
-// ═══════════════════════════════════════════════════════════════════════════
-
-export { USER_REGISTRY_DIR, findBuiltinRegistryDir };
