@@ -124,24 +124,6 @@ export function setCheckInterval(hours: number): void {
     savePreferences(prefs);
 }
 
-/**
- * 获取首选镜像
- */
-export function getPreferredMirror(): string | undefined {
-    const prefs = loadPreferences();
-    return prefs.preferredMirror;
-}
-
-/**
- * 设置首选镜像
- */
-export function setPreferredMirror(mirror: string | undefined): void {
-    const prefs = loadPreferences();
-    prefs.preferredMirror = mirror;
-    prefs.lastUpdated = new Date().toISOString();
-    savePreferences(prefs);
-}
-
 // ═══════════════════════════════════════════════════════════════════════════
 // 内部函数
 // ═══════════════════════════════════════════════════════════════════════════

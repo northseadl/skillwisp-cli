@@ -84,13 +84,6 @@ export function truncate(text: string, maxLen: number): string {
     return text.slice(0, maxLen - 1) + '…';
 }
 
-/**
- * 构建带色彩的品牌 Logo
- */
-export function brandLogo(): string {
-    return `${colors.primary(symbols.wisp)} ${colors.bold('SkillWisp')}`;
-}
-
 // ═══════════════════════════════════════════════════════════════════════════
 // Spinner
 // ═══════════════════════════════════════════════════════════════════════════
@@ -158,43 +151,3 @@ export function createSpinner(): Spinner {
     };
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// 结果摘要
-// ═══════════════════════════════════════════════════════════════════════════
-
-export interface ResultSummaryOptions {
-    title: string;
-    items: Array<{
-        label: string;
-        value: string;
-        status?: 'success' | 'error' | 'info';
-    }>;
-    footer?: string;
-}
-
-export function resultSummary(options: ResultSummaryOptions): void {
-    const { title, items, footer } = options;
-
-    console.log();
-    console.log(colors.bold(colors.primary(`┌─ ${title} ─`)));
-    console.log(colors.primary('│'));
-
-    for (const item of items) {
-        const statusIcon = item.status === 'success'
-            ? colors.success(symbols.success)
-            : item.status === 'error'
-                ? colors.error(symbols.error)
-                : colors.info(symbols.info);
-
-        console.log(colors.primary('│  ') + `${statusIcon} ${colors.bold(item.label)}: ${item.value}`);
-    }
-
-    console.log(colors.primary('│'));
-
-    if (footer) {
-        console.log(colors.primary('└─ ') + colors.muted(footer));
-    } else {
-        console.log(colors.primary('└─────'));
-    }
-    console.log();
-}

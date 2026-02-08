@@ -41,6 +41,7 @@ import {
     loadInstalledItems,
     renderCurrentScreen,
 } from './app/index.js';
+import { createInstallResult } from './app/installResult.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // 主应用组件
@@ -275,14 +276,13 @@ export function App(): ReactNode {
                 }
             }
 
-            const result: InstallResult = {
+            const result: InstallResult = createInstallResult({
                 successCount,
                 failCount,
-                installedNames: Array.from(installedNames),
-                compatNotes: Array.from(compatNotes),
-                // 对用户只显示他们选择的目标应用，隐藏 PRIMARY_SOURCE
+                installedNames,
+                compatNotes,
                 targetApps: targets,
-            };
+            });
 
             navigate('install-complete', { installResult: result, isInstalling: false });
         }, 100);

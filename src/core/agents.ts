@@ -8,9 +8,6 @@ import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { homedir } from 'node:os';
 
-import type { ResourceType } from './types.js';
-import { RESOURCE_CONFIG } from './types.js';
-
 export interface AgentConfig {
     id: string;
     name: string;
@@ -394,10 +391,6 @@ export function getAppsByIds(ids: string[]): AgentConfig[] {
         .filter((a): a is AgentConfig => a !== undefined);
 }
 
-export function getAppIds(): string[] {
-    return ALL_APPS.map((a) => a.id);
-}
-
 export type TargetSort = 'default' | 'az';
 
 // 默认排序：优先展示最常见/最常见被提及的工具，剩余按名称字母序
@@ -452,13 +445,4 @@ export function detectApps(): AgentConfig[] {
     }
 
     return detected;
-}
-
-export function getAppResourceDir(app: AgentConfig, resourceType: ResourceType): string {
-    return join(app.baseDir, RESOURCE_CONFIG[resourceType].dirName);
-}
-
-export function getAppGlobalResourceDir(app: AgentConfig, resourceType: ResourceType): string {
-    if (!app.globalBaseDir) return '';
-    return join(app.globalBaseDir, RESOURCE_CONFIG[resourceType].dirName);
 }

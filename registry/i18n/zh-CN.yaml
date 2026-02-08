@@ -238,9 +238,6 @@ resources:
     web-design-guidelines:
       name: Web 设计规范
       description: 审查 UI 代码是否符合 Web 界面指南。当被要求审查 UI、检查可访问性、审计设计时使用。
-    claude-ai:
-      name: Claude.ai 集成
-      description: Vercel 的 Claude.ai 集成技能。用于构建与 Claude AI 集成的应用时使用。
 
   # OpenAI Skills
   openai:

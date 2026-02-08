@@ -3,11 +3,6 @@
  * SkillWisp CLI
  *
  * Developer tool integrations installer
- *
- * v2.0 Design:
- * - Terminal App first (interactive by default)
- * - Developer-friendly CLI contract (--json, exit codes, stdout/stderr separation)
- * - Stable, composable commands
  */
 
 import { Command } from 'commander';
@@ -25,9 +20,53 @@ import { sourceAdd, sourceList, sourceSync, sourceRemove } from './commands/sour
 import { CLI_VERSION } from './core/version.js';
 import { initI18n } from './core/i18n.js';
 
+type OptionConfig = {
+    flags: string;
+    description: string;
+    defaultValue?: string | boolean;
+};
+
+type CommandConfig = {
+    path: string;
+    description: string;
+    aliases?: string[];
+    options?: OptionConfig[];
+    action: (...args: any[]) => unknown;
+    hidden?: boolean;
+    isDefault?: boolean;
+};
+
+function applyOptions(command: Command, options?: OptionConfig[]): void {
+    if (!options) return;
+    for (const option of options) {
+        if (option.defaultValue !== undefined) {
+            command.option(option.flags, option.description, option.defaultValue as any);
+        } else {
+            command.option(option.flags, option.description);
+        }
+    }
+}
+
+function registerCommand(program: Command, config: CommandConfig): void {
+    const command = program.command(config.path, {
+        hidden: config.hidden,
+        isDefault: config.isDefault,
+    });
+
+    command.description(config.description);
+
+    if (config.aliases) {
+        for (const alias of config.aliases) {
+            command.alias(alias);
+        }
+    }
+
+    applyOptions(command, config.options);
+    command.action(config.action as any);
+}
+
 const program = new Command();
 
-// 初始化 i18n（让非交互命令也尊重用户语言偏好）
 initI18n();
 
 program
@@ -36,192 +75,171 @@ program
     .version(CLI_VERSION)
     .option('--offline', 'Skip all network operations');
 
-// ═══════════════════════════════════════════════════════════════════════════
-// 交互模式（默认入口）- 使用 Ink 渲染
-// ═══════════════════════════════════════════════════════════════════════════
+registerCommand(program, {
+    path: 'start',
+    description: 'Start interactive mode',
+    isDefault: true,
+    hidden: true,
+    action: main,
+});
 
-program
-    .command('start', { isDefault: true, hidden: true })
-    .description('Start interactive mode')
-    .action(main);
+registerCommand(program, {
+    path: 'search <query>',
+    aliases: ['s', 'find'],
+    description: 'Search available resources',
+    options: [
+        { flags: '-t, --type <type>', description: 'Filter by type (skill/rule/workflow)' },
+        { flags: '--compact', description: 'Compact output (id + name only)' },
+        { flags: '-v, --verbose', description: 'Verbose output (all fields)' },
+        { flags: '--json', description: 'JSON output for scripting' },
+        { flags: '-q, --quiet', description: 'Quiet mode (ids only)' },
+        { flags: '--page <n>', description: 'Page number (TTY only)' },
+        { flags: '--per-page <n>', description: 'Results per page', defaultValue: '20' },
+        { flags: '--all', description: 'Show all results (disable pagination)' },
+    ],
+    action: search,
+});
 
-// ═══════════════════════════════════════════════════════════════════════════
-// search：搜索资源（query 必填）
-// ═══════════════════════════════════════════════════════════════════════════
+registerCommand(program, {
+    path: 'catalog',
+    description: 'List all available resources',
+    options: [
+        { flags: '-t, --type <type>', description: 'Filter by type (skill/rule/workflow)' },
+        { flags: '--compact', description: 'Compact output' },
+        { flags: '-v, --verbose', description: 'Verbose output' },
+        { flags: '--json', description: 'JSON output' },
+        { flags: '-q, --quiet', description: 'Quiet mode (ids only)' },
+        { flags: '--page <n>', description: 'Page number' },
+        { flags: '--per-page <n>', description: 'Results per page', defaultValue: '20' },
+        { flags: '--all', description: 'Show all results' },
+    ],
+    action: catalog,
+});
 
-program
-    .command('search <query>')
-    .alias('s')
-    .alias('find')
-    .description('Search available resources')
-    .option('-t, --type <type>', 'Filter by type (skill/rule/workflow)')
-    .option('--compact', 'Compact output (id + name only)')
-    .option('-v, --verbose', 'Verbose output (all fields)')
-    .option('--json', 'JSON output for scripting')
-    .option('-q, --quiet', 'Quiet mode (ids only)')
-    .option('--page <n>', 'Page number (TTY only)')
-    .option('--per-page <n>', 'Results per page', '20')
-    .option('--all', 'Show all results (disable pagination)')
-    .action(search);
+registerCommand(program, {
+    path: 'install <resource>',
+    aliases: ['i', 'add'],
+    description: 'Install a resource',
+    options: [
+        { flags: '-t, --type <type>', description: 'Resource type (skill/rule/workflow)', defaultValue: 'skill' },
+        { flags: '-g, --global', description: 'Install to global directory' },
+        { flags: '--target <target>', description: 'Target integration (use supported app IDs)' },
+        { flags: '--no-symlink', description: 'Disable symlinks (force copy)' },
+        { flags: '-v, --verbose', description: 'Show installation paths' },
+        { flags: '--json', description: 'JSON output' },
+        { flags: '-q, --quiet', description: 'Quiet mode' },
+        { flags: '--dry-run', description: 'Show what would be installed without doing it' },
+        { flags: '-y, --yes', description: 'Use defaults and skip prompts' },
+        { flags: '-f, --force', description: 'Overwrite if already exists' },
+        { flags: '-r, --rule', description: 'Install as rule (shorthand for --type rule)' },
+        { flags: '-w, --workflow', description: 'Install as workflow (shorthand for --type workflow)' },
+    ],
+    action: install,
+});
 
-// ═══════════════════════════════════════════════════════════════════════════
-// catalog：列出全部资源
-// ═══════════════════════════════════════════════════════════════════════════
+registerCommand(program, {
+    path: 'list',
+    aliases: ['ls'],
+    description: 'List installed resources',
+    options: [
+        { flags: '-v, --verbose', description: 'Show paths and grouping by target' },
+        { flags: '--json', description: 'JSON output' },
+        { flags: '-q, --quiet', description: 'Quiet mode (ids only)' },
+    ],
+    action: list,
+});
 
-program
-    .command('catalog')
-    .description('List all available resources')
-    .option('-t, --type <type>', 'Filter by type (skill/rule/workflow)')
-    .option('--compact', 'Compact output')
-    .option('-v, --verbose', 'Verbose output')
-    .option('--json', 'JSON output')
-    .option('-q, --quiet', 'Quiet mode (ids only)')
-    .option('--page <n>', 'Page number')
-    .option('--per-page <n>', 'Results per page', '20')
-    .option('--all', 'Show all results')
-    .action(catalog);
+registerCommand(program, {
+    path: 'info <resource>',
+    aliases: ['show'],
+    description: 'Show resource details',
+    options: [
+        { flags: '-t, --type <type>', description: 'Resource type (skill/rule/workflow)' },
+        { flags: '--json', description: 'JSON output' },
+        { flags: '--installed', description: 'Show installation status' },
+    ],
+    action: info,
+});
 
-// ═══════════════════════════════════════════════════════════════════════════
-// install：安装资源
-// ═══════════════════════════════════════════════════════════════════════════
+registerCommand(program, {
+    path: 'config [sub] [args...]',
+    description: 'Manage configuration (interactive or get/set/reset)',
+    options: [{ flags: '--json', description: 'JSON output' }],
+    action: config,
+});
 
-program
-    .command('install <resource>')
-    .alias('i')
-    .alias('add')
-    .description('Install a resource')
-    .option('-t, --type <type>', 'Resource type (skill/rule/workflow)', 'skill')
-    .option('-g, --global', 'Install to global directory')
-    .option('--target <target>', 'Target integration (use supported app IDs)')
-    .option('--no-symlink', 'Disable symlinks (force copy)')
-    .option('-v, --verbose', 'Show installation paths')
-    .option('--json', 'JSON output')
-    .option('-q, --quiet', 'Quiet mode')
-    .option('--dry-run', 'Show what would be installed without doing it')
-    .option('-y, --yes', 'Use defaults and skip prompts')
-    .option('-f, --force', 'Overwrite if already exists')
-    // 兼容快捷选项
-    .option('-r, --rule', 'Install as rule (shorthand for --type rule)')
-    .option('-w, --workflow', 'Install as workflow (shorthand for --type workflow)')
-    .action(install);
+registerCommand(program, {
+    path: 'uninstall <resource>',
+    aliases: ['rm', 'remove'],
+    description: 'Uninstall a resource',
+    options: [
+        { flags: '-t, --type <type>', description: 'Resource type (skill/rule/workflow)', defaultValue: 'skill' },
+        { flags: '-g, --global', description: 'Uninstall from global directory only' },
+        { flags: '-l, --local', description: 'Uninstall from local directory only' },
+        { flags: '--json', description: 'JSON output' },
+        { flags: '-q, --quiet', description: 'Quiet mode' },
+        { flags: '-f, --force', description: 'Skip confirmation' },
+    ],
+    action: uninstall,
+});
 
-// ═══════════════════════════════════════════════════════════════════════════
-// list：列出已安装资源
-// ═══════════════════════════════════════════════════════════════════════════
+registerCommand(program, {
+    path: 'manage',
+    aliases: ['mg'],
+    description: 'Manage installed resources',
+    options: [
+        { flags: '-t, --type <type>', description: 'Filter by type (skill/rule/workflow)' },
+        { flags: '-s, --scope <scope>', description: 'Filter by scope (local/global)' },
+        { flags: '--json', description: 'JSON output' },
+    ],
+    action: manage,
+});
 
-program
-    .command('list')
-    .alias('ls')
-    .description('List installed resources')
-    .option('-v, --verbose', 'Show paths and grouping by target')
-    .option('--json', 'JSON output')
-    .option('-q, --quiet', 'Quiet mode (ids only)')
-    .action(list);
-
-// ═══════════════════════════════════════════════════════════════════════════
-// info：查看资源详情
-// ═══════════════════════════════════════════════════════════════════════════
-
-program
-    .command('info <resource>')
-    .alias('show')
-    .description('Show resource details')
-    .option('-t, --type <type>', 'Resource type (skill/rule/workflow)')
-    .option('--json', 'JSON output')
-    .option('--installed', 'Show installation status')
-    .action(info);
-
-// ═══════════════════════════════════════════════════════════════════════════
-// config：管理配置
-// ═══════════════════════════════════════════════════════════════════════════
-
-program
-    .command('config [sub] [args...]')
-    .description('Manage configuration (interactive or get/set/reset)')
-    .option('--json', 'JSON output')
-    .action(config);
-
-// ═══════════════════════════════════════════════════════════════════════════
-// uninstall：卸载资源
-// ═══════════════════════════════════════════════════════════════════════════
-
-program
-    .command('uninstall <resource>')
-    .alias('rm')
-    .alias('remove')
-    .description('Uninstall a resource')
-    .option('-t, --type <type>', 'Resource type (skill/rule/workflow)', 'skill')
-    .option('-g, --global', 'Uninstall from global directory only')
-    .option('-l, --local', 'Uninstall from local directory only')
-    .option('--json', 'JSON output')
-    .option('-q, --quiet', 'Quiet mode')
-    .option('-f, --force', 'Skip confirmation')
-    .action(uninstall);
-
-// ═══════════════════════════════════════════════════════════════════════════
-// manage：管理已安装资源
-// ═══════════════════════════════════════════════════════════════════════════
-
-program
-    .command('manage')
-    .alias('mg')
-    .description('Manage installed resources')
-    .option('-t, --type <type>', 'Filter by type (skill/rule/workflow)')
-    .option('-s, --scope <scope>', 'Filter by scope (local/global)')
-    .option('--json', 'JSON output')
-    .action(manage);
-
-// ═════════════════════════════════════════════════════════════════════════════
-// update：更新索引
-// ═════════════════════════════════════════════════════════════════════════════
-
-program
-    .command('update')
-    .alias('up')
-    .description('Update the skills index from remote')
-    .action(update);
-
-// ═══════════════════════════════════════════════════════════════════════════
-// source：管理 GitHub 资源源
-// ═══════════════════════════════════════════════════════════════════════════
+registerCommand(program, {
+    path: 'update',
+    aliases: ['up'],
+    description: 'Update the skills index from remote',
+    action: update,
+});
 
 const sourceCmd = program
     .command('source')
     .alias('src')
     .description('Manage GitHub resource sources');
 
-sourceCmd
-    .command('add <repo-url>')
-    .description('Add a GitHub repository as resource source')
-    .option('--json', 'JSON output')
-    .action(sourceAdd);
+registerCommand(sourceCmd, {
+    path: 'add <repo-url>',
+    description: 'Add a GitHub repository as resource source',
+    options: [{ flags: '--json', description: 'JSON output' }],
+    action: sourceAdd,
+});
 
-sourceCmd
-    .command('list')
-    .alias('ls')
-    .description('List all custom sources')
-    .option('--json', 'JSON output')
-    .action(sourceList);
+registerCommand(sourceCmd, {
+    path: 'list',
+    aliases: ['ls'],
+    description: 'List all custom sources',
+    options: [{ flags: '--json', description: 'JSON output' }],
+    action: sourceList,
+});
 
-sourceCmd
-    .command('sync [source-id]')
-    .description('Sync resource index from source repositories')
-    .option('--json', 'JSON output')
-    .action(sourceSync);
+registerCommand(sourceCmd, {
+    path: 'sync [source-id]',
+    description: 'Sync resource index from source repositories',
+    options: [{ flags: '--json', description: 'JSON output' }],
+    action: sourceSync,
+});
 
-sourceCmd
-    .command('remove <source-id>')
-    .alias('rm')
-    .description('Remove a custom source')
-    .option('--json', 'JSON output')
-    .action(sourceRemove);
-
-// ═══════════════════════════════════════════════════════════════════════════
-// 无参数时进入交互模式
-// ═══════════════════════════════════════════════════════════════════════════
+registerCommand(sourceCmd, {
+    path: 'remove <source-id>',
+    aliases: ['rm'],
+    description: 'Remove a custom source',
+    options: [{ flags: '--json', description: 'JSON output' }],
+    action: sourceRemove,
+});
 
 if (process.argv.length === 2) {
     main();
 } else {
     program.parse();
 }
+

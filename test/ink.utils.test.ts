@@ -1,7 +1,5 @@
 /**
- * ink/utils/colorize 单元测试
- * 
- * 测试统一着色工具的核心功能
+ * core/terminal 单元测试
  */
 
 import { describe, it, expect } from 'vitest';
@@ -10,10 +8,9 @@ import {
     symbols,
     truncate,
     getResourceColor,
-    brandLogo
-} from '../src/ink/utils/index.js';
+} from '../src/core/terminal.js';
 
-describe('ink/utils/colorize', () => {
+describe('core/terminal', () => {
     describe('truncate', () => {
         it('returns original text when shorter than maxLen', () => {
             expect(truncate('hello', 10)).toBe('hello');
@@ -48,7 +45,6 @@ describe('ink/utils/colorize', () => {
         it('returns cyan color function for skill type', () => {
             const colorFn = getResourceColor('skill');
             expect(typeof colorFn).toBe('function');
-            // 验证是否应用了颜色（输出包含 ANSI 码或原文）
             const result = colorFn('test');
             expect(result).toContain('test');
         });
@@ -93,15 +89,4 @@ describe('ink/utils/colorize', () => {
         });
     });
 
-    describe('brandLogo', () => {
-        it('returns a string containing SkillWisp', () => {
-            const logo = brandLogo();
-            expect(logo).toContain('SkillWisp');
-        });
-
-        it('returns a string containing wisp symbol', () => {
-            const logo = brandLogo();
-            expect(logo).toContain('✦');
-        });
-    });
 });
