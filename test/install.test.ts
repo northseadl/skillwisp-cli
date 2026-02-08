@@ -23,7 +23,7 @@ function runCli(args: string, cwd?: string): string {
 
 describe('Dry Run Installation Tests', () => {
     it('should show installation preview for local install', () => {
-        const output = runCli('install @anthropic/pdf --dry-run --target claude')
+        const output = runCli('install @anthropic/pdf --dry-run --target claude-code')
         expect(output).toBeDefined()
         // Dry run should not create files
         // Note: "raw mode is not supported" is expected in non-TTY test environments (ink limitation)
@@ -32,12 +32,12 @@ describe('Dry Run Installation Tests', () => {
     })
 
     it('should show installation preview for multiple targets', () => {
-        const output = runCli('install @anthropic/pdf --dry-run --target claude,cursor')
+        const output = runCli('install @anthropic/pdf --dry-run --target claude-code,cursor')
         expect(output).toBeDefined()
     })
 
     it('should show installation preview for global install', () => {
-        const output = runCli('install @anthropic/pdf --dry-run --global --target agent')
+        const output = runCli('install @anthropic/pdf --dry-run --global --target agents')
         expect(output).toBeDefined()
     })
 })

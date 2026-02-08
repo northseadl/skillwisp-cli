@@ -11,7 +11,7 @@ describe('commands/config', () => {
         const c = captureConsole();
 
         try {
-            await config(undefined, { json: true });
+            await config(undefined, [], { json: true });
             expect(c.logs.length).toBe(1);
             const data = JSON.parse(c.logs[0]);
             expect(data).toHaveProperty('defaultTargets');
@@ -32,7 +32,7 @@ describe('commands/config', () => {
         const c = captureConsole();
 
         try {
-            await config(undefined, {});
+            await config(undefined, [], {});
             const output = c.logs.join('\n');
             expect(output).toContain('Current Configuration');
             expect(output).toContain('Detected apps:');
@@ -47,15 +47,15 @@ describe('commands/config', () => {
 
         const set = captureConsole();
         try {
-            await config('set targets agents,claude', { json: true });
+            await config('set', ['targets', 'agents,claude-code'], { json: true });
         } finally {
             set.restore();
         }
 
         const get = captureConsole();
         try {
-            await config('get targets', {});
-            expect(get.logs[0]).toBe('agents,claude');
+            await config('get', ['targets'], {});
+            expect(get.logs[0]).toBe('agents,claude-code');
         } finally {
             get.restore();
         }
@@ -67,7 +67,7 @@ describe('commands/config', () => {
         const c = captureConsole();
 
         try {
-            await expect(config('set targets not-a-real-app', {}))
+            await expect(config('set', ['targets', 'not-a-real-app'], {}))
                 .rejects
                 .toThrow('process.exit:2');
             expect(c.errors.join('\n')).toContain('No valid app IDs');
@@ -83,19 +83,19 @@ describe('commands/config', () => {
 
         const c1 = captureConsole();
         try {
-            await config('set targets agents,claude', { json: true });
+            await config('set', ['targets', 'agents,claude-code'], { json: true });
             const data = JSON.parse(c1.logs[0]);
             expect(data.success).toBe(true);
-            expect(data.defaultTargets).toEqual(['agents', 'claude']);
+            expect(data.defaultTargets).toEqual(['agents', 'claude-code']);
         } finally {
             c1.restore();
         }
 
         const c2 = captureConsole();
         try {
-            await config('get targets', { json: true });
+            await config('get', ['targets'], { json: true });
             const data = JSON.parse(c2.logs[0]);
-            expect(data.defaultTargets).toEqual(['agents', 'claude']);
+            expect(data.defaultTargets).toEqual(['agents', 'claude-code']);
         } finally {
             c2.restore();
         }
@@ -107,7 +107,7 @@ describe('commands/config', () => {
         const c = captureConsole();
 
         try {
-            await expect(config('set targets not-a-real-app', { json: true }))
+            await expect(config('set', ['targets', 'not-a-real-app'], { json: true }))
                 .rejects
                 .toThrow('process.exit:2');
 
@@ -125,7 +125,7 @@ describe('commands/config', () => {
         const c = captureConsole();
 
         try {
-            await expect(config('set unknownKey value', { json: true }))
+            await expect(config('set', ['unknownKey', 'value'], { json: true }))
                 .rejects
                 .toThrow('process.exit:2');
 
@@ -137,4 +137,3 @@ describe('commands/config', () => {
         }
     });
 });
-

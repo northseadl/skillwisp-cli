@@ -1,6 +1,6 @@
 # Skills 索引
 
-> 共 74 个 Skills，来自 6 个源
+> 共 73 个 Skills，来自 6 个源
 
 ---
 
@@ -35,7 +35,7 @@
 | [web-design-guidelines](https://github.com/vercel-labs/agent-skills/tree/main/skills/@vercel/web-design-guidelines) | Web 界面最佳实践 | `skillwisp install @vercel/web-design-guidelines` |
 | [react-native-skills](https://github.com/vercel-labs/agent-skills/tree/main/skills/@vercel/react-native-skills) | React Native | `skillwisp install @vercel/react-native-skills` |
 | [composition-patterns](https://github.com/vercel-labs/agent-skills/tree/main/skills/@vercel/composition-patterns) | React 组合模式 | `skillwisp install @vercel/composition-patterns` |
-| [claude.ai](https://github.com/vercel-labs/agent-skills/tree/main/skills/@vercel/claude.ai) | Claude.ai 集成 | `skillwisp install @vercel/claude.ai` |
+
 
 ---
 

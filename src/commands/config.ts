@@ -8,19 +8,19 @@
 
 import { detectApps, getAppsByIds, ALL_APPS } from '../core/agents.js';
 import { getDefaultAgents, saveDefaultAgents, resetPreferences, loadPreferences } from '../core/preferences.js';
-import { colors, symbols } from '../ink/utils/index.js';
+import { colors, symbols } from '../core/terminal.js';
 import { runConfigFlow } from '../ink/flows/index.js';
 
 interface ConfigOptions {
     json?: boolean;
 }
 
-export async function config(subcommand?: string, options: ConfigOptions = {}): Promise<void> {
+export async function config(sub?: string, args: string[] = [], options: ConfigOptions = {}): Promise<void> {
     const isTTY = Boolean(process.stdout.isTTY);
 
     // 非交互模式：get/set/reset
-    if (subcommand) {
-        return handleSubcommand(subcommand, options);
+    if (sub) {
+        return handleSubcommand(sub, args, options);
     }
 
     // --json 或非 TTY 且无子命令：输出当前配置
@@ -36,11 +36,9 @@ export async function config(subcommand?: string, options: ConfigOptions = {}): 
 // 子命令处理
 // ═══════════════════════════════════════════════════════════════════════════
 
-async function handleSubcommand(subcommand: string, options: ConfigOptions): Promise<void> {
-    const parts = subcommand.split(' ');
-    const cmd = parts[0];
-    const key = parts[1];
-    const value = parts.slice(2).join(' ');
+async function handleSubcommand(cmd: string, args: string[], options: ConfigOptions): Promise<void> {
+    const key = args[0];
+    const value = args.slice(1).join(' ');
 
     switch (cmd) {
         case 'get':
@@ -54,7 +52,9 @@ async function handleSubcommand(subcommand: string, options: ConfigOptions): Pro
             }
             return;
         default:
-            return showConfig(options);
+            console.error(colors.error(`${symbols.error} Unknown subcommand: ${cmd}`));
+            console.error(colors.muted(`  Available: get, set, reset`));
+            process.exit(2);
     }
 }
 

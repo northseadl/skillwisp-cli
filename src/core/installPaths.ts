@@ -3,7 +3,7 @@
  *
  * 安装模式：
  * - 目录型（大多数工具）：{baseDir}/skills/{id}/SKILL.md
- * - 文件型（仅 Kiro）：{baseDir}/.kiro/steering/skillwisp-{id}.md
+ * - 文件型（当前未使用，保留兼容）
  */
 
 import { homedir } from 'node:os';
@@ -12,6 +12,7 @@ import { join } from 'node:path';
 import type { AgentConfig } from './agents.js';
 import type { ResourceType } from './types.js';
 import { RESOURCE_CONFIG } from './types.js';
+import { sanitizeResourceId } from './sanitize.js';
 
 export type InstallScope = 'local' | 'global';
 
@@ -56,11 +57,11 @@ export function getInstallRoot(
         }
     }
 
-    // 仅支持 skill 类型的工具：Copilot、Cursor、Augment
-    // Copilot: .github/skills (local), ~/.copilot/skills (global)
-    // Cursor:  .cursor/skills (local only)
-    // Augment: .augment/skills (local), ~/.augment/skills (global)
-    if (app.id === 'copilot' || app.id === 'cursor' || app.id === 'augment') {
+    // 仅支持 skill 类型的工具：GitHub Copilot、Cursor、Augment
+    // GitHub Copilot: .agents/skills (local via compat), ~/.copilot/skills (global)
+    // Cursor:  .cursor/skills (local/global)
+    // Augment: .augment/skills (local/global)
+    if (app.id === 'github-copilot' || app.id === 'cursor' || app.id === 'augment') {
         if (resourceType !== 'skill') return null;
         if (scope === 'global' && !app.globalBaseDir) return null;
         const config = RESOURCE_CONFIG[resourceType];
@@ -68,32 +69,6 @@ export function getInstallRoot(
         return {
             kind: 'dir',
             dir: join(baseDir, root, config.dirName),
-            entryFile: config.entryFile,
-        };
-    }
-
-    // Kiro：仅项目级，文件型 steering files
-    if (app.id === 'kiro') {
-        if (scope === 'global') return null;
-        if (resourceType !== 'skill') return null;
-        return {
-            kind: 'file',
-            dir: join(baseDir, '.kiro', 'steering'),
-            prefix: SKILLWISP_FILE_PREFIX,
-            ext: '.md',
-        };
-    }
-
-    // Antigravity (Google Gemini Agent)：
-    // 项目级 .agents 与 PRIMARY_SOURCE 冲突，返回 null（用户应选择 .agents）
-    // 全局级使用专属目录 ~/.gemini/antigravity/skills/
-    if (app.id === 'antigravity') {
-        if (resourceType !== 'skill') return null;
-        if (scope === 'local') return null; // 项目级复用 PRIMARY_SOURCE
-        const config = RESOURCE_CONFIG[resourceType];
-        return {
-            kind: 'dir',
-            dir: join(baseDir, app.globalBaseDir, config.dirName),
             entryFile: config.entryFile,
         };
     }
@@ -116,6 +91,7 @@ export function getInstallPathForResource(
     scope: InstallScope,
     resourceId: string
 ): { kind: InstallRoot['kind']; path: string } | null {
+    sanitizeResourceId(resourceId);
     const root = getInstallRoot(app, resourceType, scope);
     if (!root) return null;
 

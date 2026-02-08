@@ -1,14 +1,17 @@
 /**
- * Console 着色工具
- * 
- * 将 Ink 主题的 Hex 颜色转换为 picocolors 输出
- * 用于非 Ink 模式（如 --json, --quiet, 管道输出）
+ * 终端工具层
+ *
+ * 纯终端相关的着色、符号和工具函数
+ * 独立于 Ink 渲染层，供 CLI 命令层使用
  */
 
 import pc from 'picocolors';
-import { colors as inkColors } from '../theme.js';
+import type { ResourceType } from './types.js';
 
-// 语义色映射 - 使用 picocolors 内置色彩
+// ═══════════════════════════════════════════════════════════════════════════
+// 语义色映射
+// ═══════════════════════════════════════════════════════════════════════════
+
 export const colors = {
     // 主色调
     primary: pc.cyan,
@@ -37,7 +40,10 @@ export const colors = {
     highlight: (s: string) => pc.bold(pc.cyan(s)),
 };
 
-// 符号系统 - 与 Ink 主题保持一致
+// ═══════════════════════════════════════════════════════════════════════════
+// 符号系统
+// ═══════════════════════════════════════════════════════════════════════════
+
 export const symbols = {
     success: '✓',
     error: '✗',
@@ -57,10 +63,14 @@ export const symbols = {
     wisp: '✦',
 };
 
+// ═══════════════════════════════════════════════════════════════════════════
+// 工具函数
+// ═══════════════════════════════════════════════════════════════════════════
+
 /**
  * 根据资源类型获取颜色函数
  */
-export function getResourceColor(type: 'skill' | 'rule' | 'workflow'): (s: string) => string {
+export function getResourceColor(type: ResourceType): (s: string) => string {
     return colors[type];
 }
 
@@ -74,16 +84,10 @@ export function truncate(text: string, maxLen: number): string {
     return text.slice(0, maxLen - 1) + '…';
 }
 
-/**
- * 构建带色彩的品牌 Logo
- */
-export function brandLogo(): string {
-    return `${colors.primary(symbols.wisp)} ${colors.bold('SkillWisp')}`;
-}
+// ═══════════════════════════════════════════════════════════════════════════
+// Spinner
+// ═══════════════════════════════════════════════════════════════════════════
 
-/**
- * 创建控制台 Spinner
- */
 export interface Spinner {
     start: (message: string) => void;
     update: (message: string) => void;
@@ -147,45 +151,3 @@ export function createSpinner(): Spinner {
     };
 }
 
-/**
- * 操作结果摘要选项
- */
-export interface ResultSummaryOptions {
-    title: string;
-    items: Array<{
-        label: string;
-        value: string;
-        status?: 'success' | 'error' | 'info';
-    }>;
-    footer?: string;
-}
-
-/**
- * 渲染操作结果摘要（高亮 Box）
- */
-export function resultSummary(options: ResultSummaryOptions): void {
-    const { title, items, footer } = options;
-
-    console.log();
-    console.log(colors.bold(colors.primary(`┌─ ${title} ─`)));
-    console.log(colors.primary('│'));
-
-    for (const item of items) {
-        const statusIcon = item.status === 'success'
-            ? colors.success(symbols.success)
-            : item.status === 'error'
-                ? colors.error(symbols.error)
-                : colors.info(symbols.info);
-
-        console.log(colors.primary('│  ') + `${statusIcon} ${colors.bold(item.label)}: ${item.value}`);
-    }
-
-    console.log(colors.primary('│'));
-
-    if (footer) {
-        console.log(colors.primary('└─ ') + colors.muted(footer));
-    } else {
-        console.log(colors.primary('└─────'));
-    }
-    console.log();
-}

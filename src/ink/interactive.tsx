@@ -13,5 +13,6 @@ export async function main(): Promise<void> {
     initI18n();
 
     // 使用 ink 渲染主应用（语言选择在 App 内部处理）
-    render(<App />);
+    const { waitUntilExit } = render(<App />);
+    await waitUntilExit();
 }

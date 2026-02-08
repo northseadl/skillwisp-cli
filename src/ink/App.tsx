@@ -1,11 +1,11 @@
 /**
  * SkillWisp CLI - Ink 主应用
- * 
+ *
  * 使用 Flexbox 布局实现：
  * - 固定顶部 Header
  * - 中间内容区域（自动扩展）
  * - 固定底部 Footer（操作提示栏）
- * 
+ *
  * 特性：
  * - 纯 Ink 实现（无 clack 依赖）
  * - Nord-style 配色
@@ -13,22 +13,13 @@
  * - 语言选择集成
  */
 
-import { Box, Text, useApp, useInput } from 'ink';
-import Spinner from 'ink-spinner';
+import { Box, useApp, useInput } from 'ink';
 import { useState, useCallback, type ReactNode } from 'react';
-import { existsSync, readdirSync } from 'node:fs';
-import { join } from 'node:path';
 import {
     Header,
     Footer,
-    SelectMenu,
-    MultiSelectMenu,
-    TextInput,
-    InstallSummary,
-    LanguageSelector,
     type MenuItem
 } from './components/index.js';
-import { colors, symbols } from './theme.js';
 
 import {
     loadResources,
@@ -36,122 +27,21 @@ import {
     searchResources,
     getIndexVersion,
 } from '../core/registry.js';
-import { installResource, detectApps } from '../core/installer.js';
-import { getInstallRoot } from '../core/installPaths.js';
-import { getDefaultAgents } from '../core/preferences.js';
-import { PRIMARY_SOURCE, TARGET_APPS } from '../core/agents.js';
-import type { Resource, ResourceType } from '../core/types.js';
-import { RESOURCE_CONFIG, RESOURCE_TYPES } from '../core/types.js';
+import { installResource } from '../core/installer.js';
+import { uninstallResource } from '../core/manager.js';
+import { PRIMARY_SOURCE } from '../core/agents.js';
+import type { Resource } from '../core/types.js';
 import { CLI_VERSION } from '../core/version.js';
 import { needsLanguageSetup, setLocale, t, getLocaleData, type LocaleCode } from '../core/i18n.js';
-
-// ═══════════════════════════════════════════════════════════════════════════
-// 类型定义
-// ═══════════════════════════════════════════════════════════════════════════
-
-type Screen =
-    | 'language-select'
-    | 'main-menu'
-    | 'browse-search'
-    | 'browse-select'
-    | 'install-scope'
-    | 'install-targets'
-    | 'installing'
-    | 'install-complete'
-    | 'quick-install'
-    | 'quick-install-select'
-    | 'installed-list'
-    | 'help';
-
-type InstallScope = 'local' | 'global';
-
-interface InstalledItem {
-    id: string;
-    type: ResourceType;
-    scope: InstallScope;
-}
-
-interface InstallResult {
-    successCount: number;
-    failCount: number;
-    installedNames: string[];
-    targetApps: string[];
-}
-
-interface AppState {
-    screen: Screen;
-    searchQuery: string;
-    searchResults: Resource[];
-    selectedResources: string[];
-    installScope: InstallScope;
-    selectedTargets: string[];
-    installResult: InstallResult | null;
-    installedItems: InstalledItem[];
-    hint: string;
-    isInstalling: boolean;
-}
-
-// ═══════════════════════════════════════════════════════════════════════════
-// 辅助函数
-// ═══════════════════════════════════════════════════════════════════════════
-
-function formatResourceLabel(r: Resource): string {
-    const typeConfig = RESOURCE_CONFIG[r.type];
-    return `[${typeConfig.label}] ${r.name} @${r.source}`;
-}
-
-function truncate(str: string, maxLength: number): string {
-    if (str.length <= maxLength) return str;
-    return str.slice(0, maxLength - 1) + '…';
-}
-
-function scanInstalledPrimary(scope: InstallScope): InstalledItem[] {
-    const items: InstalledItem[] = [];
-
-    for (const type of RESOURCE_TYPES) {
-        const root = getInstallRoot(PRIMARY_SOURCE, type, scope);
-        if (!root || root.kind !== 'dir') continue;
-        if (!existsSync(root.dir)) continue;
-
-        try {
-            const entries = readdirSync(root.dir, { withFileTypes: true });
-            for (const entry of entries) {
-                if (!entry.isDirectory() && !entry.isSymbolicLink()) continue;
-                const resourceDir = join(root.dir, entry.name);
-                const entryFile = join(resourceDir, root.entryFile);
-                if (!existsSync(entryFile)) continue;
-                items.push({ id: entry.name, type, scope });
-            }
-        } catch {
-            // ignore permission errors
-        }
-    }
-
-    return items;
-}
-
-function loadInstalledItems(): InstalledItem[] {
-    const all = [
-        ...scanInstalledPrimary('local'),
-        ...scanInstalledPrimary('global'),
-    ];
-
-    const seen = new Set<string>();
-    const unique: InstalledItem[] = [];
-
-    for (const item of all) {
-        const key = `${item.scope}:${item.type}:${item.id}`;
-        if (seen.has(key)) continue;
-        seen.add(key);
-        unique.push(item);
-    }
-
-    return unique.sort((a, b) => {
-        if (a.scope !== b.scope) return a.scope.localeCompare(b.scope);
-        if (a.type !== b.type) return a.type.localeCompare(b.type);
-        return a.id.localeCompare(b.id);
-    });
-}
+import {
+    type Screen,
+    type AppState,
+    type InstallScope,
+    type InstallResult,
+    loadInstalledItems,
+    renderCurrentScreen,
+} from './app/index.js';
+import { createInstallResult } from './app/installResult.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // 主应用组件
@@ -170,11 +60,14 @@ export function App(): ReactNode {
         searchResults: [],
         selectedResources: [],
         installScope: 'local',
+        targetSort: 'default',
         selectedTargets: [],
         installResult: null,
         installedItems: [],
         hint: t('hint_navigation'),
         isInstalling: false,
+        managedItem: null,
+        manageMessage: '',
     });
 
     // 全局退出处理
@@ -272,22 +165,46 @@ export function App(): ReactNode {
     const handleSearchSubmit = useCallback((query: string) => {
         let resources: Resource[];
         if (query) {
+            // 有关键词：直接进入搜索结果列表
             resources = searchResources(query);
-        } else {
-            resources = loadResources();
-        }
-        resources = resources.map((r) => localizeResource(r, locale));
+            resources = resources.map((r) => localizeResource(r, locale));
 
-        if (resources.length === 0) {
-            navigate('main-menu');
+            if (resources.length === 0) {
+                navigate('browse-search', { hint: t('no_results') });
+                return;
+            }
+
+            navigate('browse-select', {
+                searchQuery: query,
+                searchResults: resources,
+            });
+        } else {
+            // 空搜索：进入分类浏览，按 source 分组展示
+            resources = loadResources();
+            resources = resources.map((r) => localizeResource(r, locale));
+
+            navigate('browse-category', {
+                searchQuery: '',
+                searchResults: resources,
+            });
+        }
+    }, [navigate, locale]);
+
+    const handleCategorySelect = useCallback((source: string) => {
+        if (source === '__all__') {
+            navigate('browse-select', {
+                searchQuery: '',
+                searchResults: state.searchResults,
+            });
             return;
         }
 
+        const filtered = state.searchResults.filter((r) => r.source === source);
         navigate('browse-select', {
-            searchQuery: query,
-            searchResults: resources,
+            searchQuery: `@${source}`,
+            searchResults: filtered,
         });
-    }, [navigate, locale]);
+    }, [navigate, state.searchResults]);
 
     // ═══════════════════════════════════════════════════════════════════════
     // 资源选择处理
@@ -306,7 +223,10 @@ export function App(): ReactNode {
     // ═══════════════════════════════════════════════════════════════════════
 
     const handleScopeSelect = useCallback((scope: string) => {
-        navigate('install-targets', { installScope: scope as InstallScope });
+        navigate('install-targets-sort', {
+            installScope: scope as InstallScope,
+            targetSort: 'default',
+        });
     }, [navigate]);
 
     // ═══════════════════════════════════════════════════════════════════════
@@ -334,6 +254,7 @@ export function App(): ReactNode {
             let successCount = 0;
             let failCount = 0;
             const installedNames = new Set<string>();
+            const compatNotes = new Set<string>();
 
             for (const resource of resources) {
                 const result = installResource(resource, {
@@ -344,18 +265,24 @@ export function App(): ReactNode {
                 if (result.success) {
                     successCount++;
                     installedNames.add(resource.name);
+                    if (result.compat && result.compat.length > 0) {
+                        for (const notice of result.compat) {
+                            const note = notice.note ? `${notice.name} → ${notice.note}` : notice.name;
+                            compatNotes.add(note);
+                        }
+                    }
                 } else {
                     failCount++;
                 }
             }
 
-            const result: InstallResult = {
+            const result: InstallResult = createInstallResult({
                 successCount,
                 failCount,
-                installedNames: Array.from(installedNames),
-                // 对用户只显示他们选择的目标应用，隐藏 PRIMARY_SOURCE
+                installedNames,
+                compatNotes,
                 targetApps: targets,
-            };
+            });
 
             navigate('install-complete', { installResult: result, isInstalling: false });
         }, 100);
@@ -379,218 +306,80 @@ export function App(): ReactNode {
     // ═══════════════════════════════════════════════════════════════════════
 
     useInput((input, key) => {
-        if ((state.screen === 'help' || state.screen === 'installed-list') && (key.return || key.escape)) {
+        if (state.screen === 'help' && (key.return || key.escape)) {
             navigate('main-menu');
+        }
+        // 管理结果页：任意键返回已安装列表（而非主菜单），方便用户继续管理
+        if (state.screen === 'manage-result' && (key.return || key.escape)) {
+            navigate('installed-list', { installedItems: loadInstalledItems() });
         }
     });
 
     // ═══════════════════════════════════════════════════════════════════════
-    // 渲染当前屏幕
+    // 管理操作处理
     // ═══════════════════════════════════════════════════════════════════════
 
-    const renderContent = (): ReactNode => {
-        switch (state.screen) {
-            case 'language-select':
-                return <LanguageSelector onSelect={handleLanguageSelect} />;
-
-            case 'main-menu':
-                return (
-                    <SelectMenu
-                        message={t('what_would_you_like')}
-                        items={mainMenuItems}
-                        onSelect={handleMainMenuSelect}
-                    />
-                );
-
-            case 'browse-search':
-                return (
-                    <TextInput
-                        message={t('search_prompt')}
-                        placeholder={t('search_placeholder')}
-                        onSubmit={handleSearchSubmit}
-                        onCancel={() => navigate('main-menu')}
-                    />
-                );
-
-            case 'quick-install':
-                return (
-                    <TextInput
-                        message={t('enter_resource_id')}
-                        placeholder={t('resource_id_placeholder')}
-                        onSubmit={handleQuickInstallSubmit}
-                        onCancel={() => navigate('main-menu')}
-                    />
-                );
-
-            case 'quick-install-select':
-                return (
-                    <SelectMenu
-                        message={t('found_matches')}
-                        items={state.searchResults.map((r) => ({
-                            label: formatResourceLabel(r),
-                            value: r.id,
-                            hint: truncate(r.description, 40),
-                        }))}
-                        onSelect={handleQuickInstallSelect}
-                        onCancel={() => navigate('quick-install')}
-                    />
-                );
-
-            case 'browse-select':
-                return (
-                    <MultiSelectMenu
-                        message={`${t('select_resources')} (${state.searchResults.length} ${t('available_count')})`}
-                        items={state.searchResults.map((r) => ({
-                            label: formatResourceLabel(r),
-                            value: r.id,
-                            hint: truncate(r.description, 40),
-                        }))}
-                        onSubmit={handleResourceSelect}
-                        onCancel={() => navigate('main-menu')}
-                    />
-                );
-
-            case 'install-scope':
-                return (
-                    <SelectMenu
-                        message={t('installation_scope')}
-                        items={[
-                            { label: t('scope_local'), value: 'local', hint: process.cwd() },
-                            { label: t('scope_global'), value: 'global', hint: '~/' },
-                        ]}
-                        onSelect={handleScopeSelect}
-                    />
-                );
-
-            case 'install-targets': {
-                const isGlobal = state.installScope === 'global';
-                const detectedSet = new Set(detectApps().map((a) => a.id));
-                // PRIMARY_SOURCE (.agents) 作为隐式主源，不在选项中显示
-                // 用户只需选择实际的 AI 应用，系统自动管理主副本
-                const options = TARGET_APPS.map((app) => ({
-                    label: `${app.name}${detectedSet.has(app.id) ? ' ✓' : ''}`,
-                    value: app.id,
-                    hint: isGlobal ? `~/${app.globalBaseDir || app.baseDir}` : app.baseDir,
-                }));
-
-                return (
-                    <MultiSelectMenu
-                        message={t('select_targets')}
-                        items={options}
-                        initialValues={getDefaultAgents()?.filter(id => id !== PRIMARY_SOURCE.id) || []}
-                        required={true}
-                        onSubmit={handleTargetsSubmit}
-                        onCancel={() => navigate('main-menu')}
-                    />
-                );
-            }
-
-            case 'installing':
-                return (
-                    <Box flexDirection="column" alignItems="center" marginTop={2}>
-                        <Box>
-                            <Text color={colors.primary}>
-                                <Spinner type="dots" />
-                            </Text>
-                            <Text> {t('installing')}...</Text>
-                        </Box>
-                        <Box marginTop={1}>
-                            <Text color={colors.textMuted}>
-                                {t('please_wait')}
-                            </Text>
-                        </Box>
-                    </Box>
-                );
-
-            case 'install-complete':
-                return (
-                    <Box flexDirection="column">
-                        {state.installResult && (
-                            <InstallSummary
-                                title={t('install_summary')}
-                                items={[
-                                    {
-                                        label: t('resources_installed'),
-                                        value: state.installResult.installedNames.join(', ') || '-',
-                                        status: state.installResult.successCount > 0 ? 'success' : 'info',
-                                    },
-                                    {
-                                        label: t('target_apps'),
-                                        value: state.installResult.targetApps.join(', '),
-                                        status: 'info',
-                                    },
-                                ]}
-                                footer={state.installResult.failCount > 0
-                                    ? `${state.installResult.failCount} ${t('install_failed')}`
-                                    : undefined
-                                }
-                            />
-                        )}
-                        <SelectMenu
-                            message={t('what_next')}
-                            items={[
-                                { label: t('go_home'), value: 'home' },
-                                { label: t('exit_now'), value: 'exit' },
-                            ]}
-                            onSelect={handlePostInstallSelect}
-                        />
-                    </Box>
-                );
-
-            case 'help':
-                return (
-                    <Box flexDirection="column" paddingX={2}>
-                        <Box marginBottom={1}>
-                            <Text color={colors.primary} bold>{symbols.info} {t('menu_help')}</Text>
-                        </Box>
-                        <Box flexDirection="column" marginLeft={2}>
-                            <Text color={colors.textDim}>• {t('menu_browse')} - {t('menu_browse_hint')}</Text>
-                            <Text color={colors.textDim}>• {t('menu_install')} - {t('menu_install_hint')}</Text>
-                            <Text color={colors.textDim}>• {t('menu_installed')} - {t('menu_installed_hint')}</Text>
-                        </Box>
-                        <Box marginTop={2}>
-                            <Text color={colors.textMuted}>{t('press_any_key_back')}</Text>
-                        </Box>
-                    </Box>
-                );
-
-            case 'installed-list': {
-                const items = state.installedItems;
-
-                return (
-                    <Box flexDirection="column" paddingX={2}>
-                        <Box marginBottom={1}>
-                            <Text color={colors.primary} bold>{symbols.info} {t('menu_installed')}</Text>
-                        </Box>
-                        {items.length === 0 ? (
-                            <Text color={colors.textMuted}>{t('no_results')}</Text>
-                        ) : (
-                            <Box flexDirection="column" marginLeft={2}>
-                                {items.map((item) => {
-                                    const typeLabel = RESOURCE_CONFIG[item.type].label;
-                                    const scopeHint = item.scope === 'global' ? ' [global]' : '';
-                                    return (
-                                        <Text
-                                            key={`${item.scope}:${item.type}:${item.id}`}
-                                            color={colors.textDim}
-                                        >
-                                            {symbols.pointerSmall} [{typeLabel}] {item.id}{scopeHint}
-                                        </Text>
-                                    );
-                                })}
-                            </Box>
-                        )}
-                        <Box marginTop={2}>
-                            <Text color={colors.textMuted}>{t('press_any_key_back')}</Text>
-                        </Box>
-                    </Box>
-                );
-            }
-
-            default:
-                return <Text>Unknown screen</Text>;
+    const handleManageItemSelect = useCallback((value: string) => {
+        const item = state.installedItems.find(
+            (i) => `${i.scope}:${i.type}:${i.id}` === value
+        );
+        if (item) {
+            navigate('manage-actions', { managedItem: item });
         }
-    };
+    }, [navigate, state.installedItems]);
+
+    const handleManageAction = useCallback((action: string) => {
+        if (!state.managedItem) return;
+
+        if (action === 'back') {
+            navigate('installed-list', { installedItems: loadInstalledItems() });
+            return;
+        }
+
+        if (action === 'uninstall') {
+            navigate('manage-confirm', { hint: '' });
+            return;
+        }
+    }, [navigate, state.managedItem]);
+
+    const handleManageConfirm = useCallback((value: string) => {
+        if (value === 'cancel' || !state.managedItem) {
+            navigate('manage-actions');
+            return;
+        }
+
+        const { id, type, scope } = state.managedItem;
+        const result = uninstallResource(id, type, scope);
+        const msg = result.success
+            ? `✓ ${id} 已完全卸载（清理了 ${result.removedPaths.length} 个位置）`
+            : `✗ 卸载失败: ${result.error}`;
+        navigate('manage-result', {
+            manageMessage: msg,
+            managedItem: null,
+            installedItems: loadInstalledItems(),
+        });
+    }, [navigate, state.managedItem]);
+
+    const renderContent = (): ReactNode => renderCurrentScreen({
+        state,
+        mainMenuItems,
+        handlers: {
+            handleLanguageSelect,
+            handleMainMenuSelect,
+            handleSearchSubmit,
+            handleCategorySelect,
+            handleQuickInstallSubmit,
+            handleQuickInstallSelect,
+            handleResourceSelect,
+            handleScopeSelect,
+            handleTargetsSubmit,
+            handlePostInstallSelect,
+            handleManageItemSelect,
+            handleManageAction,
+            handleManageConfirm,
+            navigate,
+        },
+    });
 
     // 语言选择页面不显示 Header/Footer
     if (state.screen === 'language-select') {

@@ -14,26 +14,16 @@
  */
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync, renameSync } from 'node:fs';
-import { join, dirname } from 'node:path';
-import { homedir, tmpdir } from 'node:os';
-import { fileURLToPath } from 'node:url';
+import { join } from 'node:path';
+import { tmpdir } from 'node:os';
 import { parse as parseYaml } from 'yaml';
 
 import type { IndexData, UpdateMeta, SourcesConfig } from './types.js';
 import { CLI_VERSION, isVersionLower } from './version.js';
 import { loadPreferences } from './preferences.js';
+import { USER_DATA_DIR, USER_REGISTRY_DIR, META_FILE, findBuiltinRegistryDir } from './paths.js';
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-
-// ═══════════════════════════════════════════════════════════════════════════
-// 路径定义
-// ═══════════════════════════════════════════════════════════════════════════
-
-const USER_DATA_DIR = join(homedir(), '.agents', '.skillwisp');
-const USER_REGISTRY_DIR = join(USER_DATA_DIR, 'cache');
-const META_FILE = join(USER_DATA_DIR, 'meta.json');
-
-export { USER_REGISTRY_DIR };
+export { USER_DATA_DIR, USER_REGISTRY_DIR, META_FILE } from './paths.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // 元信息管理
@@ -58,14 +48,6 @@ function saveUpdateMeta(meta: UpdateMeta): void {
 // ═══════════════════════════════════════════════════════════════════════════
 // 源配置加载
 // ═══════════════════════════════════════════════════════════════════════════
-
-function findBuiltinRegistryDir(): string {
-    const devPath = join(__dirname, '../../registry');
-    if (existsSync(devPath)) return devPath;
-    const distPath = join(__dirname, '../registry');
-    if (existsSync(distPath)) return distPath;
-    throw new Error('Built-in registry directory not found');
-}
 
 function loadSourcesConfig(): SourcesConfig {
     const builtinDir = findBuiltinRegistryDir();

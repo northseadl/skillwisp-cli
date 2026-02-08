@@ -437,13 +437,6 @@ skills:
     description: React composition patterns that scale. Avoid boolean prop proliferation through compound components.
     tags: [react, patterns, components]
 
-  - id: claude-ai
-    source: vercel
-    path: "@vercel/claude.ai"
-    name: Claude.ai Integration
-    description: Vercel's Claude.ai integration skill.
-    tags: [claude, ai, integration]
-
   # Obsidian Skills
   - id: obsidian-markdown
     source: obsidian
@@ -596,7 +589,7 @@ skills:
   # Playwright Skill
   - id: playwright
     source: lackeyjb
-    path: "@lackeyjb/playwright"
+    path: "@lackeyjb/playwright-skill"
     name: Playwright
     description: Browser automation with Playwright. Claude writes and executes custom automation for testing and validation.
     tags: [browser, automation, testing]

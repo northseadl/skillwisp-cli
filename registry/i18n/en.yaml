@@ -24,6 +24,11 @@ ui:
   select_targets: "Select apps to install to"
   select_targets_hint: "←→ move · Space select · Enter confirm"
   detected_mark: " ✓"
+  target_sort: "Sort target apps"
+  target_sort_default: "Default (popular)"
+  target_sort_default_hint: "Based on overall popularity signals"
+  target_sort_az: "A-Z"
+  target_sort_az_hint: "Alphabetical by name"
 
   # Browse
   search_prompt: "Search resources (leave empty for all)"
@@ -93,6 +98,7 @@ ui:
   install_summary: "Installation Summary"
   resources_installed: "Resources installed"
   target_apps: "Target apps"
+  compat_notice: "Compatibility"
   hint_navigation: "Use arrow keys to navigate, Enter to select"
 
   # Additional UI

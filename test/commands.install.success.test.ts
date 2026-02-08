@@ -17,7 +17,8 @@ describe('commands/install (success and failure paths)', () => {
         });
         const checkExists = vi.fn().mockReturnValue([]);
 
-        vi.doMock('../src/core/installer.js', () => ({ installResource, checkExists }));
+        const resolveInstallTargets = vi.fn((agentIds: string[]) => ({ agentIds, compat: [] }));
+        vi.doMock('../src/core/installer.js', () => ({ installResource, checkExists, resolveInstallTargets }));
 
         const { install } = await import('../src/commands/install.js');
         const c = captureConsole();
@@ -38,13 +39,14 @@ describe('commands/install (success and failure paths)', () => {
             success: true,
             targets: [
                 { agent: 'agents', path: '/tmp/.agents/skills/pdf', type: 'copy' },
-                { agent: 'claude', path: '/tmp/.claude/skills/pdf', type: 'link' },
+                { agent: 'claude-code', path: '/tmp/.claude/skills/pdf', type: 'link' },
             ],
             primaryPath: '/tmp/.agents/skills/pdf',
         });
         const checkExists = vi.fn().mockReturnValue([]);
 
-        vi.doMock('../src/core/installer.js', () => ({ installResource, checkExists }));
+        const resolveInstallTargets = vi.fn((agentIds: string[]) => ({ agentIds, compat: [] }));
+        vi.doMock('../src/core/installer.js', () => ({ installResource, checkExists, resolveInstallTargets }));
 
         // Mock spinner to capture its output
         const spinnerOutput: string[] = [];
@@ -53,7 +55,7 @@ describe('commands/install (success and failure paths)', () => {
             update: vi.fn(),
             stop: (msg: string) => spinnerOutput.push(msg),
         };
-        vi.doMock('../src/ink/utils/index.js', async (importOriginal) => {
+        vi.doMock('../src/core/terminal.js', async (importOriginal) => {
             const original = await importOriginal() as Record<string, unknown>;
             return {
                 ...original,
@@ -93,7 +95,8 @@ describe('commands/install (success and failure paths)', () => {
             targets: [],
         });
         const checkExists = vi.fn().mockReturnValue([]);
-        vi.doMock('../src/core/installer.js', () => ({ installResource, checkExists }));
+        const resolveInstallTargets = vi.fn((agentIds: string[]) => ({ agentIds, compat: [] }));
+        vi.doMock('../src/core/installer.js', () => ({ installResource, checkExists, resolveInstallTargets }));
 
         const { install } = await import('../src/commands/install.js');
         const exitSpy = mockProcessExit();
@@ -115,7 +118,8 @@ describe('commands/install (success and failure paths)', () => {
             throw new Error('boom');
         });
         const checkExists = vi.fn().mockReturnValue([]);
-        vi.doMock('../src/core/installer.js', () => ({ installResource, checkExists }));
+        const resolveInstallTargets = vi.fn((agentIds: string[]) => ({ agentIds, compat: [] }));
+        vi.doMock('../src/core/installer.js', () => ({ installResource, checkExists, resolveInstallTargets }));
 
         const { install } = await import('../src/commands/install.js');
         const exitSpy = mockProcessExit();
