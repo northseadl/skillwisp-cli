@@ -11,4 +11,6 @@ coverage/
 .cursor/
 .gemini/
 .codex/
+.kiro/
+.windsurf/
 .github/copilot-instructions.md
