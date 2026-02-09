@@ -624,6 +624,13 @@ skills:
     tags: [netlify, deploy, hosting]
 
   - id: vercel-deploy
+    source: vercel
+    path: "@vercel/vercel-deploy"
+    name: Vercel Deploy
+    description: Deploy applications to Vercel.
+    tags: [vercel, deploy, hosting]
+
+  - id: vercel-deploy
     source: openai
     path: "@openai/vercel-deploy"
     name: Vercel Deploy
